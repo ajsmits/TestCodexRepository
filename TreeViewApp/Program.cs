@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using System.Windows.Forms;
 
 namespace TreeViewApp
@@ -10,8 +11,17 @@ namespace TreeViewApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            var connectionString = Environment.GetEnvironmentVariable("COMPANY_DB_CONNECTION_STRING")
-                ?? "Data Source=localhost;Initial Catalog=WebUI;Integrated Security=True";
+            var connectionString = ConfigurationManager.ConnectionStrings["CompanyDb"]?.ConnectionString;
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                MessageBox.Show(
+                    "Connection string 'CompanyDb' is missing from configuration.",
+                    "Configuration Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
 
             Application.Run(new MainForm(connectionString));
         }
