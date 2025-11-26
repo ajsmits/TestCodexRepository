@@ -28,6 +28,7 @@ namespace TreeViewApp
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tableLayoutPanelMain = new System.Windows.Forms.TableLayoutPanel();
             this.splitContainerMain = new System.Windows.Forms.SplitContainer();
             this.flowLayoutPanelEnvironment = new System.Windows.Forms.FlowLayoutPanel();
@@ -35,17 +36,23 @@ namespace TreeViewApp
             this.comboBoxEnvironment = new System.Windows.Forms.ComboBox();
             this.buttonSelectAll = new System.Windows.Forms.Button();
             this.buttonDeselectAll = new System.Windows.Forms.Button();
-            this.buttonSelectServer = new System.Windows.Forms.Button();
-            this.buttonDeselectServer = new System.Windows.Forms.Button();
             this.labelWarning = new System.Windows.Forms.Label();
             this.treeViewCategories = new System.Windows.Forms.TreeView();
             this.textBoxSql = new System.Windows.Forms.TextBox();
+            this.flowLayoutPanelActions = new System.Windows.Forms.FlowLayoutPanel();
+            this.buttonRun = new System.Windows.Forms.Button();
+            this.buttonClear = new System.Windows.Forms.Button();
+            this.contextMenuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItemSelectServer = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemDeselectServer = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanelMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
             this.splitContainerMain.Panel1.SuspendLayout();
             this.splitContainerMain.Panel2.SuspendLayout();
             this.splitContainerMain.SuspendLayout();
             this.flowLayoutPanelEnvironment.SuspendLayout();
+            this.flowLayoutPanelActions.SuspendLayout();
+            this.contextMenuTree.SuspendLayout();
             this.SuspendLayout();
             //
             // tableLayoutPanelMain
@@ -54,12 +61,14 @@ namespace TreeViewApp
             this.tableLayoutPanelMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanelMain.Controls.Add(this.flowLayoutPanelEnvironment, 0, 0);
             this.tableLayoutPanelMain.Controls.Add(this.splitContainerMain, 0, 1);
+            this.tableLayoutPanelMain.Controls.Add(this.flowLayoutPanelActions, 0, 2);
             this.tableLayoutPanelMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanelMain.Location = new System.Drawing.Point(12, 12);
             this.tableLayoutPanelMain.Name = "tableLayoutPanelMain";
-            this.tableLayoutPanelMain.RowCount = 2;
+            this.tableLayoutPanelMain.RowCount = 3;
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelMain.Size = new System.Drawing.Size(860, 487);
             this.tableLayoutPanelMain.TabIndex = 0;
             //
@@ -76,7 +85,7 @@ namespace TreeViewApp
             // splitContainerMain.Panel2
             //
             this.splitContainerMain.Panel2.Controls.Add(this.textBoxSql);
-            this.splitContainerMain.Size = new System.Drawing.Size(854, 440);
+            this.splitContainerMain.Size = new System.Drawing.Size(854, 404);
             this.splitContainerMain.SplitterDistance = 278;
             this.splitContainerMain.TabIndex = 2;
             //
@@ -88,8 +97,6 @@ namespace TreeViewApp
             this.flowLayoutPanelEnvironment.Controls.Add(this.comboBoxEnvironment);
             this.flowLayoutPanelEnvironment.Controls.Add(this.buttonSelectAll);
             this.flowLayoutPanelEnvironment.Controls.Add(this.buttonDeselectAll);
-            this.flowLayoutPanelEnvironment.Controls.Add(this.buttonSelectServer);
-            this.flowLayoutPanelEnvironment.Controls.Add(this.buttonDeselectServer);
             this.flowLayoutPanelEnvironment.Controls.Add(this.labelWarning);
             this.flowLayoutPanelEnvironment.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanelEnvironment.Location = new System.Drawing.Point(3, 3);
@@ -141,32 +148,12 @@ namespace TreeViewApp
             this.buttonDeselectAll.Text = "Deselect All";
             this.buttonDeselectAll.UseVisualStyleBackColor = true;
             //
-            // buttonSelectServer
-            //
-            this.buttonSelectServer.AutoSize = true;
-            this.buttonSelectServer.Location = new System.Drawing.Point(454, 6);
-            this.buttonSelectServer.Name = "buttonSelectServer";
-            this.buttonSelectServer.Size = new System.Drawing.Size(111, 25);
-            this.buttonSelectServer.TabIndex = 4;
-            this.buttonSelectServer.Text = "Select Server";
-            this.buttonSelectServer.UseVisualStyleBackColor = true;
-            //
-            // buttonDeselectServer
-            //
-            this.buttonDeselectServer.AutoSize = true;
-            this.buttonDeselectServer.Location = new System.Drawing.Point(571, 6);
-            this.buttonDeselectServer.Name = "buttonDeselectServer";
-            this.buttonDeselectServer.Size = new System.Drawing.Size(124, 25);
-            this.buttonDeselectServer.TabIndex = 5;
-            this.buttonDeselectServer.Text = "Deselect Server";
-            this.buttonDeselectServer.UseVisualStyleBackColor = true;
-            //
             // labelWarning
             //
             this.labelWarning.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelWarning.AutoSize = true;
             this.labelWarning.ForeColor = System.Drawing.Color.DarkRed;
-            this.labelWarning.Location = new System.Drawing.Point(698, 10);
+            this.labelWarning.Location = new System.Drawing.Point(454, 10);
             this.labelWarning.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.labelWarning.Name = "labelWarning";
             this.labelWarning.Size = new System.Drawing.Size(0, 15);
@@ -176,10 +163,11 @@ namespace TreeViewApp
             // treeViewCategories
             //
             this.treeViewCategories.CheckBoxes = true;
+            this.treeViewCategories.ContextMenuStrip = this.contextMenuTree;
             this.treeViewCategories.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeViewCategories.Location = new System.Drawing.Point(0, 0);
             this.treeViewCategories.Name = "treeViewCategories";
-            this.treeViewCategories.Size = new System.Drawing.Size(278, 440);
+            this.treeViewCategories.Size = new System.Drawing.Size(278, 404);
             this.treeViewCategories.TabIndex = 0;
             //
             // textBoxSql
@@ -192,9 +180,66 @@ namespace TreeViewApp
             this.textBoxSql.Multiline = true;
             this.textBoxSql.Name = "textBoxSql";
             this.textBoxSql.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxSql.Size = new System.Drawing.Size(572, 440);
+            this.textBoxSql.Size = new System.Drawing.Size(572, 404);
             this.textBoxSql.TabIndex = 3;
             this.textBoxSql.WordWrap = false;
+            //
+            // flowLayoutPanelActions
+            //
+            this.flowLayoutPanelActions.AutoSize = true;
+            this.flowLayoutPanelActions.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelActions.Controls.Add(this.buttonRun);
+            this.flowLayoutPanelActions.Controls.Add(this.buttonClear);
+            this.flowLayoutPanelActions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelActions.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanelActions.Location = new System.Drawing.Point(3, 454);
+            this.flowLayoutPanelActions.Name = "flowLayoutPanelActions";
+            this.flowLayoutPanelActions.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
+            this.flowLayoutPanelActions.Size = new System.Drawing.Size(854, 30);
+            this.flowLayoutPanelActions.TabIndex = 3;
+            this.flowLayoutPanelActions.WrapContents = false;
+            //
+            // buttonRun
+            //
+            this.buttonRun.AutoSize = true;
+            this.buttonRun.Location = new System.Drawing.Point(781, 9);
+            this.buttonRun.Margin = new System.Windows.Forms.Padding(3, 3, 3, 9);
+            this.buttonRun.Name = "buttonRun";
+            this.buttonRun.Size = new System.Drawing.Size(70, 25);
+            this.buttonRun.TabIndex = 0;
+            this.buttonRun.Text = "Run";
+            this.buttonRun.UseVisualStyleBackColor = true;
+            //
+            // buttonClear
+            //
+            this.buttonClear.AutoSize = true;
+            this.buttonClear.Location = new System.Drawing.Point(705, 9);
+            this.buttonClear.Margin = new System.Windows.Forms.Padding(3, 3, 3, 9);
+            this.buttonClear.Name = "buttonClear";
+            this.buttonClear.Size = new System.Drawing.Size(70, 25);
+            this.buttonClear.TabIndex = 1;
+            this.buttonClear.Text = "Clear";
+            this.buttonClear.UseVisualStyleBackColor = true;
+            //
+            // contextMenuTree
+            //
+            this.contextMenuTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemSelectServer,
+            this.toolStripMenuItemDeselectServer});
+            this.contextMenuTree.Name = "contextMenuTree";
+            this.contextMenuTree.Size = new System.Drawing.Size(176, 48);
+            //
+            // toolStripMenuItemSelectServer
+            //
+            this.toolStripMenuItemSelectServer.Name = "toolStripMenuItemSelectServer";
+            this.toolStripMenuItemSelectServer.Size = new System.Drawing.Size(175, 22);
+            this.toolStripMenuItemSelectServer.Text = "Select Server";
+            //
+            // toolStripMenuItemDeselectServer
+            //
+            this.toolStripMenuItemDeselectServer.Name = "toolStripMenuItemDeselectServer";
+            this.toolStripMenuItemDeselectServer.Size = new System.Drawing.Size(175, 22);
+            this.toolStripMenuItemDeselectServer.Text = "Deselect Server";
             //
             // MainForm
             //
@@ -209,6 +254,9 @@ namespace TreeViewApp
             this.tableLayoutPanelMain.PerformLayout();
             this.flowLayoutPanelEnvironment.ResumeLayout(false);
             this.flowLayoutPanelEnvironment.PerformLayout();
+            this.flowLayoutPanelActions.ResumeLayout(false);
+            this.flowLayoutPanelActions.PerformLayout();
+            this.contextMenuTree.ResumeLayout(false);
             this.splitContainerMain.Panel1.ResumeLayout(false);
             this.splitContainerMain.Panel2.ResumeLayout(false);
             this.splitContainerMain.Panel2.PerformLayout();
@@ -230,7 +278,11 @@ namespace TreeViewApp
         private System.Windows.Forms.Label labelWarning;
         private System.Windows.Forms.Button buttonSelectAll;
         private System.Windows.Forms.Button buttonDeselectAll;
-        private System.Windows.Forms.Button buttonSelectServer;
-        private System.Windows.Forms.Button buttonDeselectServer;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelActions;
+        private System.Windows.Forms.Button buttonRun;
+        private System.Windows.Forms.Button buttonClear;
+        private System.Windows.Forms.ContextMenuStrip contextMenuTree;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSelectServer;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDeselectServer;
     }
 }

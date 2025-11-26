@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 
@@ -13,10 +15,14 @@ namespace TreeViewApp
             comboBoxEnvironment.SelectedIndexChanged += ComboBoxEnvironment_SelectedIndexChanged;
             textBoxSql.TextChanged += TextBoxSql_TextChanged;
             treeViewCategories.AfterCheck += TreeViewCategories_AfterCheck;
+            treeViewCategories.NodeMouseClick += TreeViewCategories_NodeMouseClick;
             buttonSelectAll.Click += (_, _) => SetAllNodesChecked(true);
             buttonDeselectAll.Click += (_, _) => SetAllNodesChecked(false);
-            buttonSelectServer.Click += (_, _) => SetSelectedServerChecked(true);
-            buttonDeselectServer.Click += (_, _) => SetSelectedServerChecked(false);
+            buttonRun.Click += (_, _) => HandleRunClick();
+            buttonClear.Click += (_, _) => HandleClearClick();
+            contextMenuTree.Opening += ContextMenuTree_Opening;
+            toolStripMenuItemSelectServer.Click += (_, _) => SetSelectedServerChecked(true);
+            toolStripMenuItemDeselectServer.Click += (_, _) => SetSelectedServerChecked(false);
             comboBoxEnvironment.SelectedIndex = 0;
         }
 
@@ -136,8 +142,7 @@ namespace TreeViewApp
 
         private void SetSelectedServerChecked(bool isChecked)
         {
-            var serverNode = GetServerNode(treeViewCategories.SelectedNode);
-            if (serverNode is null)
+            if (treeViewCategories.SelectedNode is null || treeViewCategories.SelectedNode.Parent is not null)
             {
                 return;
             }
@@ -145,9 +150,8 @@ namespace TreeViewApp
             _isUpdatingChecks = true;
             try
             {
-                serverNode.Checked = isChecked;
-                SetChildrenChecked(serverNode, isChecked);
-                UpdateParentCheckState(serverNode.Parent);
+                treeViewCategories.SelectedNode.Checked = isChecked;
+                SetChildrenChecked(treeViewCategories.SelectedNode, isChecked);
             }
             finally
             {
@@ -164,12 +168,100 @@ namespace TreeViewApp
             }
         }
 
+        private void HandleRunClick()
+        {
+            var selectedCount = CountCheckedDatabases();
+
+            if (selectedCount == 0)
+            {
+                MessageBox.Show("No databases are selected.", "Run", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var confirmResult = MessageBox.Show(
+                $"Run against {selectedCount} selected database(s)?",
+                "Confirm Run",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirmResult == DialogResult.Yes)
+            {
+                MessageBox.Show("Run confirmed.", "Run", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void HandleClearClick()
+        {
+            var clearResult = MessageBox.Show("Do you want to clear selections and the current script?", "Clear", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (clearResult != DialogResult.Yes)
+            {
+                return;
+            }
+
+            var saveResult = MessageBox.Show("Do you want to save your script before clearing?", "Save Script", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (saveResult == DialogResult.Yes)
+            {
+                SaveScriptToFile();
+            }
+
+            SetAllNodesChecked(false);
+            textBoxSql.Clear();
+        }
+
+        private void SaveScriptToFile()
+        {
+            using var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "SQL files (*.sql)|*.sql|All files (*.*)|*.*",
+                DefaultExt = "sql",
+                FileName = "script.sql"
+            };
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                File.WriteAllText(saveFileDialog.FileName, textBoxSql.Text);
+            }
+        }
+
+        private int CountCheckedDatabases()
+        {
+            var count = 0;
+            foreach (TreeNode serverNode in treeViewCategories.Nodes)
+            {
+                foreach (TreeNode databaseNode in serverNode.Nodes)
+                {
+                    if (databaseNode.Checked)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            return count;
+        }
+
         private void SetChildrenChecked(TreeNode parent, bool isChecked)
         {
             foreach (TreeNode child in parent.Nodes)
             {
                 child.Checked = isChecked;
                 SetChildrenChecked(child, isChecked);
+            }
+        }
+
+        private void TreeViewCategories_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            treeViewCategories.SelectedNode = e.Node;
+        }
+
+        private void ContextMenuTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            bool isServerNode = treeViewCategories.SelectedNode is { Parent: null };
+            toolStripMenuItemSelectServer.Enabled = isServerNode;
+            toolStripMenuItemDeselectServer.Enabled = isServerNode;
+            if (!isServerNode)
+            {
+                e.Cancel = true;
             }
         }
 
@@ -192,16 +284,6 @@ namespace TreeViewApp
 
             node.Checked = allChecked;
             UpdateParentCheckState(node.Parent);
-        }
-
-        private static TreeNode? GetServerNode(TreeNode? node)
-        {
-            return node switch
-            {
-                null => null,
-                { Level: 0 } => node,
-                _ => node.Parent
-            };
         }
 
         private sealed record SqlServerNode(string ServerName, IEnumerable<string> Databases);
