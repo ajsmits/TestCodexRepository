@@ -10,7 +10,10 @@ namespace TreeViewApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            var connectionString = Environment.GetEnvironmentVariable("COMPANY_DB_CONNECTION_STRING")
+                ?? "Data Source=localhost;Initial Catalog=WebUI;Integrated Security=True";
+
+            Application.Run(new MainForm(connectionString));
         }
     }
 }

@@ -2,15 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace TreeViewApp
 {
     public partial class MainForm : Form
     {
-        public MainForm()
+        private readonly string _companyConnectionString;
+        private IReadOnlyList<Company> _companies = Array.Empty<Company>();
+
+        public MainForm(string companyConnectionString)
         {
+            _companyConnectionString = companyConnectionString;
             InitializeComponent();
             comboBoxEnvironment.SelectedIndexChanged += ComboBoxEnvironment_SelectedIndexChanged;
             textBoxSql.TextChanged += TextBoxSql_TextChanged;
@@ -23,6 +29,7 @@ namespace TreeViewApp
             contextMenuTree.Opening += ContextMenuTree_Opening;
             toolStripMenuItemSelectServer.Click += (_, _) => SetSelectedServerChecked(true);
             toolStripMenuItemDeselectServer.Click += (_, _) => SetSelectedServerChecked(false);
+            Load += async (_, _) => await LoadCompaniesAsync();
             comboBoxEnvironment.SelectedIndex = 0;
         }
 
@@ -30,7 +37,7 @@ namespace TreeViewApp
         private bool _isUpdatingChecks;
 
         /// <summary>
-        /// Populates the tree view with sample SQL servers and databases.
+        /// Populates the tree view with SQL servers and databases derived from loaded companies.
         /// </summary>
         private void PopulateTreeView()
         {
@@ -91,27 +98,68 @@ namespace TreeViewApp
             }
         }
 
+        private async Task LoadCompaniesAsync()
+        {
+            try
+            {
+                _companies = await Company.GetCompaniesAsync(_companyConnectionString);
+                PopulateTreeView();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load companies: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private IEnumerable<SqlServerNode> GetEnvironmentServers()
         {
-            var servers = new Dictionary<string, List<SqlServerNode>>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["UAT"] = new List<SqlServerNode>
-                {
-                    new SqlServerNode("uat-sql-01", new[] { "SalesDb_UAT", "Reporting_UAT", "Archive_UAT" }),
-                    new SqlServerNode("uat-sql-02", new[] { "Inventory_UAT", "Operations_UAT" })
-                },
-                ["Production"] = new List<SqlServerNode>
-                {
-                    new SqlServerNode("prod-sql-01", new[] { "SalesDb", "Reporting", "Compliance" }),
-                    new SqlServerNode("prod-sql-02", new[] { "Inventory", "Operations", "Telemetry" })
-                }
-            };
-
             var environment = comboBoxEnvironment.SelectedItem as string ?? "UAT";
 
-            return servers.TryGetValue(environment, out var nodes)
-                ? nodes
-                : Array.Empty<SqlServerNode>();
+            return BuildServersFromCompanies(_companies, environment).ToArray();
+        }
+
+        private static IEnumerable<SqlServerNode> BuildServersFromCompanies(IEnumerable<Company> companies, string environment)
+        {
+            var isUat = environment.Equals("UAT", StringComparison.OrdinalIgnoreCase);
+            var serverLookup = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var company in companies)
+            {
+                var connectionString = isUat ? company.ConnectionString_UAT : company.ConnectionString_Live;
+                if (string.IsNullOrWhiteSpace(connectionString))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
+                    var server = builder.DataSource;
+                    var database = builder.InitialCatalog;
+
+                    if (string.IsNullOrWhiteSpace(server) || string.IsNullOrWhiteSpace(database))
+                    {
+                        continue;
+                    }
+
+                    if (!serverLookup.TryGetValue(server, out var databases))
+                    {
+                        databases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        serverLookup[server] = databases;
+                    }
+
+                    databases.Add(database);
+                }
+                catch (ArgumentException)
+                {
+                    // Ignore invalid connection strings while compiling tree nodes.
+                }
+            }
+
+            foreach (var kvp in serverLookup)
+            {
+                yield return new SqlServerNode(kvp.Key, kvp.Value.OrderBy(name => name, StringComparer.OrdinalIgnoreCase));
+            }
         }
 
         private static string? FindBannedWord(string text)
