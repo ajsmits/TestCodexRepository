@@ -19,6 +19,9 @@ namespace SqlSafe
         private readonly string _companyConnectionString;
         private readonly bool _allowProductionRun;
         private IReadOnlyList<Company> _companies = Array.Empty<Company>();
+        private IReadOnlyList<SqlServerNode> _environmentServers = Array.Empty<SqlServerNode>();
+        private Dictionary<string, Dictionary<string, string>> _connectionLookup = new(StringComparer.OrdinalIgnoreCase);
+        private List<ViewComparisonRow> _viewComparisons = new();
 
         public MainForm(string companyConnectionString)
         {
@@ -45,6 +48,10 @@ namespace SqlSafe
             toolStripMenuItemCopyScript.Click += ToolStripMenuItemCopyScript_Click;
             toolStripMenuItemCopyError.Click += ToolStripMenuItemCopyError_Click;
             toolStripMenuItemRetry.Click += ToolStripMenuItemRetry_Click;
+            comboBoxViewPrimaryServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxViewPrimaryServer, comboBoxViewPrimaryDatabase);
+            comboBoxViewCompareServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxViewCompareServer, comboBoxViewCompareDatabase);
+            buttonLoadViews.Click += async (_, _) => await LoadViewsAsync();
+            textBoxViewSearch.TextChanged += (_, _) => ApplyViewFilter();
             Load += async (_, _) => await InitializeDataAsync();
             comboBoxEnvironment.SelectedIndex = 0;
             UpdateRunButtonState();
@@ -73,7 +80,9 @@ namespace SqlSafe
             treeViewCategories.BeginUpdate();
             treeViewCategories.Nodes.Clear();
 
-            foreach (var server in GetEnvironmentServers())
+            _environmentServers = GetEnvironmentServers();
+
+            foreach (var server in _environmentServers)
             {
                 var serverNode = new TreeNode(server.ServerName);
                 foreach (var database in server.Databases)
@@ -91,6 +100,7 @@ namespace SqlSafe
 
             treeViewCategories.ExpandAll();
             treeViewCategories.EndUpdate();
+            UpdateViewSelectors(_environmentServers);
         }
 
         private void TreeViewCategories_AfterCheck(object sender, TreeViewEventArgs e)
@@ -463,11 +473,11 @@ namespace SqlSafe
             }
         }
 
-        private IEnumerable<SqlServerNode> GetEnvironmentServers()
+        private IReadOnlyList<SqlServerNode> GetEnvironmentServers()
         {
             var environment = comboBoxEnvironment.SelectedItem as string ?? "UAT";
 
-            return BuildServersFromCompanies(_companies, environment).ToArray();
+            return BuildServersFromCompanies(_companies, environment).ToList();
         }
 
         private static IEnumerable<SqlServerNode> BuildServersFromCompanies(IEnumerable<Company> companies, string environment)
@@ -520,6 +530,242 @@ namespace SqlSafe
 
                 yield return new SqlServerNode(kvp.Key, databases);
             }
+        }
+
+        private void UpdateViewSelectors(IReadOnlyList<SqlServerNode> servers)
+        {
+            _connectionLookup = BuildConnectionLookup(servers);
+            PopulateServerCombo(comboBoxViewPrimaryServer, servers.Select(s => s.ServerName));
+            PopulateServerCombo(comboBoxViewCompareServer, servers.Select(s => s.ServerName));
+            UpdateDatabaseCombo(comboBoxViewPrimaryServer, comboBoxViewPrimaryDatabase);
+            UpdateDatabaseCombo(comboBoxViewCompareServer, comboBoxViewCompareDatabase);
+            _viewComparisons.Clear();
+            dataGridViewViewComparison.DataSource = null;
+        }
+
+        private static Dictionary<string, Dictionary<string, string>> BuildConnectionLookup(IEnumerable<SqlServerNode> servers)
+        {
+            var lookup = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var server in servers)
+            {
+                if (!lookup.TryGetValue(server.ServerName, out var databases))
+                {
+                    databases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                    lookup[server.ServerName] = databases;
+                }
+
+                foreach (var database in server.Databases)
+                {
+                    if (!databases.ContainsKey(database.Name))
+                    {
+                        databases[database.Name] = database.ConnectionString;
+                    }
+                }
+            }
+
+            return lookup;
+        }
+
+        private void PopulateServerCombo(ComboBox comboBox, IEnumerable<string> serverNames)
+        {
+            var previousSelection = comboBox.SelectedItem as string;
+            var options = serverNames.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList();
+
+            comboBox.DataSource = options;
+
+            if (comboBox.SelectedIndex < 0 && options.Count > 0)
+            {
+                comboBox.SelectedIndex = 0;
+            }
+
+            if (previousSelection is not null)
+            {
+                var match = options.FirstOrDefault(x => x.Equals(previousSelection, StringComparison.OrdinalIgnoreCase));
+                if (match is not null)
+                {
+                    comboBox.SelectedItem = match;
+                }
+            }
+        }
+
+        private void UpdateDatabaseCombo(ComboBox serverCombo, ComboBox databaseCombo)
+        {
+            var server = serverCombo.SelectedItem as string;
+            if (server is null || !_connectionLookup.TryGetValue(server, out var databases))
+            {
+                databaseCombo.DataSource = null;
+                return;
+            }
+
+            var previousSelection = databaseCombo.SelectedItem as string;
+            var options = databases.Keys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList();
+            databaseCombo.DataSource = options;
+
+            if (databaseCombo.SelectedIndex < 0 && options.Count > 0)
+            {
+                databaseCombo.SelectedIndex = 0;
+            }
+
+            if (previousSelection is not null)
+            {
+                var match = options.FirstOrDefault(x => x.Equals(previousSelection, StringComparison.OrdinalIgnoreCase));
+                if (match is not null)
+                {
+                    databaseCombo.SelectedItem = match;
+                }
+            }
+        }
+
+        private string? GetSelectedConnectionString(ComboBox serverCombo, ComboBox databaseCombo)
+        {
+            var server = serverCombo.SelectedItem as string;
+            var database = databaseCombo.SelectedItem as string;
+
+            if (server is null || database is null)
+            {
+                return null;
+            }
+
+            return _connectionLookup.TryGetValue(server, out var databases) && databases.TryGetValue(database, out var connectionString)
+                ? connectionString
+                : null;
+        }
+
+        private async Task LoadViewsAsync()
+        {
+            var primaryConnection = GetSelectedConnectionString(comboBoxViewPrimaryServer, comboBoxViewPrimaryDatabase);
+            var compareConnection = GetSelectedConnectionString(comboBoxViewCompareServer, comboBoxViewCompareDatabase);
+
+            if (primaryConnection is null)
+            {
+                MessageBox.Show("Select a primary server and database.", "View Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (compareConnection is null)
+            {
+                MessageBox.Show("Select a comparison server and database.", "View Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                HashSet<string> primaryViews;
+                HashSet<string> compareViews;
+
+                using (new CursorScope(Cursors.WaitCursor))
+                {
+                    var primaryTask = GetViewsAsync(primaryConnection);
+                    var compareTask = GetViewsAsync(compareConnection);
+
+                    await Task.WhenAll(primaryTask, compareTask);
+                    primaryViews = await primaryTask;
+                    compareViews = await compareTask;
+                }
+
+                var comparisons = BuildViewComparisons(primaryViews, compareViews).ToList();
+                BindViewComparison(comparisons);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load views: {ex.Message}", "View Explorer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private IEnumerable<ViewComparisonRow> BuildViewComparisons(IReadOnlyCollection<string> primaryViews, IReadOnlyCollection<string> compareViews)
+        {
+            var allViewNames = primaryViews
+                .Union(compareViews, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var viewName in allViewNames)
+            {
+                yield return new ViewComparisonRow
+                {
+                    ViewName = viewName,
+                    InPrimary = primaryViews.Contains(viewName),
+                    InComparison = compareViews.Contains(viewName)
+                };
+            }
+        }
+
+        private static async Task<HashSet<string>> GetViewsAsync(string connectionString)
+        {
+            const string sql = @"SELECT QUOTENAME(s.name) + '.' + QUOTENAME(v.name) AS ViewName
+FROM sys.views v WITH (NOLOCK)
+INNER JOIN sys.schemas s ON v.schema_id = s.schema_id";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            await connection.OpenAsync().ConfigureAwait(false);
+
+            var results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                results.Add(reader.GetString(reader.GetOrdinal("ViewName")));
+            }
+
+            return results;
+        }
+
+        private void BindViewComparison(IEnumerable<ViewComparisonRow> rows)
+        {
+            _viewComparisons = rows.ToList();
+            ApplyViewFilter();
+        }
+
+        private void ConfigureViewComparisonGrid()
+        {
+            if (dataGridViewViewComparison.Columns.Count == 0)
+            {
+                return;
+            }
+
+            dataGridViewViewComparison.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewViewComparison.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dataGridViewViewComparison.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+            if (dataGridViewViewComparison.Columns[nameof(ViewComparisonRow.ViewName)] is DataGridViewColumn viewColumn)
+            {
+                viewColumn.HeaderText = "View";
+                viewColumn.FillWeight = 200;
+                viewColumn.MinimumWidth = 150;
+            }
+
+            if (dataGridViewViewComparison.Columns[nameof(ViewComparisonRow.InPrimary)] is DataGridViewColumn primaryColumn)
+            {
+                primaryColumn.HeaderText = "In Primary";
+                primaryColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                primaryColumn.FillWeight = 80;
+                primaryColumn.MinimumWidth = 80;
+            }
+
+            if (dataGridViewViewComparison.Columns[nameof(ViewComparisonRow.InComparison)] is DataGridViewColumn compareColumn)
+            {
+                compareColumn.HeaderText = "In Comparison";
+                compareColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                compareColumn.FillWeight = 100;
+                compareColumn.MinimumWidth = 100;
+            }
+        }
+
+        private void ApplyViewFilter()
+        {
+            IEnumerable<ViewComparisonRow> filtered = _viewComparisons;
+            var filter = textBoxViewSearch.Text?.Trim();
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                filtered = filtered.Where(row => row.ViewName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            dataGridViewViewComparison.DataSource = new BindingList<ViewComparisonRow>(filtered.ToList());
+            ConfigureViewComparisonGrid();
         }
 
         private static string? FindBannedWord(string text)
@@ -1006,6 +1252,13 @@ namespace SqlSafe
 
         private sealed record SqlServerNode(string ServerName, IReadOnlyList<DatabaseNode> Databases);
         private sealed record DatabaseNode(string Name, string ConnectionString);
+        private sealed record ViewComparisonRow
+        {
+            public string ViewName { get; init; } = string.Empty;
+            public bool InPrimary { get; init; }
+            public bool InComparison { get; init; }
+        }
+
         private sealed record DatabaseTarget(string Server, string Database, string ConnectionString, string Environment);
 
         private sealed class CursorScope : IDisposable

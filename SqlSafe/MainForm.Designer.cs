@@ -70,6 +70,22 @@ namespace SqlSafe
             this.toolStripMenuItemCopyScript = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemCopyError = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemRetry = new System.Windows.Forms.ToolStripMenuItem();
+            this.tabPageViews = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanelViews = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanelViewSelectors = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelPrimaryServer = new System.Windows.Forms.Label();
+            this.comboBoxViewPrimaryServer = new System.Windows.Forms.ComboBox();
+            this.labelPrimaryDatabase = new System.Windows.Forms.Label();
+            this.comboBoxViewPrimaryDatabase = new System.Windows.Forms.ComboBox();
+            this.labelCompareServer = new System.Windows.Forms.Label();
+            this.comboBoxViewCompareServer = new System.Windows.Forms.ComboBox();
+            this.labelCompareDatabase = new System.Windows.Forms.Label();
+            this.comboBoxViewCompareDatabase = new System.Windows.Forms.ComboBox();
+            this.buttonLoadViews = new System.Windows.Forms.Button();
+            this.flowLayoutPanelViewSearch = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelViewSearch = new System.Windows.Forms.Label();
+            this.textBoxViewSearch = new System.Windows.Forms.TextBox();
+            this.dataGridViewViewComparison = new System.Windows.Forms.DataGridView();
             this.contextMenuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemSelectServer = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemDeselectServer = new System.Windows.Forms.ToolStripMenuItem();
@@ -88,6 +104,11 @@ namespace SqlSafe
             this.flowLayoutPanelLogBottom.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).BeginInit();
             this.contextMenuLogs.SuspendLayout();
+            this.tabPageViews.SuspendLayout();
+            this.tableLayoutPanelViews.SuspendLayout();
+            this.flowLayoutPanelViewSelectors.SuspendLayout();
+            this.flowLayoutPanelViewSearch.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewViewComparison)).BeginInit();
             this.contextMenuTree.SuspendLayout();
             this.SuspendLayout();
             //
@@ -208,6 +229,7 @@ namespace SqlSafe
             //
             this.tabControlRight.Controls.Add(this.tabPageSql);
             this.tabControlRight.Controls.Add(this.tabPageLogs);
+            this.tabControlRight.Controls.Add(this.tabPageViews);
             this.tabControlRight.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControlRight.Location = new System.Drawing.Point(0, 0);
             this.tabControlRight.Name = "tabControlRight";
@@ -566,6 +588,187 @@ namespace SqlSafe
             this.toolStripMenuItemRetry.Size = new System.Drawing.Size(139, 22);
             this.toolStripMenuItemRetry.Text = "Retry";
             //
+            // tabPageViews
+            //
+            this.tabPageViews.Controls.Add(this.tableLayoutPanelViews);
+            this.tabPageViews.Location = new System.Drawing.Point(4, 24);
+            this.tabPageViews.Name = "tabPageViews";
+            this.tabPageViews.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageViews.Size = new System.Drawing.Size(564, 376);
+            this.tabPageViews.TabIndex = 2;
+            this.tabPageViews.Text = "View Explorer";
+            this.tabPageViews.UseVisualStyleBackColor = true;
+            //
+            // tableLayoutPanelViews
+            //
+            this.tableLayoutPanelViews.ColumnCount = 1;
+            this.tableLayoutPanelViews.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelViews.Controls.Add(this.flowLayoutPanelViewSelectors, 0, 0);
+            this.tableLayoutPanelViews.Controls.Add(this.flowLayoutPanelViewSearch, 0, 1);
+            this.tableLayoutPanelViews.Controls.Add(this.dataGridViewViewComparison, 0, 2);
+            this.tableLayoutPanelViews.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelViews.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelViews.Name = "tableLayoutPanelViews";
+            this.tableLayoutPanelViews.RowCount = 3;
+            this.tableLayoutPanelViews.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelViews.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelViews.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelViews.Size = new System.Drawing.Size(558, 370);
+            this.tableLayoutPanelViews.TabIndex = 0;
+            //
+            // flowLayoutPanelViewSelectors
+            //
+            this.flowLayoutPanelViewSelectors.AutoSize = true;
+            this.flowLayoutPanelViewSelectors.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelViewSelectors.Controls.Add(this.labelPrimaryServer);
+            this.flowLayoutPanelViewSelectors.Controls.Add(this.comboBoxViewPrimaryServer);
+            this.flowLayoutPanelViewSelectors.Controls.Add(this.labelPrimaryDatabase);
+            this.flowLayoutPanelViewSelectors.Controls.Add(this.comboBoxViewPrimaryDatabase);
+            this.flowLayoutPanelViewSelectors.Controls.Add(this.labelCompareServer);
+            this.flowLayoutPanelViewSelectors.Controls.Add(this.comboBoxViewCompareServer);
+            this.flowLayoutPanelViewSelectors.Controls.Add(this.labelCompareDatabase);
+            this.flowLayoutPanelViewSelectors.Controls.Add(this.comboBoxViewCompareDatabase);
+            this.flowLayoutPanelViewSelectors.Controls.Add(this.buttonLoadViews);
+            this.flowLayoutPanelViewSelectors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelViewSelectors.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanelViewSelectors.Name = "flowLayoutPanelViewSelectors";
+            this.flowLayoutPanelViewSelectors.Padding = new System.Windows.Forms.Padding(3);
+            this.flowLayoutPanelViewSelectors.Size = new System.Drawing.Size(552, 34);
+            this.flowLayoutPanelViewSelectors.TabIndex = 0;
+            this.flowLayoutPanelViewSelectors.WrapContents = true;
+            this.flowLayoutPanelViewSelectors.AutoScroll = true;
+            //
+            // labelPrimaryServer
+            //
+            this.labelPrimaryServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelPrimaryServer.AutoSize = true;
+            this.labelPrimaryServer.Location = new System.Drawing.Point(6, 10);
+            this.labelPrimaryServer.Name = "labelPrimaryServer";
+            this.labelPrimaryServer.Size = new System.Drawing.Size(88, 15);
+            this.labelPrimaryServer.TabIndex = 0;
+            this.labelPrimaryServer.Text = "Primary server:";
+            //
+            // comboBoxViewPrimaryServer
+            //
+            this.comboBoxViewPrimaryServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxViewPrimaryServer.FormattingEnabled = true;
+            this.comboBoxViewPrimaryServer.Location = new System.Drawing.Point(100, 6);
+            this.comboBoxViewPrimaryServer.Name = "comboBoxViewPrimaryServer";
+            this.comboBoxViewPrimaryServer.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxViewPrimaryServer.TabIndex = 1;
+            //
+            // labelPrimaryDatabase
+            //
+            this.labelPrimaryDatabase.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelPrimaryDatabase.AutoSize = true;
+            this.labelPrimaryDatabase.Location = new System.Drawing.Point(256, 10);
+            this.labelPrimaryDatabase.Name = "labelPrimaryDatabase";
+            this.labelPrimaryDatabase.Size = new System.Drawing.Size(105, 15);
+            this.labelPrimaryDatabase.TabIndex = 2;
+            this.labelPrimaryDatabase.Text = "Primary database:";
+            //
+            // comboBoxViewPrimaryDatabase
+            //
+            this.comboBoxViewPrimaryDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxViewPrimaryDatabase.FormattingEnabled = true;
+            this.comboBoxViewPrimaryDatabase.Location = new System.Drawing.Point(367, 6);
+            this.comboBoxViewPrimaryDatabase.Name = "comboBoxViewPrimaryDatabase";
+            this.comboBoxViewPrimaryDatabase.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxViewPrimaryDatabase.TabIndex = 3;
+            //
+            // labelCompareServer
+            //
+            this.labelCompareServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelCompareServer.AutoSize = true;
+            this.labelCompareServer.Location = new System.Drawing.Point(523, 10);
+            this.labelCompareServer.Name = "labelCompareServer";
+            this.labelCompareServer.Size = new System.Drawing.Size(97, 15);
+            this.labelCompareServer.TabIndex = 4;
+            this.labelCompareServer.Text = "Compare server:";
+            //
+            // comboBoxViewCompareServer
+            //
+            this.comboBoxViewCompareServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxViewCompareServer.FormattingEnabled = true;
+            this.comboBoxViewCompareServer.Location = new System.Drawing.Point(626, 6);
+            this.comboBoxViewCompareServer.Name = "comboBoxViewCompareServer";
+            this.comboBoxViewCompareServer.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxViewCompareServer.TabIndex = 5;
+            //
+            // labelCompareDatabase
+            //
+            this.labelCompareDatabase.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelCompareDatabase.AutoSize = true;
+            this.labelCompareDatabase.Location = new System.Drawing.Point(782, 10);
+            this.labelCompareDatabase.Name = "labelCompareDatabase";
+            this.labelCompareDatabase.Size = new System.Drawing.Size(114, 15);
+            this.labelCompareDatabase.TabIndex = 6;
+            this.labelCompareDatabase.Text = "Compare database:";
+            //
+            // comboBoxViewCompareDatabase
+            //
+            this.comboBoxViewCompareDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxViewCompareDatabase.FormattingEnabled = true;
+            this.comboBoxViewCompareDatabase.Location = new System.Drawing.Point(902, 6);
+            this.comboBoxViewCompareDatabase.Name = "comboBoxViewCompareDatabase";
+            this.comboBoxViewCompareDatabase.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxViewCompareDatabase.TabIndex = 7;
+            //
+            // buttonLoadViews
+            //
+            this.buttonLoadViews.AutoSize = true;
+            this.buttonLoadViews.Location = new System.Drawing.Point(1058, 6);
+            this.buttonLoadViews.Name = "buttonLoadViews";
+            this.buttonLoadViews.Size = new System.Drawing.Size(81, 25);
+            this.buttonLoadViews.TabIndex = 8;
+            this.buttonLoadViews.Text = "Load Views";
+            this.buttonLoadViews.UseVisualStyleBackColor = true;
+            //
+            // flowLayoutPanelViewSearch
+            //
+            this.flowLayoutPanelViewSearch.AutoSize = true;
+            this.flowLayoutPanelViewSearch.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelViewSearch.Controls.Add(this.labelViewSearch);
+            this.flowLayoutPanelViewSearch.Controls.Add(this.textBoxViewSearch);
+            this.flowLayoutPanelViewSearch.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelViewSearch.Location = new System.Drawing.Point(3, 43);
+            this.flowLayoutPanelViewSearch.Name = "flowLayoutPanelViewSearch";
+            this.flowLayoutPanelViewSearch.Padding = new System.Windows.Forms.Padding(3, 0, 3, 3);
+            this.flowLayoutPanelViewSearch.Size = new System.Drawing.Size(552, 29);
+            this.flowLayoutPanelViewSearch.TabIndex = 1;
+            //
+            // labelViewSearch
+            //
+            this.labelViewSearch.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelViewSearch.AutoSize = true;
+            this.labelViewSearch.Location = new System.Drawing.Point(6, 5);
+            this.labelViewSearch.Name = "labelViewSearch";
+            this.labelViewSearch.Size = new System.Drawing.Size(73, 15);
+            this.labelViewSearch.TabIndex = 0;
+            this.labelViewSearch.Text = "View search:";
+            //
+            // textBoxViewSearch
+            //
+            this.textBoxViewSearch.Location = new System.Drawing.Point(85, 3);
+            this.textBoxViewSearch.Name = "textBoxViewSearch";
+            this.textBoxViewSearch.Size = new System.Drawing.Size(200, 23);
+            this.textBoxViewSearch.TabIndex = 1;
+            //
+            // dataGridViewViewComparison
+            //
+            this.dataGridViewViewComparison.AllowUserToAddRows = false;
+            this.dataGridViewViewComparison.AllowUserToDeleteRows = false;
+            this.dataGridViewViewComparison.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridViewViewComparison.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewViewComparison.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewViewComparison.Location = new System.Drawing.Point(3, 78);
+            this.dataGridViewViewComparison.Name = "dataGridViewViewComparison";
+            this.dataGridViewViewComparison.ReadOnly = true;
+            this.dataGridViewViewComparison.RowHeadersVisible = false;
+            this.dataGridViewViewComparison.RowTemplate.Height = 25;
+            this.dataGridViewViewComparison.Size = new System.Drawing.Size(552, 289);
+            this.dataGridViewViewComparison.TabIndex = 2;
+            //
             // contextMenuTree
             //
             this.contextMenuTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -612,6 +815,14 @@ namespace SqlSafe
             this.flowLayoutPanelLogBottom.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).EndInit();
             this.contextMenuLogs.ResumeLayout(false);
+            this.tabPageViews.ResumeLayout(false);
+            this.tableLayoutPanelViews.ResumeLayout(false);
+            this.tableLayoutPanelViews.PerformLayout();
+            this.flowLayoutPanelViewSelectors.ResumeLayout(false);
+            this.flowLayoutPanelViewSelectors.PerformLayout();
+            this.flowLayoutPanelViewSearch.ResumeLayout(false);
+            this.flowLayoutPanelViewSearch.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewViewComparison)).EndInit();
             this.contextMenuTree.ResumeLayout(false);
             this.splitContainerMain.Panel1.ResumeLayout(false);
             this.splitContainerMain.Panel2.ResumeLayout(false);
@@ -667,5 +878,21 @@ namespace SqlSafe
         private System.Windows.Forms.ContextMenuStrip contextMenuTree;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSelectServer;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDeselectServer;
+        private System.Windows.Forms.TabPage tabPageViews;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelViews;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelViewSelectors;
+        private System.Windows.Forms.Label labelPrimaryServer;
+        private System.Windows.Forms.ComboBox comboBoxViewPrimaryServer;
+        private System.Windows.Forms.Label labelPrimaryDatabase;
+        private System.Windows.Forms.ComboBox comboBoxViewPrimaryDatabase;
+        private System.Windows.Forms.Label labelCompareServer;
+        private System.Windows.Forms.ComboBox comboBoxViewCompareServer;
+        private System.Windows.Forms.Label labelCompareDatabase;
+        private System.Windows.Forms.ComboBox comboBoxViewCompareDatabase;
+        private System.Windows.Forms.Button buttonLoadViews;
+        private System.Windows.Forms.DataGridView dataGridViewViewComparison;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelViewSearch;
+        private System.Windows.Forms.Label labelViewSearch;
+        private System.Windows.Forms.TextBox textBoxViewSearch;
     }
 }
