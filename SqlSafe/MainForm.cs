@@ -51,7 +51,9 @@ namespace SqlSafe
             comboBoxViewPrimaryServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxViewPrimaryServer, comboBoxViewPrimaryDatabase);
             comboBoxViewCompareServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxViewCompareServer, comboBoxViewCompareDatabase);
             buttonLoadViews.Click += async (_, _) => await LoadViewsAsync();
+            buttonCompareView.Click += async (_, _) => await CompareSelectedViewAsync();
             textBoxViewSearch.TextChanged += (_, _) => ApplyViewFilter();
+            dataGridViewViewComparison.CellDoubleClick += async (_, _) => await CompareSelectedViewAsync();
             Load += async (_, _) => await InitializeDataAsync();
             comboBoxEnvironment.SelectedIndex = 0;
             UpdateRunButtonState();
@@ -541,6 +543,7 @@ namespace SqlSafe
             UpdateDatabaseCombo(comboBoxViewCompareServer, comboBoxViewCompareDatabase);
             _viewComparisons.Clear();
             dataGridViewViewComparison.DataSource = null;
+            ClearViewDefinitionText();
         }
 
         private static Dictionary<string, Dictionary<string, string>> BuildConnectionLookup(IEnumerable<SqlServerNode> servers)
@@ -673,6 +676,57 @@ namespace SqlSafe
             }
         }
 
+        private async Task CompareSelectedViewAsync()
+        {
+            if (dataGridViewViewComparison.CurrentRow?.DataBoundItem is not ViewComparisonRow selected)
+            {
+                MessageBox.Show("Select a view to compare.", "View Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var primaryConnection = GetSelectedConnectionString(comboBoxViewPrimaryServer, comboBoxViewPrimaryDatabase);
+            var compareConnection = GetSelectedConnectionString(comboBoxViewCompareServer, comboBoxViewCompareDatabase);
+
+            if (primaryConnection is null && compareConnection is null)
+            {
+                MessageBox.Show("Select valid server and database targets for comparison.", "View Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var primaryLabel = comboBoxViewPrimaryDatabase.SelectedItem as string ?? "Primary";
+            var compareLabel = comboBoxViewCompareDatabase.SelectedItem as string ?? "Comparison";
+            labelPrimaryDefinition.Text = $"Primary view definition ({primaryLabel})";
+            labelCompareDefinition.Text = $"Comparison view definition ({compareLabel})";
+            textBoxPrimaryViewDefinition.Text = selected.InPrimary ? "Loading..." : "View not available in primary selection.";
+            textBoxCompareViewDefinition.Text = selected.InComparison ? "Loading..." : "View not available in comparison selection.";
+
+            try
+            {
+                var primaryDefinitionTask = selected.InPrimary && primaryConnection is not null
+                    ? GetViewDefinitionAsync(primaryConnection, selected.ViewName)
+                    : Task.FromResult<string?>(null);
+
+                var compareDefinitionTask = selected.InComparison && compareConnection is not null
+                    ? GetViewDefinitionAsync(compareConnection, selected.ViewName)
+                    : Task.FromResult<string?>(null);
+
+                var primaryDefinition = await primaryDefinitionTask.ConfigureAwait(true);
+                var compareDefinition = await compareDefinitionTask.ConfigureAwait(true);
+
+                textBoxPrimaryViewDefinition.Text = selected.InPrimary
+                    ? primaryDefinition ?? "Definition not found."
+                    : "View not available in primary selection.";
+
+                textBoxCompareViewDefinition.Text = selected.InComparison
+                    ? compareDefinition ?? "Definition not found."
+                    : "View not available in comparison selection.";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load view definitions: {ex.Message}", "View Explorer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private IEnumerable<ViewComparisonRow> BuildViewComparisons(IReadOnlyCollection<string> primaryViews, IReadOnlyCollection<string> compareViews)
         {
             var allViewNames = primaryViews
@@ -712,6 +766,30 @@ INNER JOIN sys.schemas s ON v.schema_id = s.schema_id";
             }
 
             return results;
+        }
+
+        private static async Task<string?> GetViewDefinitionAsync(string connectionString, string viewName)
+        {
+            const string sql = @"SELECT sm.[definition]
+FROM sys.sql_modules sm WITH (NOLOCK)
+INNER JOIN sys.views v ON sm.object_id = v.object_id
+INNER JOIN sys.schemas s ON v.schema_id = s.schema_id
+WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            command.Parameters.Add(new SqlParameter("@ViewName", SqlDbType.NVarChar, 258)
+            {
+                Value = viewName
+            });
+
+            await connection.OpenAsync().ConfigureAwait(false);
+            var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+            return result as string;
         }
 
         private void BindViewComparison(IEnumerable<ViewComparisonRow> rows)
@@ -766,6 +844,15 @@ INNER JOIN sys.schemas s ON v.schema_id = s.schema_id";
 
             dataGridViewViewComparison.DataSource = new BindingList<ViewComparisonRow>(filtered.ToList());
             ConfigureViewComparisonGrid();
+            ClearViewDefinitionText();
+        }
+
+        private void ClearViewDefinitionText()
+        {
+            textBoxPrimaryViewDefinition.Clear();
+            textBoxCompareViewDefinition.Clear();
+            labelPrimaryDefinition.Text = "Primary view definition";
+            labelCompareDefinition.Text = "Comparison view definition";
         }
 
         private static string? FindBannedWord(string text)

@@ -85,7 +85,14 @@ namespace SqlSafe
             this.flowLayoutPanelViewSearch = new System.Windows.Forms.FlowLayoutPanel();
             this.labelViewSearch = new System.Windows.Forms.Label();
             this.textBoxViewSearch = new System.Windows.Forms.TextBox();
+            this.buttonCompareView = new System.Windows.Forms.Button();
+            this.tableLayoutPanelViewContent = new System.Windows.Forms.TableLayoutPanel();
             this.dataGridViewViewComparison = new System.Windows.Forms.DataGridView();
+            this.tableLayoutPanelViewDefinitions = new System.Windows.Forms.TableLayoutPanel();
+            this.labelPrimaryDefinition = new System.Windows.Forms.Label();
+            this.labelCompareDefinition = new System.Windows.Forms.Label();
+            this.textBoxPrimaryViewDefinition = new System.Windows.Forms.TextBox();
+            this.textBoxCompareViewDefinition = new System.Windows.Forms.TextBox();
             this.contextMenuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemSelectServer = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemDeselectServer = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,8 +113,10 @@ namespace SqlSafe
             this.contextMenuLogs.SuspendLayout();
             this.tabPageViews.SuspendLayout();
             this.tableLayoutPanelViews.SuspendLayout();
+            this.tableLayoutPanelViewContent.SuspendLayout();
             this.flowLayoutPanelViewSelectors.SuspendLayout();
             this.flowLayoutPanelViewSearch.SuspendLayout();
+            this.tableLayoutPanelViewDefinitions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewViewComparison)).BeginInit();
             this.contextMenuTree.SuspendLayout();
             this.SuspendLayout();
@@ -605,7 +614,7 @@ namespace SqlSafe
             this.tableLayoutPanelViews.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanelViews.Controls.Add(this.flowLayoutPanelViewSelectors, 0, 0);
             this.tableLayoutPanelViews.Controls.Add(this.flowLayoutPanelViewSearch, 0, 1);
-            this.tableLayoutPanelViews.Controls.Add(this.dataGridViewViewComparison, 0, 2);
+            this.tableLayoutPanelViews.Controls.Add(this.tableLayoutPanelViewContent, 0, 2);
             this.tableLayoutPanelViews.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanelViews.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanelViews.Name = "tableLayoutPanelViews";
@@ -730,6 +739,7 @@ namespace SqlSafe
             this.flowLayoutPanelViewSearch.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanelViewSearch.Controls.Add(this.labelViewSearch);
             this.flowLayoutPanelViewSearch.Controls.Add(this.textBoxViewSearch);
+            this.flowLayoutPanelViewSearch.Controls.Add(this.buttonCompareView);
             this.flowLayoutPanelViewSearch.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanelViewSearch.Location = new System.Drawing.Point(3, 43);
             this.flowLayoutPanelViewSearch.Name = "flowLayoutPanelViewSearch";
@@ -754,6 +764,31 @@ namespace SqlSafe
             this.textBoxViewSearch.Size = new System.Drawing.Size(200, 23);
             this.textBoxViewSearch.TabIndex = 1;
             //
+            // buttonCompareView
+            //
+            this.buttonCompareView.AutoSize = true;
+            this.buttonCompareView.Location = new System.Drawing.Point(291, 3);
+            this.buttonCompareView.Name = "buttonCompareView";
+            this.buttonCompareView.Size = new System.Drawing.Size(111, 25);
+            this.buttonCompareView.TabIndex = 2;
+            this.buttonCompareView.Text = "Compare View";
+            this.buttonCompareView.UseVisualStyleBackColor = true;
+            //
+            // tableLayoutPanelViewContent
+            //
+            this.tableLayoutPanelViewContent.ColumnCount = 1;
+            this.tableLayoutPanelViewContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelViewContent.Controls.Add(this.dataGridViewViewComparison, 0, 0);
+            this.tableLayoutPanelViewContent.Controls.Add(this.tableLayoutPanelViewDefinitions, 0, 1);
+            this.tableLayoutPanelViewContent.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelViewContent.Location = new System.Drawing.Point(3, 78);
+            this.tableLayoutPanelViewContent.Name = "tableLayoutPanelViewContent";
+            this.tableLayoutPanelViewContent.RowCount = 2;
+            this.tableLayoutPanelViewContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 55F));
+            this.tableLayoutPanelViewContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 45F));
+            this.tableLayoutPanelViewContent.Size = new System.Drawing.Size(552, 289);
+            this.tableLayoutPanelViewContent.TabIndex = 2;
+            //
             // dataGridViewViewComparison
             //
             this.dataGridViewViewComparison.AllowUserToAddRows = false;
@@ -761,13 +796,75 @@ namespace SqlSafe
             this.dataGridViewViewComparison.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewViewComparison.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewViewComparison.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewViewComparison.Location = new System.Drawing.Point(3, 78);
+            this.dataGridViewViewComparison.Location = new System.Drawing.Point(3, 3);
             this.dataGridViewViewComparison.Name = "dataGridViewViewComparison";
             this.dataGridViewViewComparison.ReadOnly = true;
             this.dataGridViewViewComparison.RowHeadersVisible = false;
             this.dataGridViewViewComparison.RowTemplate.Height = 25;
-            this.dataGridViewViewComparison.Size = new System.Drawing.Size(552, 289);
-            this.dataGridViewViewComparison.TabIndex = 2;
+            this.dataGridViewViewComparison.Size = new System.Drawing.Size(546, 154);
+            this.dataGridViewViewComparison.TabIndex = 0;
+            //
+            // tableLayoutPanelViewDefinitions
+            //
+            this.tableLayoutPanelViewDefinitions.ColumnCount = 2;
+            this.tableLayoutPanelViewDefinitions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelViewDefinitions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelViewDefinitions.Controls.Add(this.labelPrimaryDefinition, 0, 0);
+            this.tableLayoutPanelViewDefinitions.Controls.Add(this.labelCompareDefinition, 1, 0);
+            this.tableLayoutPanelViewDefinitions.Controls.Add(this.textBoxPrimaryViewDefinition, 0, 1);
+            this.tableLayoutPanelViewDefinitions.Controls.Add(this.textBoxCompareViewDefinition, 1, 1);
+            this.tableLayoutPanelViewDefinitions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelViewDefinitions.Location = new System.Drawing.Point(3, 163);
+            this.tableLayoutPanelViewDefinitions.Name = "tableLayoutPanelViewDefinitions";
+            this.tableLayoutPanelViewDefinitions.RowCount = 2;
+            this.tableLayoutPanelViewDefinitions.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelViewDefinitions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelViewDefinitions.Size = new System.Drawing.Size(546, 123);
+            this.tableLayoutPanelViewDefinitions.TabIndex = 1;
+            //
+            // labelPrimaryDefinition
+            //
+            this.labelPrimaryDefinition.AutoSize = true;
+            this.labelPrimaryDefinition.Location = new System.Drawing.Point(3, 0);
+            this.labelPrimaryDefinition.Name = "labelPrimaryDefinition";
+            this.labelPrimaryDefinition.Size = new System.Drawing.Size(137, 15);
+            this.labelPrimaryDefinition.TabIndex = 0;
+            this.labelPrimaryDefinition.Text = "Primary view definition";
+            //
+            // labelCompareDefinition
+            //
+            this.labelCompareDefinition.AutoSize = true;
+            this.labelCompareDefinition.Location = new System.Drawing.Point(276, 0);
+            this.labelCompareDefinition.Name = "labelCompareDefinition";
+            this.labelCompareDefinition.Size = new System.Drawing.Size(146, 15);
+            this.labelCompareDefinition.TabIndex = 1;
+            this.labelCompareDefinition.Text = "Comparison view definition";
+            //
+            // textBoxPrimaryViewDefinition
+            //
+            this.textBoxPrimaryViewDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxPrimaryViewDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxPrimaryViewDefinition.Location = new System.Drawing.Point(3, 18);
+            this.textBoxPrimaryViewDefinition.Multiline = true;
+            this.textBoxPrimaryViewDefinition.Name = "textBoxPrimaryViewDefinition";
+            this.textBoxPrimaryViewDefinition.ReadOnly = true;
+            this.textBoxPrimaryViewDefinition.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxPrimaryViewDefinition.Size = new System.Drawing.Size(267, 102);
+            this.textBoxPrimaryViewDefinition.TabIndex = 2;
+            this.textBoxPrimaryViewDefinition.WordWrap = false;
+            //
+            // textBoxCompareViewDefinition
+            //
+            this.textBoxCompareViewDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxCompareViewDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxCompareViewDefinition.Location = new System.Drawing.Point(276, 18);
+            this.textBoxCompareViewDefinition.Multiline = true;
+            this.textBoxCompareViewDefinition.Name = "textBoxCompareViewDefinition";
+            this.textBoxCompareViewDefinition.ReadOnly = true;
+            this.textBoxCompareViewDefinition.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxCompareViewDefinition.Size = new System.Drawing.Size(267, 102);
+            this.textBoxCompareViewDefinition.TabIndex = 3;
+            this.textBoxCompareViewDefinition.WordWrap = false;
             //
             // contextMenuTree
             //
@@ -818,10 +915,13 @@ namespace SqlSafe
             this.tabPageViews.ResumeLayout(false);
             this.tableLayoutPanelViews.ResumeLayout(false);
             this.tableLayoutPanelViews.PerformLayout();
+            this.tableLayoutPanelViewContent.ResumeLayout(false);
             this.flowLayoutPanelViewSelectors.ResumeLayout(false);
             this.flowLayoutPanelViewSelectors.PerformLayout();
             this.flowLayoutPanelViewSearch.ResumeLayout(false);
             this.flowLayoutPanelViewSearch.PerformLayout();
+            this.tableLayoutPanelViewDefinitions.ResumeLayout(false);
+            this.tableLayoutPanelViewDefinitions.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewViewComparison)).EndInit();
             this.contextMenuTree.ResumeLayout(false);
             this.splitContainerMain.Panel1.ResumeLayout(false);
@@ -890,7 +990,14 @@ namespace SqlSafe
         private System.Windows.Forms.Label labelCompareDatabase;
         private System.Windows.Forms.ComboBox comboBoxViewCompareDatabase;
         private System.Windows.Forms.Button buttonLoadViews;
+        private System.Windows.Forms.Button buttonCompareView;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelViewContent;
         private System.Windows.Forms.DataGridView dataGridViewViewComparison;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelViewDefinitions;
+        private System.Windows.Forms.Label labelPrimaryDefinition;
+        private System.Windows.Forms.Label labelCompareDefinition;
+        private System.Windows.Forms.TextBox textBoxPrimaryViewDefinition;
+        private System.Windows.Forms.TextBox textBoxCompareViewDefinition;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelViewSearch;
         private System.Windows.Forms.Label labelViewSearch;
         private System.Windows.Forms.TextBox textBoxViewSearch;
