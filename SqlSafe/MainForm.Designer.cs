@@ -47,6 +47,17 @@ namespace SqlSafe
             this.labelBatch = new System.Windows.Forms.Label();
             this.comboBoxBatchSelect = new System.Windows.Forms.ComboBox();
             this.buttonRefreshBatches = new System.Windows.Forms.Button();
+            this.labelDatabaseFilter = new System.Windows.Forms.Label();
+            this.comboBoxDatabaseFilter = new System.Windows.Forms.ComboBox();
+            this.labelEnvironmentFilter = new System.Windows.Forms.Label();
+            this.comboBoxEnvironmentFilter = new System.Windows.Forms.ComboBox();
+            this.labelUserFilter = new System.Windows.Forms.Label();
+            this.comboBoxUserFilter = new System.Windows.Forms.ComboBox();
+            this.labelCreatedFrom = new System.Windows.Forms.Label();
+            this.dateTimePickerCreatedFrom = new System.Windows.Forms.DateTimePicker();
+            this.labelCreatedTo = new System.Windows.Forms.Label();
+            this.dateTimePickerCreatedTo = new System.Windows.Forms.DateTimePicker();
+            this.buttonApplyFilters = new System.Windows.Forms.Button();
             this.dataGridViewLogs = new System.Windows.Forms.DataGridView();
             this.contextMenuLogs = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemCopyScript = new System.Windows.Forms.ToolStripMenuItem();
@@ -259,11 +270,22 @@ namespace SqlSafe
             this.flowLayoutPanelLogControls.Controls.Add(this.labelBatch);
             this.flowLayoutPanelLogControls.Controls.Add(this.comboBoxBatchSelect);
             this.flowLayoutPanelLogControls.Controls.Add(this.buttonRefreshBatches);
+            this.flowLayoutPanelLogControls.Controls.Add(this.labelDatabaseFilter);
+            this.flowLayoutPanelLogControls.Controls.Add(this.comboBoxDatabaseFilter);
+            this.flowLayoutPanelLogControls.Controls.Add(this.labelEnvironmentFilter);
+            this.flowLayoutPanelLogControls.Controls.Add(this.comboBoxEnvironmentFilter);
+            this.flowLayoutPanelLogControls.Controls.Add(this.labelUserFilter);
+            this.flowLayoutPanelLogControls.Controls.Add(this.comboBoxUserFilter);
+            this.flowLayoutPanelLogControls.Controls.Add(this.labelCreatedFrom);
+            this.flowLayoutPanelLogControls.Controls.Add(this.dateTimePickerCreatedFrom);
+            this.flowLayoutPanelLogControls.Controls.Add(this.labelCreatedTo);
+            this.flowLayoutPanelLogControls.Controls.Add(this.dateTimePickerCreatedTo);
+            this.flowLayoutPanelLogControls.Controls.Add(this.buttonApplyFilters);
             this.flowLayoutPanelLogControls.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanelLogControls.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanelLogControls.Name = "flowLayoutPanelLogControls";
             this.flowLayoutPanelLogControls.Padding = new System.Windows.Forms.Padding(3);
-            this.flowLayoutPanelLogControls.Size = new System.Drawing.Size(552, 35);
+            this.flowLayoutPanelLogControls.Size = new System.Drawing.Size(552, 93);
             this.flowLayoutPanelLogControls.TabIndex = 0;
             //
             // labelBatch
@@ -294,6 +316,115 @@ namespace SqlSafe
             this.buttonRefreshBatches.TabIndex = 2;
             this.buttonRefreshBatches.Text = "Refresh Batches";
             this.buttonRefreshBatches.UseVisualStyleBackColor = true;
+            //
+            // labelDatabaseFilter
+            //
+            this.labelDatabaseFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelDatabaseFilter.AutoSize = true;
+            this.labelDatabaseFilter.Location = new System.Drawing.Point(289, 10);
+            this.labelDatabaseFilter.Name = "labelDatabaseFilter";
+            this.labelDatabaseFilter.Size = new System.Drawing.Size(61, 15);
+            this.labelDatabaseFilter.TabIndex = 3;
+            this.labelDatabaseFilter.Text = "Database:";
+            //
+            // comboBoxDatabaseFilter
+            //
+            this.comboBoxDatabaseFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxDatabaseFilter.FormattingEnabled = true;
+            this.comboBoxDatabaseFilter.Location = new System.Drawing.Point(356, 6);
+            this.comboBoxDatabaseFilter.Name = "comboBoxDatabaseFilter";
+            this.comboBoxDatabaseFilter.Size = new System.Drawing.Size(140, 23);
+            this.comboBoxDatabaseFilter.TabIndex = 4;
+            //
+            // labelEnvironmentFilter
+            //
+            this.labelEnvironmentFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelEnvironmentFilter.AutoSize = true;
+            this.labelEnvironmentFilter.Location = new System.Drawing.Point(502, 10);
+            this.labelEnvironmentFilter.Name = "labelEnvironmentFilter";
+            this.labelEnvironmentFilter.Size = new System.Drawing.Size(77, 15);
+            this.labelEnvironmentFilter.TabIndex = 5;
+            this.labelEnvironmentFilter.Text = "Environment:";
+            //
+            // comboBoxEnvironmentFilter
+            //
+            this.comboBoxEnvironmentFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxEnvironmentFilter.FormattingEnabled = true;
+            this.comboBoxEnvironmentFilter.Location = new System.Drawing.Point(585, 6);
+            this.comboBoxEnvironmentFilter.Name = "comboBoxEnvironmentFilter";
+            this.comboBoxEnvironmentFilter.Size = new System.Drawing.Size(121, 23);
+            this.comboBoxEnvironmentFilter.TabIndex = 6;
+            //
+            // labelUserFilter
+            //
+            this.labelUserFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelUserFilter.AutoSize = true;
+            this.labelUserFilter.Location = new System.Drawing.Point(712, 10);
+            this.labelUserFilter.Name = "labelUserFilter";
+            this.labelUserFilter.Size = new System.Drawing.Size(33, 15);
+            this.labelUserFilter.TabIndex = 7;
+            this.labelUserFilter.Text = "User:";
+            //
+            // comboBoxUserFilter
+            //
+            this.comboBoxUserFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxUserFilter.FormattingEnabled = true;
+            this.comboBoxUserFilter.Location = new System.Drawing.Point(751, 6);
+            this.comboBoxUserFilter.Name = "comboBoxUserFilter";
+            this.comboBoxUserFilter.Size = new System.Drawing.Size(140, 23);
+            this.comboBoxUserFilter.TabIndex = 8;
+            //
+            // labelCreatedFrom
+            //
+            this.labelCreatedFrom.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelCreatedFrom.AutoSize = true;
+            this.labelCreatedFrom.Location = new System.Drawing.Point(897, 10);
+            this.labelCreatedFrom.Name = "labelCreatedFrom";
+            this.labelCreatedFrom.Size = new System.Drawing.Size(77, 15);
+            this.labelCreatedFrom.TabIndex = 9;
+            this.labelCreatedFrom.Text = "Created from:";
+            //
+            // dateTimePickerCreatedFrom
+            //
+            this.dateTimePickerCreatedFrom.Checked = false;
+            this.dateTimePickerCreatedFrom.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dateTimePickerCreatedFrom.CustomFormat = "yyyy-MM-dd HH:mm";
+            this.dateTimePickerCreatedFrom.Location = new System.Drawing.Point(980, 6);
+            this.dateTimePickerCreatedFrom.Name = "dateTimePickerCreatedFrom";
+            this.dateTimePickerCreatedFrom.ShowCheckBox = true;
+            this.dateTimePickerCreatedFrom.Size = new System.Drawing.Size(160, 23);
+            this.dateTimePickerCreatedFrom.TabIndex = 10;
+            //
+            // labelCreatedTo
+            //
+            this.labelCreatedTo.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelCreatedTo.AutoSize = true;
+            this.labelCreatedTo.Location = new System.Drawing.Point(1146, 10);
+            this.labelCreatedTo.Name = "labelCreatedTo";
+            this.labelCreatedTo.Size = new System.Drawing.Size(20, 15);
+            this.labelCreatedTo.TabIndex = 11;
+            this.labelCreatedTo.Text = "to";
+            //
+            // dateTimePickerCreatedTo
+            //
+            this.dateTimePickerCreatedTo.Checked = false;
+            this.dateTimePickerCreatedTo.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dateTimePickerCreatedTo.CustomFormat = "yyyy-MM-dd HH:mm";
+            this.dateTimePickerCreatedTo.Location = new System.Drawing.Point(1172, 6);
+            this.dateTimePickerCreatedTo.Name = "dateTimePickerCreatedTo";
+            this.dateTimePickerCreatedTo.ShowCheckBox = true;
+            this.dateTimePickerCreatedTo.Size = new System.Drawing.Size(160, 23);
+            this.dateTimePickerCreatedTo.TabIndex = 12;
+            //
+            // buttonApplyFilters
+            //
+            this.buttonApplyFilters.AutoSize = true;
+            this.buttonApplyFilters.Location = new System.Drawing.Point(1338, 6);
+            this.buttonApplyFilters.Name = "buttonApplyFilters";
+            this.buttonApplyFilters.Size = new System.Drawing.Size(85, 25);
+            this.buttonApplyFilters.TabIndex = 13;
+            this.buttonApplyFilters.Text = "Apply Filters";
+            this.buttonApplyFilters.UseVisualStyleBackColor = true;
             //
             // dataGridViewLogs
             //
@@ -443,6 +574,17 @@ namespace SqlSafe
         private System.Windows.Forms.Label labelBatch;
         private System.Windows.Forms.ComboBox comboBoxBatchSelect;
         private System.Windows.Forms.Button buttonRefreshBatches;
+        private System.Windows.Forms.Label labelDatabaseFilter;
+        private System.Windows.Forms.ComboBox comboBoxDatabaseFilter;
+        private System.Windows.Forms.Label labelEnvironmentFilter;
+        private System.Windows.Forms.ComboBox comboBoxEnvironmentFilter;
+        private System.Windows.Forms.Label labelUserFilter;
+        private System.Windows.Forms.ComboBox comboBoxUserFilter;
+        private System.Windows.Forms.Label labelCreatedFrom;
+        private System.Windows.Forms.DateTimePicker dateTimePickerCreatedFrom;
+        private System.Windows.Forms.Label labelCreatedTo;
+        private System.Windows.Forms.DateTimePicker dateTimePickerCreatedTo;
+        private System.Windows.Forms.Button buttonApplyFilters;
         private System.Windows.Forms.DataGridView dataGridViewLogs;
         private System.Windows.Forms.ContextMenuStrip contextMenuLogs;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopyScript;

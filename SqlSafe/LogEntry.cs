@@ -20,6 +20,11 @@ namespace SqlSafe
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public int BatchNumber { get; set; }
 
+        public sealed record FilterOptions(
+            IReadOnlyList<string> DatabaseNames,
+            IReadOnlyList<string> Environments,
+            IReadOnlyList<string> Users);
+
         public static async Task<int> GetNextBatchNumberAsync()
         {
             var connectionString = ConfigurationManager.ConnectionStrings["LogDb"]?.ConnectionString;
@@ -65,7 +70,60 @@ namespace SqlSafe
             return batches;
         }
 
-        public static async Task<IReadOnlyList<LogEntry>> GetByBatchAsync(int batchNumber)
+        public static async Task<FilterOptions> GetFilterOptionsAsync()
+        {
+            var connectionString = ConfigurationManager.ConnectionStrings["LogDb"]?.ConnectionString;
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException("Connection string 'LogDb' is missing or empty in configuration.");
+            }
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand("SqlSafe_LogExecution_GetFilterOptions", connection)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            await connection.OpenAsync().ConfigureAwait(false);
+
+            var databaseNames = new List<string>();
+            var environments = new List<string>();
+            var users = new List<string>();
+
+            using (var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false))
+            {
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                {
+                    databaseNames.Add(reader.GetString(reader.GetOrdinal("DatabaseName")));
+                }
+
+                if (await reader.NextResultAsync().ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        environments.Add(reader.GetString(reader.GetOrdinal("Environment")));
+                    }
+                }
+
+                if (await reader.NextResultAsync().ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        users.Add(reader.GetString(reader.GetOrdinal("User")));
+                    }
+                }
+            }
+
+            return new FilterOptions(databaseNames, environments, users);
+        }
+
+        public static async Task<IReadOnlyList<LogEntry>> GetByBatchAsync(
+            int? batchNumber = null,
+            string? databaseName = null,
+            string? environment = null,
+            DateTime? createdFrom = null,
+            DateTime? createdTo = null,
+            string? user = null)
         {
             var connectionString = ConfigurationManager.ConnectionStrings["LogDb"]?.ConnectionString;
             if (string.IsNullOrWhiteSpace(connectionString))
@@ -79,7 +137,12 @@ namespace SqlSafe
                 CommandType = CommandType.StoredProcedure
             };
 
-            command.Parameters.Add("@BatchNumber", SqlDbType.Int).Value = batchNumber;
+            command.Parameters.Add("@BatchNumber", SqlDbType.Int).Value = (object?)batchNumber ?? DBNull.Value;
+            command.Parameters.Add("@DatabaseName", SqlDbType.NVarChar, 200).Value = (object?)databaseName ?? DBNull.Value;
+            command.Parameters.Add("@Environment", SqlDbType.NVarChar, 50).Value = (object?)environment ?? DBNull.Value;
+            command.Parameters.Add("@User", SqlDbType.NVarChar, 200).Value = (object?)user ?? DBNull.Value;
+            command.Parameters.Add("@CreatedFrom", SqlDbType.DateTime2).Value = (object?)createdFrom ?? DBNull.Value;
+            command.Parameters.Add("@CreatedTo", SqlDbType.DateTime2).Value = (object?)createdTo ?? DBNull.Value;
 
             await connection.OpenAsync().ConfigureAwait(false);
             using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);

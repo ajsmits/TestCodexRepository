@@ -37,6 +37,7 @@ namespace SqlSafe
             toolStripMenuItemDeselectServer.Click += (_, _) => SetSelectedServerChecked(false);
             comboBoxBatchSelect.SelectedIndexChanged += ComboBoxBatchSelect_SelectedIndexChanged;
             buttonRefreshBatches.Click += async (_, _) => await RefreshBatchesAsync();
+            buttonApplyFilters.Click += async (_, _) => await LoadLogsWithFiltersAsync();
             dataGridViewLogs.DataBindingComplete += DataGridViewLogs_DataBindingComplete;
             dataGridViewLogs.CellMouseDown += DataGridViewLogs_CellMouseDown;
             contextMenuLogs.Opening += ContextMenuLogs_Opening;
@@ -57,6 +58,7 @@ namespace SqlSafe
         private static readonly string[] BannedWords = new[] { "drop", "truncate", "delete", "alter", "update", "insert" };
         private bool _isUpdatingChecks;
         private bool _isLoadingBatches;
+        private const string AllFilterOption = "All";
 
         /// <summary>
         /// Populates the tree view with SQL servers and databases derived from loaded companies.
@@ -133,14 +135,7 @@ namespace SqlSafe
                 return;
             }
 
-            if (comboBoxBatchSelect.SelectedItem is int batchNumber)
-            {
-                await LoadLogsForBatchAsync(batchNumber).ConfigureAwait(false);
-            }
-            else
-            {
-                dataGridViewLogs.DataSource = null;
-            }
+            await LoadLogsWithFiltersAsync().ConfigureAwait(false);
         }
 
         private async Task LoadCompaniesAsync()
@@ -168,10 +163,17 @@ namespace SqlSafe
             try
             {
                 var batches = (await LogEntry.GetBatchNumbersAsync()).ToList();
-                comboBoxBatchSelect.DataSource = batches;
+                var batchOptions = new List<object> { AllFilterOption };
+                batchOptions.AddRange(batches.Cast<object>());
+
+                comboBoxBatchSelect.DataSource = batchOptions;
                 if (selectBatchNumber.HasValue && batches.Contains(selectBatchNumber.Value))
                 {
                     comboBoxBatchSelect.SelectedItem = selectBatchNumber.Value;
+                }
+                else
+                {
+                    comboBoxBatchSelect.SelectedItem = AllFilterOption;
                 }
             }
             catch (Exception ex)
@@ -186,27 +188,88 @@ namespace SqlSafe
                 _isLoadingBatches = false;
             }
 
-            if (comboBoxBatchSelect.SelectedItem is int batchNumber)
-            {
-                await LoadLogsForBatchAsync(batchNumber);
-            }
-            else
-            {
-                dataGridViewLogs.DataSource = null;
-            }
+            await LoadFilterOptionsAsync();
+            await LoadLogsWithFiltersAsync();
         }
 
-        private async Task LoadLogsForBatchAsync(int batchNumber)
+        private async Task LoadLogsWithFiltersAsync()
         {
             try
             {
-                var entries = (await LogEntry.GetByBatchAsync(batchNumber)).ToList();
+                var entries = (await LogEntry.GetByBatchAsync(
+                    GetSelectedBatchNumber(),
+                    GetSelectedFilterValue(comboBoxDatabaseFilter),
+                    GetSelectedFilterValue(comboBoxEnvironmentFilter),
+                    dateTimePickerCreatedFrom.Checked ? dateTimePickerCreatedFrom.Value : null,
+                    dateTimePickerCreatedTo.Checked ? dateTimePickerCreatedTo.Value : null,
+                    GetSelectedFilterValue(comboBoxUserFilter))).ToList();
                 BindLogs(entries);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load logs for batch {batchNumber}: {ex.Message}", "Logs", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Failed to load logs: {ex.Message}", "Logs", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private async Task LoadFilterOptionsAsync()
+        {
+            try
+            {
+                var options = await LogEntry.GetFilterOptionsAsync();
+                PopulateFilterCombo(comboBoxDatabaseFilter, options.DatabaseNames);
+                PopulateFilterCombo(comboBoxEnvironmentFilter, options.Environments, new[] { "UAT", "Production" });
+                PopulateFilterCombo(comboBoxUserFilter, options.Users);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load filter options: {ex.Message}", "Logs", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void PopulateFilterCombo(ComboBox comboBox, IEnumerable<string> values, IEnumerable<string>? extras = null)
+        {
+            var options = new List<string> { AllFilterOption };
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (extras is not null)
+            {
+                foreach (var extra in extras)
+                {
+                    if (string.IsNullOrWhiteSpace(extra) || !seen.Add(extra))
+                    {
+                        continue;
+                    }
+
+                    options.Add(extra);
+                }
+            }
+
+            foreach (var value in values)
+            {
+                if (string.IsNullOrWhiteSpace(value) || !seen.Add(value))
+                {
+                    continue;
+                }
+
+                options.Add(value);
+            }
+
+            comboBox.DataSource = options;
+            comboBox.SelectedItem = AllFilterOption;
+        }
+
+        private static string? GetSelectedFilterValue(ComboBox comboBox)
+        {
+            return comboBox.SelectedItem is string selected && !string.Equals(selected, AllFilterOption, StringComparison.OrdinalIgnoreCase)
+                ? selected
+                : null;
+        }
+
+        private int? GetSelectedBatchNumber()
+        {
+            return comboBoxBatchSelect.SelectedItem is int batch
+                ? batch
+                : null;
         }
 
         private void BindLogs(IReadOnlyList<LogEntry> entries)
@@ -302,6 +365,7 @@ namespace SqlSafe
                 SaveScriptToFile();
             }
 
+            tabControlRight.SelectedTab = tabPageSql;
             textBoxSql.Text = entry.ScriptRan ?? string.Empty;
             EnsureEnvironmentSelected(entry.Environment);
 
@@ -710,13 +774,19 @@ namespace SqlSafe
             SetColumnWeight(nameof(LogEntry.DatabaseName), 120);
             SetColumnWeight(nameof(LogEntry.User), 100);
             SetColumnWeight(nameof(LogEntry.Success), 70, 60);
-            SetColumnWeight(nameof(LogEntry.CreatedDate), 110);
+            SetColumnWeight(nameof(LogEntry.CreatedDate), 170, 150);
             SetColumnWeight(nameof(LogEntry.ScriptRan), 200);
             SetColumnWeight(nameof(LogEntry.ErrorMessage), 180);
 
             if (dataGridViewLogs.Columns[nameof(LogEntry.CreatedDate)] is DataGridViewColumn createdDateColumn)
             {
                 createdDateColumn.DefaultCellStyle.Format = "G";
+            }
+
+            if (dataGridViewLogs.Columns[nameof(LogEntry.Success)] is DataGridViewColumn successColumn)
+            {
+                successColumn.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                successColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
         }
 

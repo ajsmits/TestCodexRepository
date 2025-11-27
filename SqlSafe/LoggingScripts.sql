@@ -119,7 +119,12 @@ END
 GO
 
 CREATE PROCEDURE dbo.SqlSafe_LogExecution_GetByBatch
-    @BatchNumber INT
+    @BatchNumber INT = NULL,
+    @DatabaseName NVARCHAR(200) = NULL,
+    @Environment NVARCHAR(50) = NULL,
+    @User NVARCHAR(200) = NULL,
+    @CreatedFrom DATETIME2 = NULL,
+    @CreatedTo DATETIME2 = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -136,7 +141,41 @@ BEGIN
         ErrorMessage,
         CreatedDate
     FROM dbo.SqlSafe_ExecutionLog
-    WHERE BatchNumber = @BatchNumber
+    WHERE (BatchNumber = @BatchNumber OR @BatchNumber IS NULL)
+        AND (DatabaseName = @DatabaseName OR @DatabaseName IS NULL)
+        AND (Environment = @Environment OR @Environment IS NULL)
+        AND ([User] = @User OR @User IS NULL)
+        AND (CreatedDate >= @CreatedFrom OR @CreatedFrom IS NULL)
+        AND (CreatedDate <= @CreatedTo OR @CreatedTo IS NULL)
     ORDER BY CreatedDate DESC, Id DESC;
+END
+GO
+
+-- Stored procedure to retrieve distinct filter options
+IF OBJECT_ID('dbo.SqlSafe_LogExecution_GetFilterOptions', 'P') IS NOT NULL
+BEGIN
+    DROP PROCEDURE dbo.SqlSafe_LogExecution_GetFilterOptions;
+END
+GO
+
+CREATE PROCEDURE dbo.SqlSafe_LogExecution_GetFilterOptions
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT DISTINCT DatabaseName
+    FROM dbo.SqlSafe_ExecutionLog
+    WHERE NULLIF(DatabaseName, '') IS NOT NULL
+    ORDER BY DatabaseName;
+
+    SELECT DISTINCT Environment
+    FROM dbo.SqlSafe_ExecutionLog
+    WHERE NULLIF(Environment, '') IS NOT NULL
+    ORDER BY Environment;
+
+    SELECT DISTINCT [User]
+    FROM dbo.SqlSafe_ExecutionLog
+    WHERE NULLIF([User], '') IS NOT NULL
+    ORDER BY [User];
 END
 GO
