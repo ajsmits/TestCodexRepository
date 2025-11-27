@@ -48,7 +48,7 @@ namespace SqlSafe
             this.tabPageLogs = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelLogs = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanelLogFilters = new System.Windows.Forms.TableLayoutPanel();
-            this.flowLayoutPanelLogTop = new System.Windows.Forms.FlowLayoutPanel();
+            this.tableLayoutPanelLogFiltersLeft = new System.Windows.Forms.TableLayoutPanel();
             this.labelBatch = new System.Windows.Forms.Label();
             this.comboBoxBatchSelect = new System.Windows.Forms.ComboBox();
             this.labelDatabaseFilter = new System.Windows.Forms.Label();
@@ -84,7 +84,7 @@ namespace SqlSafe
             this.tabPageLogs.SuspendLayout();
             this.tableLayoutPanelLogs.SuspendLayout();
             this.tableLayoutPanelLogFilters.SuspendLayout();
-            this.flowLayoutPanelLogTop.SuspendLayout();
+            this.tableLayoutPanelLogFiltersLeft.SuspendLayout();
             this.flowLayoutPanelLogBottom.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).BeginInit();
             this.contextMenuLogs.SuspendLayout();
@@ -321,37 +321,43 @@ namespace SqlSafe
             // tableLayoutPanelLogFilters
             //
             this.tableLayoutPanelLogFilters.AutoSize = true;
-            this.tableLayoutPanelLogFilters.ColumnCount = 1;
+            this.tableLayoutPanelLogFilters.ColumnCount = 2;
+            this.tableLayoutPanelLogFilters.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanelLogFilters.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelLogFilters.Controls.Add(this.flowLayoutPanelLogTop, 0, 0);
-            this.tableLayoutPanelLogFilters.Controls.Add(this.flowLayoutPanelLogBottom, 0, 1);
+            this.tableLayoutPanelLogFilters.Controls.Add(this.tableLayoutPanelLogFiltersLeft, 0, 0);
+            this.tableLayoutPanelLogFilters.Controls.Add(this.flowLayoutPanelLogBottom, 1, 0);
             this.tableLayoutPanelLogFilters.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanelLogFilters.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanelLogFilters.Name = "tableLayoutPanelLogFilters";
-            this.tableLayoutPanelLogFilters.RowCount = 2;
+            this.tableLayoutPanelLogFilters.RowCount = 1;
             this.tableLayoutPanelLogFilters.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanelLogFilters.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanelLogFilters.Size = new System.Drawing.Size(552, 68);
+            this.tableLayoutPanelLogFilters.Size = new System.Drawing.Size(552, 98);
             this.tableLayoutPanelLogFilters.TabIndex = 0;
             //
-            // flowLayoutPanelLogTop
+            // tableLayoutPanelLogFiltersLeft
             //
-            this.flowLayoutPanelLogTop.AutoSize = true;
-            this.flowLayoutPanelLogTop.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanelLogTop.Controls.Add(this.labelBatch);
-            this.flowLayoutPanelLogTop.Controls.Add(this.comboBoxBatchSelect);
-            this.flowLayoutPanelLogTop.Controls.Add(this.labelDatabaseFilter);
-            this.flowLayoutPanelLogTop.Controls.Add(this.comboBoxDatabaseFilter);
-            this.flowLayoutPanelLogTop.Controls.Add(this.labelEnvironmentFilter);
-            this.flowLayoutPanelLogTop.Controls.Add(this.comboBoxEnvironmentFilter);
-            this.flowLayoutPanelLogTop.Controls.Add(this.labelUserFilter);
-            this.flowLayoutPanelLogTop.Controls.Add(this.comboBoxUserFilter);
-            this.flowLayoutPanelLogTop.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanelLogTop.Location = new System.Drawing.Point(3, 3);
-            this.flowLayoutPanelLogTop.Name = "flowLayoutPanelLogTop";
-            this.flowLayoutPanelLogTop.Padding = new System.Windows.Forms.Padding(3);
-            this.flowLayoutPanelLogTop.Size = new System.Drawing.Size(546, 32);
-            this.flowLayoutPanelLogTop.TabIndex = 0;
+            this.tableLayoutPanelLogFiltersLeft.AutoSize = true;
+            this.tableLayoutPanelLogFiltersLeft.ColumnCount = 2;
+            this.tableLayoutPanelLogFiltersLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanelLogFiltersLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.labelBatch, 0, 0);
+            this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.comboBoxBatchSelect, 1, 0);
+            this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.labelDatabaseFilter, 0, 1);
+            this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.comboBoxDatabaseFilter, 1, 1);
+            this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.labelEnvironmentFilter, 0, 2);
+            this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.comboBoxEnvironmentFilter, 1, 2);
+            this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.labelUserFilter, 0, 3);
+            this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.comboBoxUserFilter, 1, 3);
+            this.tableLayoutPanelLogFiltersLeft.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelLogFiltersLeft.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelLogFiltersLeft.Name = "tableLayoutPanelLogFiltersLeft";
+            this.tableLayoutPanelLogFiltersLeft.RowCount = 4;
+            this.tableLayoutPanelLogFiltersLeft.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelLogFiltersLeft.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelLogFiltersLeft.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelLogFiltersLeft.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelLogFiltersLeft.Size = new System.Drawing.Size(260, 92);
+            this.tableLayoutPanelLogFiltersLeft.TabIndex = 2;
             //
             // labelBatch
             //
@@ -367,7 +373,7 @@ namespace SqlSafe
             //
             this.comboBoxBatchSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxBatchSelect.FormattingEnabled = true;
-            this.comboBoxBatchSelect.Location = new System.Drawing.Point(57, 6);
+            this.comboBoxBatchSelect.Location = new System.Drawing.Point(57, 3);
             this.comboBoxBatchSelect.Name = "comboBoxBatchSelect";
             this.comboBoxBatchSelect.Size = new System.Drawing.Size(121, 23);
             this.comboBoxBatchSelect.TabIndex = 1;
@@ -376,7 +382,7 @@ namespace SqlSafe
             //
             this.labelDatabaseFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelDatabaseFilter.AutoSize = true;
-            this.labelDatabaseFilter.Location = new System.Drawing.Point(184, 10);
+            this.labelDatabaseFilter.Location = new System.Drawing.Point(6, 27);
             this.labelDatabaseFilter.Name = "labelDatabaseFilter";
             this.labelDatabaseFilter.Size = new System.Drawing.Size(61, 15);
             this.labelDatabaseFilter.TabIndex = 3;
@@ -386,7 +392,7 @@ namespace SqlSafe
             //
             this.comboBoxDatabaseFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxDatabaseFilter.FormattingEnabled = true;
-            this.comboBoxDatabaseFilter.Location = new System.Drawing.Point(251, 6);
+            this.comboBoxDatabaseFilter.Location = new System.Drawing.Point(73, 23);
             this.comboBoxDatabaseFilter.Name = "comboBoxDatabaseFilter";
             this.comboBoxDatabaseFilter.Size = new System.Drawing.Size(140, 23);
             this.comboBoxDatabaseFilter.TabIndex = 4;
@@ -395,7 +401,7 @@ namespace SqlSafe
             //
             this.labelEnvironmentFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelEnvironmentFilter.AutoSize = true;
-            this.labelEnvironmentFilter.Location = new System.Drawing.Point(251, 10);
+            this.labelEnvironmentFilter.Location = new System.Drawing.Point(6, 50);
             this.labelEnvironmentFilter.Name = "labelEnvironmentFilter";
             this.labelEnvironmentFilter.Size = new System.Drawing.Size(77, 15);
             this.labelEnvironmentFilter.TabIndex = 5;
@@ -405,7 +411,7 @@ namespace SqlSafe
             //
             this.comboBoxEnvironmentFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxEnvironmentFilter.FormattingEnabled = true;
-            this.comboBoxEnvironmentFilter.Location = new System.Drawing.Point(334, 6);
+            this.comboBoxEnvironmentFilter.Location = new System.Drawing.Point(89, 46);
             this.comboBoxEnvironmentFilter.Name = "comboBoxEnvironmentFilter";
             this.comboBoxEnvironmentFilter.Size = new System.Drawing.Size(121, 23);
             this.comboBoxEnvironmentFilter.TabIndex = 6;
@@ -414,7 +420,7 @@ namespace SqlSafe
             //
             this.labelUserFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelUserFilter.AutoSize = true;
-            this.labelUserFilter.Location = new System.Drawing.Point(461, 10);
+            this.labelUserFilter.Location = new System.Drawing.Point(6, 73);
             this.labelUserFilter.Name = "labelUserFilter";
             this.labelUserFilter.Size = new System.Drawing.Size(33, 15);
             this.labelUserFilter.TabIndex = 7;
@@ -424,7 +430,7 @@ namespace SqlSafe
             //
             this.comboBoxUserFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxUserFilter.FormattingEnabled = true;
-            this.comboBoxUserFilter.Location = new System.Drawing.Point(500, 6);
+            this.comboBoxUserFilter.Location = new System.Drawing.Point(45, 69);
             this.comboBoxUserFilter.Name = "comboBoxUserFilter";
             this.comboBoxUserFilter.Size = new System.Drawing.Size(140, 23);
             this.comboBoxUserFilter.TabIndex = 8;
@@ -441,10 +447,10 @@ namespace SqlSafe
             this.flowLayoutPanelLogBottom.Controls.Add(this.textBoxScriptSearch);
             this.flowLayoutPanelLogBottom.Controls.Add(this.buttonApplyFilters);
             this.flowLayoutPanelLogBottom.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanelLogBottom.Location = new System.Drawing.Point(3, 41);
+            this.flowLayoutPanelLogBottom.Location = new System.Drawing.Point(282, 3);
             this.flowLayoutPanelLogBottom.Name = "flowLayoutPanelLogBottom";
             this.flowLayoutPanelLogBottom.Padding = new System.Windows.Forms.Padding(3);
-            this.flowLayoutPanelLogBottom.Size = new System.Drawing.Size(546, 24);
+            this.flowLayoutPanelLogBottom.Size = new System.Drawing.Size(267, 44);
             this.flowLayoutPanelLogBottom.TabIndex = 1;
             //
             // labelCreatedFrom
@@ -600,8 +606,8 @@ namespace SqlSafe
             this.tableLayoutPanelLogs.ResumeLayout(false);
             this.tableLayoutPanelLogFilters.ResumeLayout(false);
             this.tableLayoutPanelLogFilters.PerformLayout();
-            this.flowLayoutPanelLogTop.ResumeLayout(false);
-            this.flowLayoutPanelLogTop.PerformLayout();
+            this.tableLayoutPanelLogFiltersLeft.ResumeLayout(false);
+            this.tableLayoutPanelLogFiltersLeft.PerformLayout();
             this.flowLayoutPanelLogBottom.ResumeLayout(false);
             this.flowLayoutPanelLogBottom.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).EndInit();
@@ -625,7 +631,7 @@ namespace SqlSafe
         private System.Windows.Forms.TabPage tabPageLogs;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelLogs;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelLogFilters;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLogTop;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelLogFiltersLeft;
         private System.Windows.Forms.Label labelBatch;
         private System.Windows.Forms.ComboBox comboBoxBatchSelect;
         private System.Windows.Forms.Label labelDatabaseFilter;

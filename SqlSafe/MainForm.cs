@@ -8,6 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using WinFormsSortOrder = System.Windows.Forms.SortOrder;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -304,7 +305,7 @@ namespace SqlSafe
         {
             foreach (DataGridViewColumn column in dataGridViewLogs.Columns)
             {
-                column.HeaderCell.SortGlyphDirection = SortOrder.None;
+                column.HeaderCell.SortGlyphDirection = WinFormsSortOrder.None;
             }
         }
 
@@ -360,8 +361,8 @@ namespace SqlSafe
             foreach (DataGridViewColumn column in dataGridViewLogs.Columns)
             {
                 column.HeaderCell.SortGlyphDirection = column.DataPropertyName == _currentSortColumn
-                    ? (_sortAscending ? SortOrder.Ascending : SortOrder.Descending)
-                    : SortOrder.None;
+                    ? (_sortAscending ? WinFormsSortOrder.Ascending : WinFormsSortOrder.Descending)
+                    : WinFormsSortOrder.None;
             }
 
             ConfigureLogGridColumns();
@@ -812,7 +813,13 @@ namespace SqlSafe
 
         private void ConfigureLogGridColumns()
         {
-            if (dataGridViewLogs.Columns.Count == 0)
+            if (InvokeRequired)
+            {
+                Invoke(new Action(ConfigureLogGridColumns));
+                return;
+            }
+
+            if (dataGridViewLogs.IsDisposed || dataGridViewLogs.Columns.Count == 0)
             {
                 return;
             }
@@ -837,7 +844,7 @@ namespace SqlSafe
 
             void SetColumnWeight(string name, float weight, int minimumWidth = 70)
             {
-                if (dataGridViewLogs.Columns[name] is not DataGridViewColumn column)
+                if (dataGridViewLogs.IsDisposed || dataGridViewLogs.Columns[name] is not DataGridViewColumn column)
                 {
                     return;
                 }
@@ -851,25 +858,28 @@ namespace SqlSafe
                     return;
                 }
 
-                column.FillWeight = weight;
-                column.SortMode = DataGridViewColumnSortMode.Programmatic;
-                if (minimumWidth > 0)
+                try
                 {
-                    try
+                    column.FillWeight = weight;
+                    column.SortMode = DataGridViewColumnSortMode.Programmatic;
+                    if (minimumWidth > 0)
                     {
                         column.MinimumWidth = minimumWidth;
                     }
-                    catch (NullReferenceException)
+                    column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+                    if (headers.TryGetValue(name, out var header))
                     {
-                        // Ignore if the grid is rebuilding columns; sizing will settle once binding completes.
-                        return;
+                        column.HeaderText = header;
                     }
                 }
-                column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
-
-                if (headers.TryGetValue(name, out var header))
+                catch (NullReferenceException)
                 {
-                    column.HeaderText = header;
+                    return;
+                }
+                catch (InvalidOperationException)
+                {
+                    return;
                 }
             }
 
