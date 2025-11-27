@@ -819,7 +819,7 @@ namespace SqlSafe
                 return;
             }
 
-            if (dataGridViewLogs.IsDisposed || dataGridViewLogs.Columns.Count == 0)
+            if (dataGridViewLogs.IsDisposed || !dataGridViewLogs.IsHandleCreated || dataGridViewLogs.Columns.Count == 0)
             {
                 return;
             }
@@ -853,7 +853,7 @@ namespace SqlSafe
                 // its DataGridView reference, which can surface as a NullReferenceException when
                 // setting sizing properties. Guard against that state and skip sizing until the
                 // next binding pass.
-                if (column.DataGridView is null || column.DataGridView.IsDisposed)
+                if (column.DataGridView is null || column.DataGridView.IsDisposed || !column.DataGridView.IsHandleCreated)
                 {
                     return;
                 }

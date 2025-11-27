@@ -339,7 +339,7 @@ namespace SqlSafe
             this.tableLayoutPanelLogFiltersLeft.AutoSize = true;
             this.tableLayoutPanelLogFiltersLeft.ColumnCount = 2;
             this.tableLayoutPanelLogFiltersLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanelLogFiltersLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelLogFiltersLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
             this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.labelBatch, 0, 0);
             this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.comboBoxBatchSelect, 1, 0);
             this.tableLayoutPanelLogFiltersLeft.Controls.Add(this.labelDatabaseFilter, 0, 1);
@@ -361,7 +361,7 @@ namespace SqlSafe
             //
             // labelBatch
             //
-            this.labelBatch.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelBatch.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.labelBatch.AutoSize = true;
             this.labelBatch.Location = new System.Drawing.Point(6, 10);
             this.labelBatch.Name = "labelBatch";
@@ -375,12 +375,12 @@ namespace SqlSafe
             this.comboBoxBatchSelect.FormattingEnabled = true;
             this.comboBoxBatchSelect.Location = new System.Drawing.Point(57, 3);
             this.comboBoxBatchSelect.Name = "comboBoxBatchSelect";
-            this.comboBoxBatchSelect.Size = new System.Drawing.Size(121, 23);
+            this.comboBoxBatchSelect.Size = new System.Drawing.Size(180, 23);
             this.comboBoxBatchSelect.TabIndex = 1;
             //
             // labelDatabaseFilter
             //
-            this.labelDatabaseFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelDatabaseFilter.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.labelDatabaseFilter.AutoSize = true;
             this.labelDatabaseFilter.Location = new System.Drawing.Point(6, 27);
             this.labelDatabaseFilter.Name = "labelDatabaseFilter";
@@ -394,12 +394,12 @@ namespace SqlSafe
             this.comboBoxDatabaseFilter.FormattingEnabled = true;
             this.comboBoxDatabaseFilter.Location = new System.Drawing.Point(73, 23);
             this.comboBoxDatabaseFilter.Name = "comboBoxDatabaseFilter";
-            this.comboBoxDatabaseFilter.Size = new System.Drawing.Size(140, 23);
+            this.comboBoxDatabaseFilter.Size = new System.Drawing.Size(180, 23);
             this.comboBoxDatabaseFilter.TabIndex = 4;
             //
             // labelEnvironmentFilter
             //
-            this.labelEnvironmentFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelEnvironmentFilter.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.labelEnvironmentFilter.AutoSize = true;
             this.labelEnvironmentFilter.Location = new System.Drawing.Point(6, 50);
             this.labelEnvironmentFilter.Name = "labelEnvironmentFilter";
@@ -413,12 +413,12 @@ namespace SqlSafe
             this.comboBoxEnvironmentFilter.FormattingEnabled = true;
             this.comboBoxEnvironmentFilter.Location = new System.Drawing.Point(89, 46);
             this.comboBoxEnvironmentFilter.Name = "comboBoxEnvironmentFilter";
-            this.comboBoxEnvironmentFilter.Size = new System.Drawing.Size(121, 23);
+            this.comboBoxEnvironmentFilter.Size = new System.Drawing.Size(180, 23);
             this.comboBoxEnvironmentFilter.TabIndex = 6;
             //
             // labelUserFilter
             //
-            this.labelUserFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelUserFilter.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.labelUserFilter.AutoSize = true;
             this.labelUserFilter.Location = new System.Drawing.Point(6, 73);
             this.labelUserFilter.Name = "labelUserFilter";
@@ -432,7 +432,7 @@ namespace SqlSafe
             this.comboBoxUserFilter.FormattingEnabled = true;
             this.comboBoxUserFilter.Location = new System.Drawing.Point(45, 69);
             this.comboBoxUserFilter.Name = "comboBoxUserFilter";
-            this.comboBoxUserFilter.Size = new System.Drawing.Size(140, 23);
+            this.comboBoxUserFilter.Size = new System.Drawing.Size(180, 23);
             this.comboBoxUserFilter.TabIndex = 8;
             //
             // flowLayoutPanelLogBottom
