@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -36,6 +37,7 @@ namespace SqlSafe
             toolStripMenuItemDeselectServer.Click += (_, _) => SetSelectedServerChecked(false);
             comboBoxBatchSelect.SelectedIndexChanged += ComboBoxBatchSelect_SelectedIndexChanged;
             buttonRefreshBatches.Click += async (_, _) => await RefreshBatchesAsync();
+            dataGridViewLogs.DataBindingComplete += DataGridViewLogs_DataBindingComplete;
             Load += async (_, _) => await InitializeDataAsync();
             comboBoxEnvironment.SelectedIndex = 0;
             UpdateRunButtonState();
@@ -155,13 +157,17 @@ namespace SqlSafe
             await RefreshBatchesAsync();
         }
 
-        private async Task RefreshBatchesAsync()
+        private async Task RefreshBatchesAsync(int? selectBatchNumber = null)
         {
             _isLoadingBatches = true;
             try
             {
-                var batches = (await LogEntry.GetBatchNumbersAsync().ConfigureAwait(false)).ToList();
+                var batches = (await LogEntry.GetBatchNumbersAsync()).ToList();
                 comboBoxBatchSelect.DataSource = batches;
+                if (selectBatchNumber.HasValue && batches.Contains(selectBatchNumber.Value))
+                {
+                    comboBoxBatchSelect.SelectedItem = selectBatchNumber.Value;
+                }
             }
             catch (Exception ex)
             {
@@ -177,7 +183,7 @@ namespace SqlSafe
 
             if (comboBoxBatchSelect.SelectedItem is int batchNumber)
             {
-                await LoadLogsForBatchAsync(batchNumber).ConfigureAwait(false);
+                await LoadLogsForBatchAsync(batchNumber);
             }
             else
             {
@@ -189,20 +195,26 @@ namespace SqlSafe
         {
             try
             {
-                var entries = (await LogEntry.GetByBatchAsync(batchNumber).ConfigureAwait(false)).ToList();
-                if (dataGridViewLogs.InvokeRequired)
-                {
-                    dataGridViewLogs.Invoke(new Action(() => dataGridViewLogs.DataSource = entries));
-                }
-                else
-                {
-                    dataGridViewLogs.DataSource = entries;
-                }
+                var entries = (await LogEntry.GetByBatchAsync(batchNumber)).ToList();
+                BindLogs(entries);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to load logs for batch {batchNumber}: {ex.Message}", "Logs", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void BindLogs(IReadOnlyList<LogEntry> entries)
+        {
+            if (dataGridViewLogs.InvokeRequired)
+            {
+                dataGridViewLogs.Invoke(new Action(() => BindLogs(entries)));
+                return;
+            }
+
+            dataGridViewLogs.DataSource = entries;
+            ConfigureLogGridColumns();
+            ApplyLogRowStyles();
         }
 
         private IEnumerable<SqlServerNode> GetEnvironmentServers()
@@ -415,7 +427,7 @@ namespace SqlSafe
 
             try
             {
-                batchNumber = await LogEntry.GetNextBatchNumberAsync().ConfigureAwait(false);
+                batchNumber = await LogEntry.GetNextBatchNumberAsync();
             }
             catch (Exception ex)
             {
@@ -435,8 +447,8 @@ namespace SqlSafe
                             CommandType = CommandType.Text
                         };
 
-                        await connection.OpenAsync().ConfigureAwait(false);
-                        await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        await connection.OpenAsync();
+                        await command.ExecuteNonQueryAsync();
 
                         successCount++;
 
@@ -450,7 +462,7 @@ namespace SqlSafe
                                 BatchNumber = batchNumber,
                                 Success = true,
                                 ScriptRan = script
-                            }).ConfigureAwait(false);
+                            });
                         }
                         catch
                         {
@@ -472,7 +484,7 @@ namespace SqlSafe
                                 Success = false,
                                 ScriptRan = script,
                                 ErrorMessage = ex.Message
-                            }).ConfigureAwait(false);
+                            });
                         }
                         catch
                         {
@@ -489,6 +501,9 @@ namespace SqlSafe
             }
 
             MessageBox.Show(message, "Run Results", MessageBoxButtons.OK, failures.Count == 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+            await RefreshBatchesAsync(batchNumber);
+            ShowLogsTabForBatch(batchNumber);
         }
 
         private void SetChildrenChecked(TreeNode parent, bool isChecked)
@@ -542,6 +557,79 @@ namespace SqlSafe
 
             node.Checked = allChecked;
             UpdateParentCheckState(node.Parent);
+        }
+
+        private void DataGridViewLogs_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            ConfigureLogGridColumns();
+            ApplyLogRowStyles();
+        }
+
+        private void ConfigureLogGridColumns()
+        {
+            if (dataGridViewLogs.Columns.Count == 0)
+            {
+                return;
+            }
+
+            dataGridViewLogs.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewLogs.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+
+            void SetColumnWeight(string name, float weight, int minimumWidth = 70)
+            {
+                if (dataGridViewLogs.Columns[name] is DataGridViewColumn column)
+                {
+                    column.FillWeight = weight;
+                    column.MinimumWidth = minimumWidth;
+                    column.DefaultCellStyle.WrapMode = name is nameof(LogEntry.ScriptRan) or nameof(LogEntry.ErrorMessage)
+                        ? DataGridViewTriState.True
+                        : DataGridViewTriState.False;
+                }
+            }
+
+            SetColumnWeight(nameof(LogEntry.Id), 50, 50);
+            SetColumnWeight(nameof(LogEntry.BatchNumber), 70);
+            SetColumnWeight(nameof(LogEntry.Environment), 90);
+            SetColumnWeight(nameof(LogEntry.SqlServer), 120);
+            SetColumnWeight(nameof(LogEntry.DatabaseName), 120);
+            SetColumnWeight(nameof(LogEntry.User), 100);
+            SetColumnWeight(nameof(LogEntry.Success), 70, 60);
+            SetColumnWeight(nameof(LogEntry.CreatedDate), 110);
+            SetColumnWeight(nameof(LogEntry.ScriptRan), 200);
+            SetColumnWeight(nameof(LogEntry.ErrorMessage), 180);
+
+            if (dataGridViewLogs.Columns[nameof(LogEntry.CreatedDate)] is DataGridViewColumn createdDateColumn)
+            {
+                createdDateColumn.DefaultCellStyle.Format = "G";
+            }
+        }
+
+        private void ApplyLogRowStyles()
+        {
+            foreach (DataGridViewRow row in dataGridViewLogs.Rows)
+            {
+                if (row.DataBoundItem is not LogEntry entry)
+                {
+                    continue;
+                }
+
+                var successBackColor = Color.FromArgb(214, 241, 214);
+                var successSelectColor = Color.FromArgb(173, 217, 173);
+                var failureBackColor = Color.FromArgb(250, 220, 220);
+                var failureSelectColor = Color.FromArgb(235, 184, 184);
+
+                row.DefaultCellStyle.BackColor = entry.Success ? successBackColor : failureBackColor;
+                row.DefaultCellStyle.SelectionBackColor = entry.Success ? successSelectColor : failureSelectColor;
+            }
+        }
+
+        private void ShowLogsTabForBatch(int batchNumber)
+        {
+            tabControlRight.SelectedTab = tabPageLogs;
+            if (comboBoxBatchSelect.Items.Contains(batchNumber))
+            {
+                comboBoxBatchSelect.SelectedItem = batchNumber;
+            }
         }
 
         private sealed record SqlServerNode(string ServerName, IReadOnlyList<DatabaseNode> Databases);
