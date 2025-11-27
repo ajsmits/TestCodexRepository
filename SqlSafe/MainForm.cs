@@ -713,13 +713,15 @@ namespace SqlSafe
                 var primaryDefinition = await primaryDefinitionTask.ConfigureAwait(true);
                 var compareDefinition = await compareDefinitionTask.ConfigureAwait(true);
 
-                textBoxPrimaryViewDefinition.Text = selected.InPrimary
+                var primaryText = selected.InPrimary
                     ? primaryDefinition ?? "Definition not found."
                     : "View not available in primary selection.";
 
-                textBoxCompareViewDefinition.Text = selected.InComparison
+                var compareText = selected.InComparison
                     ? compareDefinition ?? "Definition not found."
                     : "View not available in comparison selection.";
+
+                RenderDefinitionDiff(primaryText, compareText);
             }
             catch (Exception ex)
             {
@@ -853,6 +855,147 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
             textBoxCompareViewDefinition.Clear();
             labelPrimaryDefinition.Text = "Primary view definition";
             labelCompareDefinition.Text = "Comparison view definition";
+        }
+
+        private enum DiffKind
+        {
+            Unchanged,
+            Added,
+            Removed
+        }
+
+        private sealed record DiffLine(string? Primary, string? Comparison, DiffKind Kind);
+
+        private void RenderDefinitionDiff(string primaryDefinition, string comparisonDefinition)
+        {
+            var diffLines = BuildLineDiff(primaryDefinition, comparisonDefinition);
+
+            RenderDiffToBox(textBoxPrimaryViewDefinition, diffLines, isPrimary: true);
+            RenderDiffToBox(textBoxCompareViewDefinition, diffLines, isPrimary: false);
+        }
+
+        private static List<DiffLine> BuildLineDiff(string primaryDefinition, string comparisonDefinition)
+        {
+            var primaryLines = SplitLines(primaryDefinition);
+            var compareLines = SplitLines(comparisonDefinition);
+
+            var m = primaryLines.Length;
+            var n = compareLines.Length;
+            var lcs = new int[m + 1, n + 1];
+
+            for (var i = m - 1; i >= 0; i--)
+            {
+                for (var j = n - 1; j >= 0; j--)
+                {
+                    if (string.Equals(primaryLines[i], compareLines[j], StringComparison.Ordinal))
+                    {
+                        lcs[i, j] = lcs[i + 1, j + 1] + 1;
+                    }
+                    else
+                    {
+                        lcs[i, j] = Math.Max(lcs[i + 1, j], lcs[i, j + 1]);
+                    }
+                }
+            }
+
+            var results = new List<DiffLine>();
+            var x = 0;
+            var y = 0;
+
+            while (x < m && y < n)
+            {
+                if (string.Equals(primaryLines[x], compareLines[y], StringComparison.Ordinal))
+                {
+                    results.Add(new DiffLine(primaryLines[x], compareLines[y], DiffKind.Unchanged));
+                    x++;
+                    y++;
+                }
+                else if (lcs[x + 1, y] >= lcs[x, y + 1])
+                {
+                    results.Add(new DiffLine(primaryLines[x], null, DiffKind.Removed));
+                    x++;
+                }
+                else
+                {
+                    results.Add(new DiffLine(null, compareLines[y], DiffKind.Added));
+                    y++;
+                }
+            }
+
+            while (x < m)
+            {
+                results.Add(new DiffLine(primaryLines[x], null, DiffKind.Removed));
+                x++;
+            }
+
+            while (y < n)
+            {
+                results.Add(new DiffLine(null, compareLines[y], DiffKind.Added));
+                y++;
+            }
+
+            return results;
+        }
+
+        private static string[] SplitLines(string text)
+        {
+            return text.Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace('\r', '\n')
+                .Split('\n');
+        }
+
+        private static void RenderDiffToBox(RichTextBox box, IEnumerable<DiffLine> lines, bool isPrimary)
+        {
+            box.SuspendLayout();
+            box.Clear();
+
+            foreach (var line in lines)
+            {
+                var content = isPrimary ? line.Primary : line.Comparison;
+                var prefix = line.Kind switch
+                {
+                    DiffKind.Added => "+ ",
+                    DiffKind.Removed => "- ",
+                    _ => "  "
+                };
+
+                var text = (content ?? string.Empty).Length == 0 ? string.Empty : content;
+                var color = Color.Black;
+                Color? backColor = null;
+
+                if (line.Kind == DiffKind.Added && !isPrimary)
+                {
+                    backColor = Color.FromArgb(214, 241, 214);
+                    color = Color.FromArgb(0, 102, 0);
+                }
+                else if (line.Kind == DiffKind.Removed && isPrimary)
+                {
+                    backColor = Color.FromArgb(250, 220, 220);
+                    color = Color.FromArgb(153, 0, 0);
+                }
+
+                AppendLine(box, prefix + text, color, backColor);
+            }
+
+            box.ResumeLayout();
+        }
+
+        private static void AppendLine(RichTextBox box, string text, Color foreColor, Color? backColor)
+        {
+            var start = box.TextLength;
+            box.AppendText(text + Environment.NewLine);
+            box.Select(start, text.Length);
+            box.SelectionColor = foreColor;
+            if (backColor.HasValue)
+            {
+                box.SelectionBackColor = backColor.Value;
+            }
+            else
+            {
+                box.SelectionBackColor = box.BackColor;
+            }
+
+            box.SelectionLength = 0;
         }
 
         private static string? FindBannedWord(string text)

@@ -91,8 +91,8 @@ namespace SqlSafe
             this.tableLayoutPanelViewDefinitions = new System.Windows.Forms.TableLayoutPanel();
             this.labelPrimaryDefinition = new System.Windows.Forms.Label();
             this.labelCompareDefinition = new System.Windows.Forms.Label();
-            this.textBoxPrimaryViewDefinition = new System.Windows.Forms.TextBox();
-            this.textBoxCompareViewDefinition = new System.Windows.Forms.TextBox();
+            this.textBoxPrimaryViewDefinition = new System.Windows.Forms.RichTextBox();
+            this.textBoxCompareViewDefinition = new System.Windows.Forms.RichTextBox();
             this.contextMenuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemSelectServer = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemDeselectServer = new System.Windows.Forms.ToolStripMenuItem();
@@ -842,28 +842,32 @@ namespace SqlSafe
             //
             // textBoxPrimaryViewDefinition
             //
+            this.textBoxPrimaryViewDefinition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBoxPrimaryViewDefinition.DetectUrls = false;
             this.textBoxPrimaryViewDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBoxPrimaryViewDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textBoxPrimaryViewDefinition.Location = new System.Drawing.Point(3, 18);
-            this.textBoxPrimaryViewDefinition.Multiline = true;
             this.textBoxPrimaryViewDefinition.Name = "textBoxPrimaryViewDefinition";
             this.textBoxPrimaryViewDefinition.ReadOnly = true;
-            this.textBoxPrimaryViewDefinition.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxPrimaryViewDefinition.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
             this.textBoxPrimaryViewDefinition.Size = new System.Drawing.Size(267, 102);
             this.textBoxPrimaryViewDefinition.TabIndex = 2;
+            this.textBoxPrimaryViewDefinition.Text = "";
             this.textBoxPrimaryViewDefinition.WordWrap = false;
             //
             // textBoxCompareViewDefinition
             //
+            this.textBoxCompareViewDefinition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBoxCompareViewDefinition.DetectUrls = false;
             this.textBoxCompareViewDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBoxCompareViewDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textBoxCompareViewDefinition.Location = new System.Drawing.Point(276, 18);
-            this.textBoxCompareViewDefinition.Multiline = true;
             this.textBoxCompareViewDefinition.Name = "textBoxCompareViewDefinition";
             this.textBoxCompareViewDefinition.ReadOnly = true;
-            this.textBoxCompareViewDefinition.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxCompareViewDefinition.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
             this.textBoxCompareViewDefinition.Size = new System.Drawing.Size(267, 102);
             this.textBoxCompareViewDefinition.TabIndex = 3;
+            this.textBoxCompareViewDefinition.Text = "";
             this.textBoxCompareViewDefinition.WordWrap = false;
             //
             // contextMenuTree
@@ -996,8 +1000,8 @@ namespace SqlSafe
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelViewDefinitions;
         private System.Windows.Forms.Label labelPrimaryDefinition;
         private System.Windows.Forms.Label labelCompareDefinition;
-        private System.Windows.Forms.TextBox textBoxPrimaryViewDefinition;
-        private System.Windows.Forms.TextBox textBoxCompareViewDefinition;
+        private System.Windows.Forms.RichTextBox textBoxPrimaryViewDefinition;
+        private System.Windows.Forms.RichTextBox textBoxCompareViewDefinition;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelViewSearch;
         private System.Windows.Forms.Label labelViewSearch;
         private System.Windows.Forms.TextBox textBoxViewSearch;
