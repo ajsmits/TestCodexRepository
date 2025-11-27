@@ -123,7 +123,8 @@ namespace SqlSafe
             string? environment = null,
             DateTime? createdFrom = null,
             DateTime? createdTo = null,
-            string? user = null)
+            string? user = null,
+            string? scriptContains = null)
         {
             var connectionString = ConfigurationManager.ConnectionStrings["LogDb"]?.ConnectionString;
             if (string.IsNullOrWhiteSpace(connectionString))
@@ -143,6 +144,7 @@ namespace SqlSafe
             command.Parameters.Add("@User", SqlDbType.NVarChar, 200).Value = (object?)user ?? DBNull.Value;
             command.Parameters.Add("@CreatedFrom", SqlDbType.DateTime2).Value = (object?)createdFrom ?? DBNull.Value;
             command.Parameters.Add("@CreatedTo", SqlDbType.DateTime2).Value = (object?)createdTo ?? DBNull.Value;
+            command.Parameters.Add("@ScriptContains", SqlDbType.NVarChar, -1).Value = (object?)scriptContains ?? DBNull.Value;
 
             await connection.OpenAsync().ConfigureAwait(false);
             using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);

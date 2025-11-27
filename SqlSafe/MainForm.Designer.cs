@@ -40,32 +40,36 @@ namespace SqlSafe
             this.treeViewCategories = new System.Windows.Forms.TreeView();
             this.tabControlRight = new System.Windows.Forms.TabControl();
             this.tabPageSql = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanelSqlEditor = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanelSqlActions = new System.Windows.Forms.FlowLayoutPanel();
+            this.buttonRun = new System.Windows.Forms.Button();
+            this.buttonClear = new System.Windows.Forms.Button();
             this.textBoxSql = new System.Windows.Forms.TextBox();
             this.tabPageLogs = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelLogs = new System.Windows.Forms.TableLayoutPanel();
-            this.flowLayoutPanelLogControls = new System.Windows.Forms.FlowLayoutPanel();
+            this.tableLayoutPanelLogFilters = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanelLogTop = new System.Windows.Forms.FlowLayoutPanel();
             this.labelBatch = new System.Windows.Forms.Label();
             this.comboBoxBatchSelect = new System.Windows.Forms.ComboBox();
-            this.buttonRefreshBatches = new System.Windows.Forms.Button();
             this.labelDatabaseFilter = new System.Windows.Forms.Label();
             this.comboBoxDatabaseFilter = new System.Windows.Forms.ComboBox();
             this.labelEnvironmentFilter = new System.Windows.Forms.Label();
             this.comboBoxEnvironmentFilter = new System.Windows.Forms.ComboBox();
             this.labelUserFilter = new System.Windows.Forms.Label();
             this.comboBoxUserFilter = new System.Windows.Forms.ComboBox();
+            this.flowLayoutPanelLogBottom = new System.Windows.Forms.FlowLayoutPanel();
             this.labelCreatedFrom = new System.Windows.Forms.Label();
             this.dateTimePickerCreatedFrom = new System.Windows.Forms.DateTimePicker();
             this.labelCreatedTo = new System.Windows.Forms.Label();
             this.dateTimePickerCreatedTo = new System.Windows.Forms.DateTimePicker();
+            this.labelScriptSearch = new System.Windows.Forms.Label();
+            this.textBoxScriptSearch = new System.Windows.Forms.TextBox();
             this.buttonApplyFilters = new System.Windows.Forms.Button();
             this.dataGridViewLogs = new System.Windows.Forms.DataGridView();
             this.contextMenuLogs = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemCopyScript = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemCopyError = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemRetry = new System.Windows.Forms.ToolStripMenuItem();
-            this.flowLayoutPanelActions = new System.Windows.Forms.FlowLayoutPanel();
-            this.buttonRun = new System.Windows.Forms.Button();
-            this.buttonClear = new System.Windows.Forms.Button();
             this.contextMenuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemSelectServer = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemDeselectServer = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,10 +83,11 @@ namespace SqlSafe
             this.tabPageSql.SuspendLayout();
             this.tabPageLogs.SuspendLayout();
             this.tableLayoutPanelLogs.SuspendLayout();
-            this.flowLayoutPanelLogControls.SuspendLayout();
+            this.tableLayoutPanelLogFilters.SuspendLayout();
+            this.flowLayoutPanelLogTop.SuspendLayout();
+            this.flowLayoutPanelLogBottom.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).BeginInit();
             this.contextMenuLogs.SuspendLayout();
-            this.flowLayoutPanelActions.SuspendLayout();
             this.contextMenuTree.SuspendLayout();
             this.SuspendLayout();
             //
@@ -92,15 +97,13 @@ namespace SqlSafe
             this.tableLayoutPanelMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanelMain.Controls.Add(this.flowLayoutPanelEnvironment, 0, 0);
             this.tableLayoutPanelMain.Controls.Add(this.splitContainerMain, 0, 1);
-            this.tableLayoutPanelMain.Controls.Add(this.flowLayoutPanelActions, 0, 2);
             this.tableLayoutPanelMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanelMain.Location = new System.Drawing.Point(12, 12);
             this.tableLayoutPanelMain.Name = "tableLayoutPanelMain";
-            this.tableLayoutPanelMain.RowCount = 3;
+            this.tableLayoutPanelMain.RowCount = 2;
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanelMain.Size = new System.Drawing.Size(860, 487);
+            this.tableLayoutPanelMain.Size = new System.Drawing.Size(860, 469);
             this.tableLayoutPanelMain.TabIndex = 0;
             //
             // splitContainerMain
@@ -214,7 +217,7 @@ namespace SqlSafe
             //
             // tabPageSql
             //
-            this.tabPageSql.Controls.Add(this.textBoxSql);
+            this.tabPageSql.Controls.Add(this.tableLayoutPanelSqlEditor);
             this.tabPageSql.Location = new System.Drawing.Point(4, 24);
             this.tabPageSql.Name = "tabPageSql";
             this.tabPageSql.Padding = new System.Windows.Forms.Padding(3);
@@ -223,17 +226,69 @@ namespace SqlSafe
             this.tabPageSql.Text = "SQL Editor";
             this.tabPageSql.UseVisualStyleBackColor = true;
             //
+            // tableLayoutPanelSqlEditor
+            //
+            this.tableLayoutPanelSqlEditor.ColumnCount = 1;
+            this.tableLayoutPanelSqlEditor.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelSqlEditor.Controls.Add(this.flowLayoutPanelSqlActions, 0, 0);
+            this.tableLayoutPanelSqlEditor.Controls.Add(this.textBoxSql, 0, 1);
+            this.tableLayoutPanelSqlEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelSqlEditor.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelSqlEditor.Name = "tableLayoutPanelSqlEditor";
+            this.tableLayoutPanelSqlEditor.RowCount = 2;
+            this.tableLayoutPanelSqlEditor.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelSqlEditor.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelSqlEditor.Size = new System.Drawing.Size(558, 370);
+            this.tableLayoutPanelSqlEditor.TabIndex = 0;
+            //
+            // flowLayoutPanelSqlActions
+            //
+            this.flowLayoutPanelSqlActions.AutoSize = true;
+            this.flowLayoutPanelSqlActions.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelSqlActions.Controls.Add(this.buttonRun);
+            this.flowLayoutPanelSqlActions.Controls.Add(this.buttonClear);
+            this.flowLayoutPanelSqlActions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelSqlActions.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanelSqlActions.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanelSqlActions.Name = "flowLayoutPanelSqlActions";
+            this.flowLayoutPanelSqlActions.Padding = new System.Windows.Forms.Padding(0, 0, 0, 6);
+            this.flowLayoutPanelSqlActions.Size = new System.Drawing.Size(552, 31);
+            this.flowLayoutPanelSqlActions.TabIndex = 0;
+            this.flowLayoutPanelSqlActions.WrapContents = false;
+            //
+            // buttonRun
+            //
+            this.buttonRun.AutoSize = true;
+            this.buttonRun.Location = new System.Drawing.Point(479, 3);
+            this.buttonRun.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
+            this.buttonRun.Name = "buttonRun";
+            this.buttonRun.Size = new System.Drawing.Size(70, 25);
+            this.buttonRun.TabIndex = 0;
+            this.buttonRun.Text = "Run";
+            this.buttonRun.UseVisualStyleBackColor = true;
+            //
+            // buttonClear
+            //
+            this.buttonClear.AutoSize = true;
+            this.buttonClear.Location = new System.Drawing.Point(403, 3);
+            this.buttonClear.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
+            this.buttonClear.Name = "buttonClear";
+            this.buttonClear.Size = new System.Drawing.Size(70, 25);
+            this.buttonClear.TabIndex = 1;
+            this.buttonClear.Text = "Clear";
+            this.buttonClear.UseVisualStyleBackColor = true;
+            //
             // textBoxSql
             //
             this.textBoxSql.AcceptsReturn = true;
             this.textBoxSql.AcceptsTab = true;
             this.textBoxSql.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBoxSql.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textBoxSql.Location = new System.Drawing.Point(3, 3);
+            this.textBoxSql.Location = new System.Drawing.Point(3, 40);
             this.textBoxSql.Multiline = true;
             this.textBoxSql.Name = "textBoxSql";
             this.textBoxSql.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxSql.Size = new System.Drawing.Size(558, 370);
+            this.textBoxSql.Size = new System.Drawing.Size(552, 327);
             this.textBoxSql.TabIndex = 3;
             this.textBoxSql.WordWrap = false;
             //
@@ -252,7 +307,7 @@ namespace SqlSafe
             //
             this.tableLayoutPanelLogs.ColumnCount = 1;
             this.tableLayoutPanelLogs.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelLogs.Controls.Add(this.flowLayoutPanelLogControls, 0, 0);
+            this.tableLayoutPanelLogs.Controls.Add(this.tableLayoutPanelLogFilters, 0, 0);
             this.tableLayoutPanelLogs.Controls.Add(this.dataGridViewLogs, 0, 1);
             this.tableLayoutPanelLogs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanelLogs.Location = new System.Drawing.Point(3, 3);
@@ -263,30 +318,40 @@ namespace SqlSafe
             this.tableLayoutPanelLogs.Size = new System.Drawing.Size(558, 370);
             this.tableLayoutPanelLogs.TabIndex = 0;
             //
-            // flowLayoutPanelLogControls
+            // tableLayoutPanelLogFilters
             //
-            this.flowLayoutPanelLogControls.AutoSize = true;
-            this.flowLayoutPanelLogControls.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanelLogControls.Controls.Add(this.labelBatch);
-            this.flowLayoutPanelLogControls.Controls.Add(this.comboBoxBatchSelect);
-            this.flowLayoutPanelLogControls.Controls.Add(this.buttonRefreshBatches);
-            this.flowLayoutPanelLogControls.Controls.Add(this.labelDatabaseFilter);
-            this.flowLayoutPanelLogControls.Controls.Add(this.comboBoxDatabaseFilter);
-            this.flowLayoutPanelLogControls.Controls.Add(this.labelEnvironmentFilter);
-            this.flowLayoutPanelLogControls.Controls.Add(this.comboBoxEnvironmentFilter);
-            this.flowLayoutPanelLogControls.Controls.Add(this.labelUserFilter);
-            this.flowLayoutPanelLogControls.Controls.Add(this.comboBoxUserFilter);
-            this.flowLayoutPanelLogControls.Controls.Add(this.labelCreatedFrom);
-            this.flowLayoutPanelLogControls.Controls.Add(this.dateTimePickerCreatedFrom);
-            this.flowLayoutPanelLogControls.Controls.Add(this.labelCreatedTo);
-            this.flowLayoutPanelLogControls.Controls.Add(this.dateTimePickerCreatedTo);
-            this.flowLayoutPanelLogControls.Controls.Add(this.buttonApplyFilters);
-            this.flowLayoutPanelLogControls.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanelLogControls.Location = new System.Drawing.Point(3, 3);
-            this.flowLayoutPanelLogControls.Name = "flowLayoutPanelLogControls";
-            this.flowLayoutPanelLogControls.Padding = new System.Windows.Forms.Padding(3);
-            this.flowLayoutPanelLogControls.Size = new System.Drawing.Size(552, 93);
-            this.flowLayoutPanelLogControls.TabIndex = 0;
+            this.tableLayoutPanelLogFilters.AutoSize = true;
+            this.tableLayoutPanelLogFilters.ColumnCount = 1;
+            this.tableLayoutPanelLogFilters.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelLogFilters.Controls.Add(this.flowLayoutPanelLogTop, 0, 0);
+            this.tableLayoutPanelLogFilters.Controls.Add(this.flowLayoutPanelLogBottom, 0, 1);
+            this.tableLayoutPanelLogFilters.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelLogFilters.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelLogFilters.Name = "tableLayoutPanelLogFilters";
+            this.tableLayoutPanelLogFilters.RowCount = 2;
+            this.tableLayoutPanelLogFilters.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelLogFilters.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelLogFilters.Size = new System.Drawing.Size(552, 68);
+            this.tableLayoutPanelLogFilters.TabIndex = 0;
+            //
+            // flowLayoutPanelLogTop
+            //
+            this.flowLayoutPanelLogTop.AutoSize = true;
+            this.flowLayoutPanelLogTop.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelLogTop.Controls.Add(this.labelBatch);
+            this.flowLayoutPanelLogTop.Controls.Add(this.comboBoxBatchSelect);
+            this.flowLayoutPanelLogTop.Controls.Add(this.labelDatabaseFilter);
+            this.flowLayoutPanelLogTop.Controls.Add(this.comboBoxDatabaseFilter);
+            this.flowLayoutPanelLogTop.Controls.Add(this.labelEnvironmentFilter);
+            this.flowLayoutPanelLogTop.Controls.Add(this.comboBoxEnvironmentFilter);
+            this.flowLayoutPanelLogTop.Controls.Add(this.labelUserFilter);
+            this.flowLayoutPanelLogTop.Controls.Add(this.comboBoxUserFilter);
+            this.flowLayoutPanelLogTop.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelLogTop.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanelLogTop.Name = "flowLayoutPanelLogTop";
+            this.flowLayoutPanelLogTop.Padding = new System.Windows.Forms.Padding(3);
+            this.flowLayoutPanelLogTop.Size = new System.Drawing.Size(546, 32);
+            this.flowLayoutPanelLogTop.TabIndex = 0;
             //
             // labelBatch
             //
@@ -307,21 +372,11 @@ namespace SqlSafe
             this.comboBoxBatchSelect.Size = new System.Drawing.Size(121, 23);
             this.comboBoxBatchSelect.TabIndex = 1;
             //
-            // buttonRefreshBatches
-            //
-            this.buttonRefreshBatches.AutoSize = true;
-            this.buttonRefreshBatches.Location = new System.Drawing.Point(184, 6);
-            this.buttonRefreshBatches.Name = "buttonRefreshBatches";
-            this.buttonRefreshBatches.Size = new System.Drawing.Size(99, 25);
-            this.buttonRefreshBatches.TabIndex = 2;
-            this.buttonRefreshBatches.Text = "Refresh Batches";
-            this.buttonRefreshBatches.UseVisualStyleBackColor = true;
-            //
             // labelDatabaseFilter
             //
             this.labelDatabaseFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelDatabaseFilter.AutoSize = true;
-            this.labelDatabaseFilter.Location = new System.Drawing.Point(289, 10);
+            this.labelDatabaseFilter.Location = new System.Drawing.Point(184, 10);
             this.labelDatabaseFilter.Name = "labelDatabaseFilter";
             this.labelDatabaseFilter.Size = new System.Drawing.Size(61, 15);
             this.labelDatabaseFilter.TabIndex = 3;
@@ -331,7 +386,7 @@ namespace SqlSafe
             //
             this.comboBoxDatabaseFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxDatabaseFilter.FormattingEnabled = true;
-            this.comboBoxDatabaseFilter.Location = new System.Drawing.Point(356, 6);
+            this.comboBoxDatabaseFilter.Location = new System.Drawing.Point(251, 6);
             this.comboBoxDatabaseFilter.Name = "comboBoxDatabaseFilter";
             this.comboBoxDatabaseFilter.Size = new System.Drawing.Size(140, 23);
             this.comboBoxDatabaseFilter.TabIndex = 4;
@@ -340,7 +395,7 @@ namespace SqlSafe
             //
             this.labelEnvironmentFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelEnvironmentFilter.AutoSize = true;
-            this.labelEnvironmentFilter.Location = new System.Drawing.Point(502, 10);
+            this.labelEnvironmentFilter.Location = new System.Drawing.Point(251, 10);
             this.labelEnvironmentFilter.Name = "labelEnvironmentFilter";
             this.labelEnvironmentFilter.Size = new System.Drawing.Size(77, 15);
             this.labelEnvironmentFilter.TabIndex = 5;
@@ -350,7 +405,7 @@ namespace SqlSafe
             //
             this.comboBoxEnvironmentFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxEnvironmentFilter.FormattingEnabled = true;
-            this.comboBoxEnvironmentFilter.Location = new System.Drawing.Point(585, 6);
+            this.comboBoxEnvironmentFilter.Location = new System.Drawing.Point(334, 6);
             this.comboBoxEnvironmentFilter.Name = "comboBoxEnvironmentFilter";
             this.comboBoxEnvironmentFilter.Size = new System.Drawing.Size(121, 23);
             this.comboBoxEnvironmentFilter.TabIndex = 6;
@@ -359,7 +414,7 @@ namespace SqlSafe
             //
             this.labelUserFilter.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelUserFilter.AutoSize = true;
-            this.labelUserFilter.Location = new System.Drawing.Point(712, 10);
+            this.labelUserFilter.Location = new System.Drawing.Point(461, 10);
             this.labelUserFilter.Name = "labelUserFilter";
             this.labelUserFilter.Size = new System.Drawing.Size(33, 15);
             this.labelUserFilter.TabIndex = 7;
@@ -369,16 +424,34 @@ namespace SqlSafe
             //
             this.comboBoxUserFilter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxUserFilter.FormattingEnabled = true;
-            this.comboBoxUserFilter.Location = new System.Drawing.Point(751, 6);
+            this.comboBoxUserFilter.Location = new System.Drawing.Point(500, 6);
             this.comboBoxUserFilter.Name = "comboBoxUserFilter";
             this.comboBoxUserFilter.Size = new System.Drawing.Size(140, 23);
             this.comboBoxUserFilter.TabIndex = 8;
+            //
+            // flowLayoutPanelLogBottom
+            //
+            this.flowLayoutPanelLogBottom.AutoSize = true;
+            this.flowLayoutPanelLogBottom.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelLogBottom.Controls.Add(this.labelCreatedFrom);
+            this.flowLayoutPanelLogBottom.Controls.Add(this.dateTimePickerCreatedFrom);
+            this.flowLayoutPanelLogBottom.Controls.Add(this.labelCreatedTo);
+            this.flowLayoutPanelLogBottom.Controls.Add(this.dateTimePickerCreatedTo);
+            this.flowLayoutPanelLogBottom.Controls.Add(this.labelScriptSearch);
+            this.flowLayoutPanelLogBottom.Controls.Add(this.textBoxScriptSearch);
+            this.flowLayoutPanelLogBottom.Controls.Add(this.buttonApplyFilters);
+            this.flowLayoutPanelLogBottom.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelLogBottom.Location = new System.Drawing.Point(3, 41);
+            this.flowLayoutPanelLogBottom.Name = "flowLayoutPanelLogBottom";
+            this.flowLayoutPanelLogBottom.Padding = new System.Windows.Forms.Padding(3);
+            this.flowLayoutPanelLogBottom.Size = new System.Drawing.Size(546, 24);
+            this.flowLayoutPanelLogBottom.TabIndex = 1;
             //
             // labelCreatedFrom
             //
             this.labelCreatedFrom.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelCreatedFrom.AutoSize = true;
-            this.labelCreatedFrom.Location = new System.Drawing.Point(897, 10);
+            this.labelCreatedFrom.Location = new System.Drawing.Point(6, 10);
             this.labelCreatedFrom.Name = "labelCreatedFrom";
             this.labelCreatedFrom.Size = new System.Drawing.Size(77, 15);
             this.labelCreatedFrom.TabIndex = 9;
@@ -389,7 +462,7 @@ namespace SqlSafe
             this.dateTimePickerCreatedFrom.Checked = false;
             this.dateTimePickerCreatedFrom.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dateTimePickerCreatedFrom.CustomFormat = "yyyy-MM-dd HH:mm";
-            this.dateTimePickerCreatedFrom.Location = new System.Drawing.Point(980, 6);
+            this.dateTimePickerCreatedFrom.Location = new System.Drawing.Point(89, 6);
             this.dateTimePickerCreatedFrom.Name = "dateTimePickerCreatedFrom";
             this.dateTimePickerCreatedFrom.ShowCheckBox = true;
             this.dateTimePickerCreatedFrom.Size = new System.Drawing.Size(160, 23);
@@ -399,7 +472,7 @@ namespace SqlSafe
             //
             this.labelCreatedTo.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelCreatedTo.AutoSize = true;
-            this.labelCreatedTo.Location = new System.Drawing.Point(1146, 10);
+            this.labelCreatedTo.Location = new System.Drawing.Point(255, 10);
             this.labelCreatedTo.Name = "labelCreatedTo";
             this.labelCreatedTo.Size = new System.Drawing.Size(20, 15);
             this.labelCreatedTo.TabIndex = 11;
@@ -410,19 +483,36 @@ namespace SqlSafe
             this.dateTimePickerCreatedTo.Checked = false;
             this.dateTimePickerCreatedTo.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dateTimePickerCreatedTo.CustomFormat = "yyyy-MM-dd HH:mm";
-            this.dateTimePickerCreatedTo.Location = new System.Drawing.Point(1172, 6);
+            this.dateTimePickerCreatedTo.Location = new System.Drawing.Point(281, 6);
             this.dateTimePickerCreatedTo.Name = "dateTimePickerCreatedTo";
             this.dateTimePickerCreatedTo.ShowCheckBox = true;
             this.dateTimePickerCreatedTo.Size = new System.Drawing.Size(160, 23);
             this.dateTimePickerCreatedTo.TabIndex = 12;
             //
+            // labelScriptSearch
+            //
+            this.labelScriptSearch.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelScriptSearch.AutoSize = true;
+            this.labelScriptSearch.Location = new System.Drawing.Point(447, 10);
+            this.labelScriptSearch.Name = "labelScriptSearch";
+            this.labelScriptSearch.Size = new System.Drawing.Size(86, 15);
+            this.labelScriptSearch.TabIndex = 13;
+            this.labelScriptSearch.Text = "Script search:";
+            //
+            // textBoxScriptSearch
+            //
+            this.textBoxScriptSearch.Location = new System.Drawing.Point(539, 6);
+            this.textBoxScriptSearch.Name = "textBoxScriptSearch";
+            this.textBoxScriptSearch.Size = new System.Drawing.Size(200, 23);
+            this.textBoxScriptSearch.TabIndex = 14;
+            //
             // buttonApplyFilters
             //
             this.buttonApplyFilters.AutoSize = true;
-            this.buttonApplyFilters.Location = new System.Drawing.Point(1338, 6);
+            this.buttonApplyFilters.Location = new System.Drawing.Point(745, 6);
             this.buttonApplyFilters.Name = "buttonApplyFilters";
             this.buttonApplyFilters.Size = new System.Drawing.Size(85, 25);
-            this.buttonApplyFilters.TabIndex = 13;
+            this.buttonApplyFilters.TabIndex = 15;
             this.buttonApplyFilters.Text = "Apply Filters";
             this.buttonApplyFilters.UseVisualStyleBackColor = true;
             //
@@ -436,11 +526,11 @@ namespace SqlSafe
             this.dataGridViewLogs.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewLogs.ContextMenuStrip = this.contextMenuLogs;
             this.dataGridViewLogs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewLogs.Location = new System.Drawing.Point(3, 44);
+            this.dataGridViewLogs.Location = new System.Drawing.Point(3, 77);
             this.dataGridViewLogs.Name = "dataGridViewLogs";
             this.dataGridViewLogs.ReadOnly = true;
             this.dataGridViewLogs.RowTemplate.Height = 25;
-            this.dataGridViewLogs.Size = new System.Drawing.Size(552, 323);
+            this.dataGridViewLogs.Size = new System.Drawing.Size(552, 290);
             this.dataGridViewLogs.TabIndex = 1;
             //
             // contextMenuLogs
@@ -470,43 +560,6 @@ namespace SqlSafe
             this.toolStripMenuItemRetry.Size = new System.Drawing.Size(139, 22);
             this.toolStripMenuItemRetry.Text = "Retry";
             //
-            // flowLayoutPanelActions
-            //
-            this.flowLayoutPanelActions.AutoSize = true;
-            this.flowLayoutPanelActions.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanelActions.Controls.Add(this.buttonRun);
-            this.flowLayoutPanelActions.Controls.Add(this.buttonClear);
-            this.flowLayoutPanelActions.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanelActions.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanelActions.Location = new System.Drawing.Point(3, 454);
-            this.flowLayoutPanelActions.Name = "flowLayoutPanelActions";
-            this.flowLayoutPanelActions.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
-            this.flowLayoutPanelActions.Size = new System.Drawing.Size(854, 30);
-            this.flowLayoutPanelActions.TabIndex = 3;
-            this.flowLayoutPanelActions.WrapContents = false;
-            //
-            // buttonRun
-            //
-            this.buttonRun.AutoSize = true;
-            this.buttonRun.Location = new System.Drawing.Point(781, 9);
-            this.buttonRun.Margin = new System.Windows.Forms.Padding(3, 3, 3, 9);
-            this.buttonRun.Name = "buttonRun";
-            this.buttonRun.Size = new System.Drawing.Size(70, 25);
-            this.buttonRun.TabIndex = 0;
-            this.buttonRun.Text = "Run";
-            this.buttonRun.UseVisualStyleBackColor = true;
-            //
-            // buttonClear
-            //
-            this.buttonClear.AutoSize = true;
-            this.buttonClear.Location = new System.Drawing.Point(705, 9);
-            this.buttonClear.Margin = new System.Windows.Forms.Padding(3, 3, 3, 9);
-            this.buttonClear.Name = "buttonClear";
-            this.buttonClear.Size = new System.Drawing.Size(70, 25);
-            this.buttonClear.TabIndex = 1;
-            this.buttonClear.Text = "Clear";
-            this.buttonClear.UseVisualStyleBackColor = true;
-            //
             // contextMenuTree
             //
             this.contextMenuTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -531,7 +584,7 @@ namespace SqlSafe
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(884, 511);
+            this.ClientSize = new System.Drawing.Size(884, 493);
             this.Controls.Add(this.tableLayoutPanelMain);
             this.Padding = new System.Windows.Forms.Padding(12);
             this.Name = "MainForm";
@@ -545,13 +598,14 @@ namespace SqlSafe
             this.tabPageSql.PerformLayout();
             this.tabPageLogs.ResumeLayout(false);
             this.tableLayoutPanelLogs.ResumeLayout(false);
-            this.tableLayoutPanelLogs.PerformLayout();
-            this.flowLayoutPanelLogControls.ResumeLayout(false);
-            this.flowLayoutPanelLogControls.PerformLayout();
+            this.tableLayoutPanelLogFilters.ResumeLayout(false);
+            this.tableLayoutPanelLogFilters.PerformLayout();
+            this.flowLayoutPanelLogTop.ResumeLayout(false);
+            this.flowLayoutPanelLogTop.PerformLayout();
+            this.flowLayoutPanelLogBottom.ResumeLayout(false);
+            this.flowLayoutPanelLogBottom.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).EndInit();
             this.contextMenuLogs.ResumeLayout(false);
-            this.flowLayoutPanelActions.ResumeLayout(false);
-            this.flowLayoutPanelActions.PerformLayout();
             this.contextMenuTree.ResumeLayout(false);
             this.splitContainerMain.Panel1.ResumeLayout(false);
             this.splitContainerMain.Panel2.ResumeLayout(false);
@@ -570,20 +624,23 @@ namespace SqlSafe
         private System.Windows.Forms.TabPage tabPageSql;
         private System.Windows.Forms.TabPage tabPageLogs;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelLogs;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLogControls;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelLogFilters;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLogTop;
         private System.Windows.Forms.Label labelBatch;
         private System.Windows.Forms.ComboBox comboBoxBatchSelect;
-        private System.Windows.Forms.Button buttonRefreshBatches;
         private System.Windows.Forms.Label labelDatabaseFilter;
         private System.Windows.Forms.ComboBox comboBoxDatabaseFilter;
         private System.Windows.Forms.Label labelEnvironmentFilter;
         private System.Windows.Forms.ComboBox comboBoxEnvironmentFilter;
         private System.Windows.Forms.Label labelUserFilter;
         private System.Windows.Forms.ComboBox comboBoxUserFilter;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLogBottom;
         private System.Windows.Forms.Label labelCreatedFrom;
         private System.Windows.Forms.DateTimePicker dateTimePickerCreatedFrom;
         private System.Windows.Forms.Label labelCreatedTo;
         private System.Windows.Forms.DateTimePicker dateTimePickerCreatedTo;
+        private System.Windows.Forms.Label labelScriptSearch;
+        private System.Windows.Forms.TextBox textBoxScriptSearch;
         private System.Windows.Forms.Button buttonApplyFilters;
         private System.Windows.Forms.DataGridView dataGridViewLogs;
         private System.Windows.Forms.ContextMenuStrip contextMenuLogs;
@@ -597,7 +654,8 @@ namespace SqlSafe
         private System.Windows.Forms.Label labelWarning;
         private System.Windows.Forms.Button buttonSelectAll;
         private System.Windows.Forms.Button buttonDeselectAll;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelActions;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelSqlEditor;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelSqlActions;
         private System.Windows.Forms.Button buttonRun;
         private System.Windows.Forms.Button buttonClear;
         private System.Windows.Forms.ContextMenuStrip contextMenuTree;

@@ -36,10 +36,10 @@ namespace SqlSafe
             toolStripMenuItemSelectServer.Click += (_, _) => SetSelectedServerChecked(true);
             toolStripMenuItemDeselectServer.Click += (_, _) => SetSelectedServerChecked(false);
             comboBoxBatchSelect.SelectedIndexChanged += ComboBoxBatchSelect_SelectedIndexChanged;
-            buttonRefreshBatches.Click += async (_, _) => await RefreshBatchesAsync();
             buttonApplyFilters.Click += async (_, _) => await LoadLogsWithFiltersAsync();
             dataGridViewLogs.DataBindingComplete += DataGridViewLogs_DataBindingComplete;
             dataGridViewLogs.CellMouseDown += DataGridViewLogs_CellMouseDown;
+            dataGridViewLogs.ColumnHeaderMouseClick += DataGridViewLogs_ColumnHeaderMouseClick;
             contextMenuLogs.Opening += ContextMenuLogs_Opening;
             toolStripMenuItemCopyScript.Click += ToolStripMenuItemCopyScript_Click;
             toolStripMenuItemCopyError.Click += ToolStripMenuItemCopyError_Click;
@@ -59,6 +59,10 @@ namespace SqlSafe
         private bool _isUpdatingChecks;
         private bool _isLoadingBatches;
         private const string AllFilterOption = "All";
+        private const string AllBatchesOption = "All Batches";
+        private List<LogEntry> _currentLogs = new();
+        private string? _currentSortColumn;
+        private bool _sortAscending = true;
 
         /// <summary>
         /// Populates the tree view with SQL servers and databases derived from loaded companies.
@@ -163,7 +167,7 @@ namespace SqlSafe
             try
             {
                 var batches = (await LogEntry.GetBatchNumbersAsync()).ToList();
-                var batchOptions = new List<object> { AllFilterOption };
+                var batchOptions = new List<object> { AllBatchesOption };
                 batchOptions.AddRange(batches.Cast<object>());
 
                 comboBoxBatchSelect.DataSource = batchOptions;
@@ -173,7 +177,7 @@ namespace SqlSafe
                 }
                 else
                 {
-                    comboBoxBatchSelect.SelectedItem = AllFilterOption;
+                    comboBoxBatchSelect.SelectedItem = AllBatchesOption;
                 }
             }
             catch (Exception ex)
@@ -202,7 +206,8 @@ namespace SqlSafe
                     GetSelectedFilterValue(comboBoxEnvironmentFilter),
                     dateTimePickerCreatedFrom.Checked ? dateTimePickerCreatedFrom.Value : null,
                     dateTimePickerCreatedTo.Checked ? dateTimePickerCreatedTo.Value : null,
-                    GetSelectedFilterValue(comboBoxUserFilter))).ToList();
+                    GetSelectedFilterValue(comboBoxUserFilter),
+                    GetScriptSearchText())).ToList();
                 BindLogs(entries);
             }
             catch (Exception ex)
@@ -265,6 +270,12 @@ namespace SqlSafe
                 : null;
         }
 
+        private string? GetScriptSearchText()
+        {
+            var text = textBoxScriptSearch.Text?.Trim();
+            return string.IsNullOrWhiteSpace(text) ? null : text;
+        }
+
         private int? GetSelectedBatchNumber()
         {
             return comboBoxBatchSelect.SelectedItem is int batch
@@ -280,7 +291,79 @@ namespace SqlSafe
                 return;
             }
 
-            dataGridViewLogs.DataSource = entries;
+            _currentLogs = entries.ToList();
+            dataGridViewLogs.DataSource = new BindingList<LogEntry>(_currentLogs);
+            _currentSortColumn = null;
+            _sortAscending = true;
+            ClearSortIndicators();
+            ConfigureLogGridColumns();
+            ApplyLogRowStyles();
+        }
+
+        private void ClearSortIndicators()
+        {
+            foreach (DataGridViewColumn column in dataGridViewLogs.Columns)
+            {
+                column.HeaderCell.SortGlyphDirection = SortOrder.None;
+            }
+        }
+
+        private void DataGridViewLogs_ColumnHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.ColumnIndex < 0 || _currentLogs.Count == 0)
+            {
+                return;
+            }
+
+            var column = dataGridViewLogs.Columns[e.ColumnIndex];
+            var propertyName = column.DataPropertyName;
+            if (string.IsNullOrWhiteSpace(propertyName))
+            {
+                return;
+            }
+
+            SortLogs(propertyName);
+        }
+
+        private void SortLogs(string propertyName)
+        {
+            IEnumerable<LogEntry> ordered = _currentLogs;
+
+            if (string.Equals(_currentSortColumn, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                _sortAscending = !_sortAscending;
+            }
+            else
+            {
+                _currentSortColumn = propertyName;
+                _sortAscending = true;
+            }
+
+            ordered = propertyName switch
+            {
+                nameof(LogEntry.Id) => _sortAscending ? _currentLogs.OrderBy(x => x.Id) : _currentLogs.OrderByDescending(x => x.Id),
+                nameof(LogEntry.BatchNumber) => _sortAscending ? _currentLogs.OrderBy(x => x.BatchNumber) : _currentLogs.OrderByDescending(x => x.BatchNumber),
+                nameof(LogEntry.Environment) => _sortAscending ? _currentLogs.OrderBy(x => x.Environment) : _currentLogs.OrderByDescending(x => x.Environment),
+                nameof(LogEntry.SqlServer) => _sortAscending ? _currentLogs.OrderBy(x => x.SqlServer) : _currentLogs.OrderByDescending(x => x.SqlServer),
+                nameof(LogEntry.DatabaseName) => _sortAscending ? _currentLogs.OrderBy(x => x.DatabaseName) : _currentLogs.OrderByDescending(x => x.DatabaseName),
+                nameof(LogEntry.User) => _sortAscending ? _currentLogs.OrderBy(x => x.User) : _currentLogs.OrderByDescending(x => x.User),
+                nameof(LogEntry.Success) => _sortAscending ? _currentLogs.OrderBy(x => x.Success) : _currentLogs.OrderByDescending(x => x.Success),
+                nameof(LogEntry.ScriptRan) => _sortAscending ? _currentLogs.OrderBy(x => x.ScriptRan) : _currentLogs.OrderByDescending(x => x.ScriptRan),
+                nameof(LogEntry.ErrorMessage) => _sortAscending ? _currentLogs.OrderBy(x => x.ErrorMessage) : _currentLogs.OrderByDescending(x => x.ErrorMessage),
+                nameof(LogEntry.CreatedDate) => _sortAscending ? _currentLogs.OrderBy(x => x.CreatedDate) : _currentLogs.OrderByDescending(x => x.CreatedDate),
+                _ => ordered
+            };
+
+            _currentLogs = ordered.ToList();
+            dataGridViewLogs.DataSource = new BindingList<LogEntry>(_currentLogs);
+
+            foreach (DataGridViewColumn column in dataGridViewLogs.Columns)
+            {
+                column.HeaderCell.SortGlyphDirection = column.DataPropertyName == _currentSortColumn
+                    ? (_sortAscending ? SortOrder.Ascending : SortOrder.Descending)
+                    : SortOrder.None;
+            }
+
             ConfigureLogGridColumns();
             ApplyLogRowStyles();
         }
@@ -754,29 +837,72 @@ namespace SqlSafe
 
             void SetColumnWeight(string name, float weight, int minimumWidth = 70)
             {
-                if (dataGridViewLogs.Columns[name] is DataGridViewColumn column)
+                if (dataGridViewLogs.Columns[name] is not DataGridViewColumn column)
                 {
-                    column.FillWeight = weight;
-                    column.MinimumWidth = minimumWidth;
-                    column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+                    return;
+                }
 
-                    if (headers.TryGetValue(name, out var header))
+                // If the grid is currently rebuilding or disposing, the column may temporarily lose
+                // its DataGridView reference, which can surface as a NullReferenceException when
+                // setting sizing properties. Guard against that state and skip sizing until the
+                // next binding pass.
+                if (column.DataGridView is null || column.DataGridView.IsDisposed)
+                {
+                    return;
+                }
+
+                column.FillWeight = weight;
+                column.SortMode = DataGridViewColumnSortMode.Programmatic;
+                if (minimumWidth > 0)
+                {
+                    try
                     {
-                        column.HeaderText = header;
+                        column.MinimumWidth = minimumWidth;
                     }
+                    catch (NullReferenceException)
+                    {
+                        // Ignore if the grid is rebuilding columns; sizing will settle once binding completes.
+                        return;
+                    }
+                }
+                column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+                if (headers.TryGetValue(name, out var header))
+                {
+                    column.HeaderText = header;
                 }
             }
 
             SetColumnWeight(nameof(LogEntry.Id), 50, 50);
-            SetColumnWeight(nameof(LogEntry.BatchNumber), 70);
+            SetColumnWeight(nameof(LogEntry.BatchNumber), 90, 90);
             SetColumnWeight(nameof(LogEntry.Environment), 90);
             SetColumnWeight(nameof(LogEntry.SqlServer), 120);
             SetColumnWeight(nameof(LogEntry.DatabaseName), 120);
             SetColumnWeight(nameof(LogEntry.User), 100);
             SetColumnWeight(nameof(LogEntry.Success), 70, 60);
-            SetColumnWeight(nameof(LogEntry.CreatedDate), 170, 150);
+            SetColumnWeight(nameof(LogEntry.CreatedDate), 180, 160);
             SetColumnWeight(nameof(LogEntry.ScriptRan), 200);
             SetColumnWeight(nameof(LogEntry.ErrorMessage), 180);
+
+            int displayIndex = 0;
+            void SetDisplayIndex(string name)
+            {
+                if (dataGridViewLogs.Columns[name] is DataGridViewColumn column)
+                {
+                    column.DisplayIndex = displayIndex++;
+                }
+            }
+
+            SetDisplayIndex(nameof(LogEntry.BatchNumber));
+            SetDisplayIndex(nameof(LogEntry.Environment));
+            SetDisplayIndex(nameof(LogEntry.SqlServer));
+            SetDisplayIndex(nameof(LogEntry.DatabaseName));
+            SetDisplayIndex(nameof(LogEntry.CreatedDate));
+            SetDisplayIndex(nameof(LogEntry.User));
+            SetDisplayIndex(nameof(LogEntry.Success));
+            SetDisplayIndex(nameof(LogEntry.ScriptRan));
+            SetDisplayIndex(nameof(LogEntry.ErrorMessage));
+            SetDisplayIndex(nameof(LogEntry.Id));
 
             if (dataGridViewLogs.Columns[nameof(LogEntry.CreatedDate)] is DataGridViewColumn createdDateColumn)
             {

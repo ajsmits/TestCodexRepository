@@ -124,7 +124,8 @@ CREATE PROCEDURE dbo.SqlSafe_LogExecution_GetByBatch
     @Environment NVARCHAR(50) = NULL,
     @User NVARCHAR(200) = NULL,
     @CreatedFrom DATETIME2 = NULL,
-    @CreatedTo DATETIME2 = NULL
+    @CreatedTo DATETIME2 = NULL,
+    @ScriptContains NVARCHAR(MAX) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -147,6 +148,7 @@ BEGIN
         AND ([User] = @User OR @User IS NULL)
         AND (CreatedDate >= @CreatedFrom OR @CreatedFrom IS NULL)
         AND (CreatedDate <= @CreatedTo OR @CreatedTo IS NULL)
+        AND (@ScriptContains IS NULL OR ScriptRan LIKE '%' + @ScriptContains + '%')
     ORDER BY CreatedDate DESC, Id DESC;
 END
 GO
