@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -12,11 +15,13 @@ namespace TreeViewApp
     public partial class MainForm : Form
     {
         private readonly string _companyConnectionString;
+        private readonly bool _allowProductionRun;
         private IReadOnlyList<Company> _companies = Array.Empty<Company>();
 
         public MainForm(string companyConnectionString)
         {
             _companyConnectionString = companyConnectionString;
+            _allowProductionRun = ReadAllowProductionRunSetting();
             InitializeComponent();
             comboBoxEnvironment.SelectedIndexChanged += ComboBoxEnvironment_SelectedIndexChanged;
             textBoxSql.TextChanged += TextBoxSql_TextChanged;
@@ -24,17 +29,27 @@ namespace TreeViewApp
             treeViewCategories.NodeMouseClick += TreeViewCategories_NodeMouseClick;
             buttonSelectAll.Click += (_, _) => SetAllNodesChecked(true);
             buttonDeselectAll.Click += (_, _) => SetAllNodesChecked(false);
-            buttonRun.Click += (_, _) => HandleRunClick();
+            buttonRun.Click += async (_, _) => await HandleRunClickAsync();
             buttonClear.Click += (_, _) => HandleClearClick();
             contextMenuTree.Opening += ContextMenuTree_Opening;
             toolStripMenuItemSelectServer.Click += (_, _) => SetSelectedServerChecked(true);
             toolStripMenuItemDeselectServer.Click += (_, _) => SetSelectedServerChecked(false);
-            Load += async (_, _) => await LoadCompaniesAsync();
+            comboBoxBatchSelect.SelectedIndexChanged += ComboBoxBatchSelect_SelectedIndexChanged;
+            buttonRefreshBatches.Click += async (_, _) => await RefreshBatchesAsync();
+            Load += async (_, _) => await InitializeDataAsync();
             comboBoxEnvironment.SelectedIndex = 0;
+            UpdateRunButtonState();
+        }
+
+        private static bool ReadAllowProductionRunSetting()
+        {
+            var settingValue = ConfigurationManager.AppSettings["AllowProductionRun"];
+            return bool.TryParse(settingValue, out var allowProduction) && allowProduction;
         }
 
         private static readonly string[] BannedWords = new[] { "drop", "truncate", "delete", "alter", "update", "insert" };
         private bool _isUpdatingChecks;
+        private bool _isLoadingBatches;
 
         /// <summary>
         /// Populates the tree view with SQL servers and databases derived from loaded companies.
@@ -49,7 +64,12 @@ namespace TreeViewApp
                 var serverNode = new TreeNode(server.ServerName);
                 foreach (var database in server.Databases)
                 {
-                    serverNode.Nodes.Add(database);
+                    var databaseNode = new TreeNode(database.Name)
+                    {
+                        Tag = database.ConnectionString
+                    };
+
+                    serverNode.Nodes.Add(databaseNode);
                 }
 
                 treeViewCategories.Nodes.Add(serverNode);
@@ -81,6 +101,7 @@ namespace TreeViewApp
         private void ComboBoxEnvironment_SelectedIndexChanged(object sender, EventArgs e)
         {
             PopulateTreeView();
+            UpdateRunButtonState();
         }
 
         private void TextBoxSql_TextChanged(object sender, EventArgs e)
@@ -98,6 +119,23 @@ namespace TreeViewApp
             }
         }
 
+        private async void ComboBoxBatchSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_isLoadingBatches)
+            {
+                return;
+            }
+
+            if (comboBoxBatchSelect.SelectedItem is int batchNumber)
+            {
+                await LoadLogsForBatchAsync(batchNumber).ConfigureAwait(false);
+            }
+            else
+            {
+                dataGridViewLogs.DataSource = null;
+            }
+        }
+
         private async Task LoadCompaniesAsync()
         {
             try
@@ -111,6 +149,62 @@ namespace TreeViewApp
             }
         }
 
+        private async Task InitializeDataAsync()
+        {
+            await LoadCompaniesAsync();
+            await RefreshBatchesAsync();
+        }
+
+        private async Task RefreshBatchesAsync()
+        {
+            _isLoadingBatches = true;
+            try
+            {
+                var batches = (await LogEntry.GetBatchNumbersAsync().ConfigureAwait(false)).ToList();
+                comboBoxBatchSelect.DataSource = batches;
+            }
+            catch (Exception ex)
+            {
+                comboBoxBatchSelect.DataSource = null;
+                dataGridViewLogs.DataSource = null;
+                MessageBox.Show($"Failed to load batches: {ex.Message}", "Logs", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            finally
+            {
+                _isLoadingBatches = false;
+            }
+
+            if (comboBoxBatchSelect.SelectedItem is int batchNumber)
+            {
+                await LoadLogsForBatchAsync(batchNumber).ConfigureAwait(false);
+            }
+            else
+            {
+                dataGridViewLogs.DataSource = null;
+            }
+        }
+
+        private async Task LoadLogsForBatchAsync(int batchNumber)
+        {
+            try
+            {
+                var entries = (await LogEntry.GetByBatchAsync(batchNumber).ConfigureAwait(false)).ToList();
+                if (dataGridViewLogs.InvokeRequired)
+                {
+                    dataGridViewLogs.Invoke(new Action(() => dataGridViewLogs.DataSource = entries));
+                }
+                else
+                {
+                    dataGridViewLogs.DataSource = entries;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load logs for batch {batchNumber}: {ex.Message}", "Logs", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private IEnumerable<SqlServerNode> GetEnvironmentServers()
         {
             var environment = comboBoxEnvironment.SelectedItem as string ?? "UAT";
@@ -121,7 +215,7 @@ namespace TreeViewApp
         private static IEnumerable<SqlServerNode> BuildServersFromCompanies(IEnumerable<Company> companies, string environment)
         {
             var isUat = environment.Equals("UAT", StringComparison.OrdinalIgnoreCase);
-            var serverLookup = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            var serverLookup = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var company in companies)
             {
@@ -133,7 +227,7 @@ namespace TreeViewApp
 
                 try
                 {
-                    var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
+                    var builder = new SqlConnectionStringBuilder(connectionString);
                     var server = builder.DataSource;
                     var database = builder.InitialCatalog;
 
@@ -144,11 +238,14 @@ namespace TreeViewApp
 
                     if (!serverLookup.TryGetValue(server, out var databases))
                     {
-                        databases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        databases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                         serverLookup[server] = databases;
                     }
 
-                    databases.Add(database);
+                    if (!databases.ContainsKey(database))
+                    {
+                        databases[database] = builder.ConnectionString;
+                    }
                 }
                 catch (ArgumentException)
                 {
@@ -156,9 +253,14 @@ namespace TreeViewApp
                 }
             }
 
-            foreach (var kvp in serverLookup)
+            foreach (var kvp in serverLookup.OrderBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase))
             {
-                yield return new SqlServerNode(kvp.Key, kvp.Value.OrderBy(name => name, StringComparer.OrdinalIgnoreCase));
+                var databases = kvp.Value
+                    .OrderBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase)
+                    .Select(pair => new DatabaseNode(pair.Key, pair.Value))
+                    .ToList();
+
+                yield return new SqlServerNode(kvp.Key, databases);
             }
         }
 
@@ -216,9 +318,24 @@ namespace TreeViewApp
             }
         }
 
-        private void HandleRunClick()
+        private async Task HandleRunClickAsync()
         {
-            var selectedCount = CountCheckedDatabases();
+            var environment = comboBoxEnvironment.SelectedItem as string ?? "UAT";
+            if (environment.Equals("Production", StringComparison.OrdinalIgnoreCase) && !_allowProductionRun)
+            {
+                MessageBox.Show("Running against Production is disabled by configuration.", "Run", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var script = textBoxSql.Text;
+            if (string.IsNullOrWhiteSpace(script))
+            {
+                MessageBox.Show("SQL script is empty.", "Run", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var targets = GetSelectedDatabaseTargets();
+            var selectedCount = targets.Count;
 
             if (selectedCount == 0)
             {
@@ -234,7 +351,7 @@ namespace TreeViewApp
 
             if (confirmResult == DialogResult.Yes)
             {
-                MessageBox.Show("Run confirmed.", "Run", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await ExecuteAgainstTargetsAsync(script, targets);
             }
         }
 
@@ -271,21 +388,107 @@ namespace TreeViewApp
             }
         }
 
-        private int CountCheckedDatabases()
+        private IReadOnlyList<DatabaseTarget> GetSelectedDatabaseTargets()
         {
-            var count = 0;
+            var environment = comboBoxEnvironment.SelectedItem as string ?? "UAT";
+            var targets = new List<DatabaseTarget>();
+
             foreach (TreeNode serverNode in treeViewCategories.Nodes)
             {
                 foreach (TreeNode databaseNode in serverNode.Nodes)
                 {
-                    if (databaseNode.Checked)
+                    if (databaseNode.Checked && databaseNode.Tag is string connectionString && !string.IsNullOrWhiteSpace(connectionString))
                     {
-                        count++;
+                        targets.Add(new DatabaseTarget(serverNode.Text, databaseNode.Text, connectionString, environment));
                     }
                 }
             }
 
-            return count;
+            return targets;
+        }
+
+        private async Task ExecuteAgainstTargetsAsync(string script, IReadOnlyList<DatabaseTarget> targets)
+        {
+            int successCount = 0;
+            var failures = new List<string>();
+            int batchNumber;
+
+            try
+            {
+                batchNumber = await LogEntry.GetNextBatchNumberAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unable to retrieve the next batch number for logging: {ex.Message}", "Run", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using (new CursorScope(Cursors.WaitCursor))
+            {
+                foreach (var target in targets)
+                {
+                    try
+                    {
+                        using var connection = new SqlConnection(target.ConnectionString);
+                        using var command = new SqlCommand(script, connection)
+                        {
+                            CommandType = CommandType.Text
+                        };
+
+                        await connection.OpenAsync().ConfigureAwait(false);
+                        await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+
+                        successCount++;
+
+                        try
+                        {
+                            await LogEntry.InsertAsync(new LogEntry
+                            {
+                                Environment = target.Environment,
+                                SqlServer = target.Server,
+                                DatabaseName = target.Database,
+                                BatchNumber = batchNumber,
+                                Success = true,
+                                ScriptRan = script
+                            }).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            // Ignore logging failures when execution succeeds.
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        failures.Add($"{target.Server}/{target.Database}: {ex.Message}");
+
+                        try
+                        {
+                            await LogEntry.InsertAsync(new LogEntry
+                            {
+                                Environment = target.Environment,
+                                SqlServer = target.Server,
+                                DatabaseName = target.Database,
+                                BatchNumber = batchNumber,
+                                Success = false,
+                                ScriptRan = script,
+                                ErrorMessage = ex.Message
+                            }).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            // Swallow logging failures to avoid masking the original execution error.
+                        }
+                    }
+                }
+            }
+
+            var message = $"Completed run. Success: {successCount}. Failures: {failures.Count}.";
+            if (failures.Count > 0)
+            {
+                message += "\n\nFailures:\n" + string.Join("\n", failures);
+            }
+
+            MessageBox.Show(message, "Run Results", MessageBoxButtons.OK, failures.Count == 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
         }
 
         private void SetChildrenChecked(TreeNode parent, bool isChecked)
@@ -313,6 +516,13 @@ namespace TreeViewApp
             }
         }
 
+        private void UpdateRunButtonState()
+        {
+            var environment = comboBoxEnvironment.SelectedItem as string ?? "UAT";
+            var enabled = _allowProductionRun || !environment.Equals("Production", StringComparison.OrdinalIgnoreCase);
+            buttonRun.Enabled = enabled;
+        }
+
         private void UpdateParentCheckState(TreeNode? node)
         {
             if (node is null)
@@ -334,6 +544,24 @@ namespace TreeViewApp
             UpdateParentCheckState(node.Parent);
         }
 
-        private sealed record SqlServerNode(string ServerName, IEnumerable<string> Databases);
+        private sealed record SqlServerNode(string ServerName, IReadOnlyList<DatabaseNode> Databases);
+        private sealed record DatabaseNode(string Name, string ConnectionString);
+        private sealed record DatabaseTarget(string Server, string Database, string ConnectionString, string Environment);
+
+        private sealed class CursorScope : IDisposable
+        {
+            private readonly Cursor _previous;
+
+            public CursorScope(Cursor cursor)
+            {
+                _previous = Cursor.Current;
+                Cursor.Current = cursor;
+            }
+
+            public void Dispose()
+            {
+                Cursor.Current = _previous;
+            }
+        }
     }
 }
