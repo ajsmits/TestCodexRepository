@@ -48,6 +48,10 @@ namespace SqlSafe
             this.comboBoxBatchSelect = new System.Windows.Forms.ComboBox();
             this.buttonRefreshBatches = new System.Windows.Forms.Button();
             this.dataGridViewLogs = new System.Windows.Forms.DataGridView();
+            this.contextMenuLogs = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItemCopyScript = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemCopyError = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemRetry = new System.Windows.Forms.ToolStripMenuItem();
             this.flowLayoutPanelActions = new System.Windows.Forms.FlowLayoutPanel();
             this.buttonRun = new System.Windows.Forms.Button();
             this.buttonClear = new System.Windows.Forms.Button();
@@ -66,6 +70,7 @@ namespace SqlSafe
             this.tableLayoutPanelLogs.SuspendLayout();
             this.flowLayoutPanelLogControls.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).BeginInit();
+            this.contextMenuLogs.SuspendLayout();
             this.flowLayoutPanelActions.SuspendLayout();
             this.contextMenuTree.SuspendLayout();
             this.SuspendLayout();
@@ -296,8 +301,9 @@ namespace SqlSafe
             this.dataGridViewLogs.AllowUserToDeleteRows = false;
             this.dataGridViewLogs.AllowUserToResizeRows = false;
             this.dataGridViewLogs.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridViewLogs.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.dataGridViewLogs.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.None;
             this.dataGridViewLogs.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewLogs.ContextMenuStrip = this.contextMenuLogs;
             this.dataGridViewLogs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridViewLogs.Location = new System.Drawing.Point(3, 44);
             this.dataGridViewLogs.Name = "dataGridViewLogs";
@@ -305,6 +311,33 @@ namespace SqlSafe
             this.dataGridViewLogs.RowTemplate.Height = 25;
             this.dataGridViewLogs.Size = new System.Drawing.Size(552, 323);
             this.dataGridViewLogs.TabIndex = 1;
+            //
+            // contextMenuLogs
+            //
+            this.contextMenuLogs.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemCopyScript,
+            this.toolStripMenuItemCopyError,
+            this.toolStripMenuItemRetry});
+            this.contextMenuLogs.Name = "contextMenuLogs";
+            this.contextMenuLogs.Size = new System.Drawing.Size(140, 70);
+            //
+            // toolStripMenuItemCopyScript
+            //
+            this.toolStripMenuItemCopyScript.Name = "toolStripMenuItemCopyScript";
+            this.toolStripMenuItemCopyScript.Size = new System.Drawing.Size(139, 22);
+            this.toolStripMenuItemCopyScript.Text = "Copy Script";
+            //
+            // toolStripMenuItemCopyError
+            //
+            this.toolStripMenuItemCopyError.Name = "toolStripMenuItemCopyError";
+            this.toolStripMenuItemCopyError.Size = new System.Drawing.Size(139, 22);
+            this.toolStripMenuItemCopyError.Text = "Copy Error";
+            //
+            // toolStripMenuItemRetry
+            //
+            this.toolStripMenuItemRetry.Name = "toolStripMenuItemRetry";
+            this.toolStripMenuItemRetry.Size = new System.Drawing.Size(139, 22);
+            this.toolStripMenuItemRetry.Text = "Retry";
             //
             // flowLayoutPanelActions
             //
@@ -385,6 +418,7 @@ namespace SqlSafe
             this.flowLayoutPanelLogControls.ResumeLayout(false);
             this.flowLayoutPanelLogControls.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).EndInit();
+            this.contextMenuLogs.ResumeLayout(false);
             this.flowLayoutPanelActions.ResumeLayout(false);
             this.flowLayoutPanelActions.PerformLayout();
             this.contextMenuTree.ResumeLayout(false);
@@ -410,6 +444,10 @@ namespace SqlSafe
         private System.Windows.Forms.ComboBox comboBoxBatchSelect;
         private System.Windows.Forms.Button buttonRefreshBatches;
         private System.Windows.Forms.DataGridView dataGridViewLogs;
+        private System.Windows.Forms.ContextMenuStrip contextMenuLogs;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopyScript;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopyError;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemRetry;
         private System.Windows.Forms.TextBox textBoxSql;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelEnvironment;
         private System.Windows.Forms.Label labelEnvironment;

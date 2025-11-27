@@ -38,6 +38,11 @@ namespace SqlSafe
             comboBoxBatchSelect.SelectedIndexChanged += ComboBoxBatchSelect_SelectedIndexChanged;
             buttonRefreshBatches.Click += async (_, _) => await RefreshBatchesAsync();
             dataGridViewLogs.DataBindingComplete += DataGridViewLogs_DataBindingComplete;
+            dataGridViewLogs.CellMouseDown += DataGridViewLogs_CellMouseDown;
+            contextMenuLogs.Opening += ContextMenuLogs_Opening;
+            toolStripMenuItemCopyScript.Click += ToolStripMenuItemCopyScript_Click;
+            toolStripMenuItemCopyError.Click += ToolStripMenuItemCopyError_Click;
+            toolStripMenuItemRetry.Click += ToolStripMenuItemRetry_Click;
             Load += async (_, _) => await InitializeDataAsync();
             comboBoxEnvironment.SelectedIndex = 0;
             UpdateRunButtonState();
@@ -215,6 +220,99 @@ namespace SqlSafe
             dataGridViewLogs.DataSource = entries;
             ConfigureLogGridColumns();
             ApplyLogRowStyles();
+        }
+
+        private void DataGridViewLogs_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
+            {
+                dataGridViewLogs.ClearSelection();
+                var row = dataGridViewLogs.Rows[e.RowIndex];
+                row.Selected = true;
+                if (e.ColumnIndex >= 0)
+                {
+                    dataGridViewLogs.CurrentCell = row.Cells[e.ColumnIndex];
+                }
+            }
+        }
+
+        private void ContextMenuLogs_Opening(object sender, CancelEventArgs e)
+        {
+            var entry = GetSelectedLogEntry();
+            if (entry is null)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            toolStripMenuItemCopyScript.Enabled = !string.IsNullOrEmpty(entry.ScriptRan);
+            toolStripMenuItemCopyError.Enabled = !string.IsNullOrEmpty(entry.ErrorMessage);
+            toolStripMenuItemRetry.Enabled = true;
+        }
+
+        private LogEntry? GetSelectedLogEntry()
+        {
+            if (dataGridViewLogs.SelectedRows.Count == 0)
+            {
+                return null;
+            }
+
+            return dataGridViewLogs.SelectedRows[0].DataBoundItem as LogEntry;
+        }
+
+        private void ToolStripMenuItemCopyScript_Click(object? sender, EventArgs e)
+        {
+            var entry = GetSelectedLogEntry();
+            if (entry is null || string.IsNullOrEmpty(entry.ScriptRan))
+            {
+                return;
+            }
+
+            Clipboard.SetText(entry.ScriptRan);
+        }
+
+        private void ToolStripMenuItemCopyError_Click(object? sender, EventArgs e)
+        {
+            var entry = GetSelectedLogEntry();
+            if (entry is null || string.IsNullOrEmpty(entry.ErrorMessage))
+            {
+                return;
+            }
+
+            Clipboard.SetText(entry.ErrorMessage);
+        }
+
+        private void ToolStripMenuItemRetry_Click(object? sender, EventArgs e)
+        {
+            var entry = GetSelectedLogEntry();
+            if (entry is null)
+            {
+                return;
+            }
+
+            var databaseName = string.IsNullOrWhiteSpace(entry.DatabaseName) ? "database" : entry.DatabaseName;
+            var saveResult = MessageBox.Show(
+                $"Do you want to save your current SQL before retrying for {databaseName}?",
+                "Retry",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (saveResult == DialogResult.Yes)
+            {
+                SaveScriptToFile();
+            }
+
+            textBoxSql.Text = entry.ScriptRan ?? string.Empty;
+            EnsureEnvironmentSelected(entry.Environment);
+
+            if (!TrySelectDatabaseNode(entry.SqlServer, entry.DatabaseName))
+            {
+                MessageBox.Show(
+                    $"Could not find {entry.SqlServer}/{entry.DatabaseName} in the current environment tree.",
+                    "Retry",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
         }
 
         private IEnumerable<SqlServerNode> GetEnvironmentServers()
@@ -573,7 +671,22 @@ namespace SqlSafe
             }
 
             dataGridViewLogs.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewLogs.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            dataGridViewLogs.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dataGridViewLogs.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+            var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [nameof(LogEntry.Id)] = "ID",
+                [nameof(LogEntry.BatchNumber)] = "Batch #",
+                [nameof(LogEntry.Environment)] = "Environment",
+                [nameof(LogEntry.SqlServer)] = "SQL Server",
+                [nameof(LogEntry.DatabaseName)] = "Database",
+                [nameof(LogEntry.User)] = "User",
+                [nameof(LogEntry.Success)] = "Success",
+                [nameof(LogEntry.CreatedDate)] = "Created",
+                [nameof(LogEntry.ScriptRan)] = "Script Ran",
+                [nameof(LogEntry.ErrorMessage)] = "Error"
+            };
 
             void SetColumnWeight(string name, float weight, int minimumWidth = 70)
             {
@@ -581,9 +694,12 @@ namespace SqlSafe
                 {
                     column.FillWeight = weight;
                     column.MinimumWidth = minimumWidth;
-                    column.DefaultCellStyle.WrapMode = name is nameof(LogEntry.ScriptRan) or nameof(LogEntry.ErrorMessage)
-                        ? DataGridViewTriState.True
-                        : DataGridViewTriState.False;
+                    column.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+                    if (headers.TryGetValue(name, out var header))
+                    {
+                        column.HeaderText = header;
+                    }
                 }
             }
 
@@ -630,6 +746,56 @@ namespace SqlSafe
             {
                 comboBoxBatchSelect.SelectedItem = batchNumber;
             }
+        }
+
+        private void EnsureEnvironmentSelected(string? environment)
+        {
+            if (string.IsNullOrWhiteSpace(environment))
+            {
+                return;
+            }
+
+            foreach (var item in comboBoxEnvironment.Items)
+            {
+                if (string.Equals(item?.ToString(), environment, StringComparison.OrdinalIgnoreCase))
+                {
+                    comboBoxEnvironment.SelectedItem = item;
+                    break;
+                }
+            }
+        }
+
+        private bool TrySelectDatabaseNode(string? server, string? database)
+        {
+            if (string.IsNullOrWhiteSpace(server) || string.IsNullOrWhiteSpace(database))
+            {
+                return false;
+            }
+
+            foreach (TreeNode serverNode in treeViewCategories.Nodes)
+            {
+                if (!string.Equals(serverNode.Text, server, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                serverNode.Expand();
+
+                foreach (TreeNode databaseNode in serverNode.Nodes)
+                {
+                    if (!string.Equals(databaseNode.Text, database, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    treeViewCategories.SelectedNode = databaseNode;
+                    databaseNode.Checked = true;
+                    databaseNode.EnsureVisible();
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private sealed record SqlServerNode(string ServerName, IReadOnlyList<DatabaseNode> Databases);
