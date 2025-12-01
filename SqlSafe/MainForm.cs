@@ -1092,11 +1092,14 @@ INNER JOIN sys.schemas s ON t.schema_id = s.schema_id";
 SELECT
     TableName,
     STRING_AGG(
-        ColumnName + ' ' + DataType +
-        CASE WHEN DataType IN ('varchar','nvarchar','char','nchar','varbinary')
-            THEN '(' + CASE WHEN max_length = -1 THEN 'max' ELSE CAST(CASE WHEN DataType LIKE 'n%' THEN max_length/2 ELSE max_length END AS varchar(10)) END + ')'
-            ELSE '' END +
-        CASE WHEN is_nullable = 1 THEN ' NULL' ELSE ' NOT NULL' END,
+        CAST(
+            ColumnName + ' ' + DataType +
+            CASE WHEN DataType IN ('varchar','nvarchar','char','nchar','varbinary')
+                THEN '(' + CASE WHEN max_length = -1 THEN 'max' ELSE CAST(CASE WHEN DataType LIKE 'n%' THEN max_length/2 ELSE max_length END AS varchar(10)) END + ')'
+                ELSE '' END +
+            CASE WHEN is_nullable = 1 THEN ' NULL' ELSE ' NOT NULL' END
+            AS nvarchar(max)
+        ),
         CHAR(10)
     ) WITHIN GROUP (ORDER BY column_id) AS Definition
 FROM ColumnInfo
@@ -1139,11 +1142,14 @@ GROUP BY TableName";
 )
 SELECT
     STRING_AGG(
-        ColumnName + ' ' + DataType +
-        CASE WHEN DataType IN ('varchar','nvarchar','char','nchar','varbinary')
-            THEN '(' + CASE WHEN max_length = -1 THEN 'max' ELSE CAST(CASE WHEN DataType LIKE 'n%' THEN max_length/2 ELSE max_length END AS varchar(10)) END + ')'
-            ELSE '' END +
-        CASE WHEN is_nullable = 1 THEN ' NULL' ELSE ' NOT NULL' END,
+        CAST(
+            ColumnName + ' ' + DataType +
+            CASE WHEN DataType IN ('varchar','nvarchar','char','nchar','varbinary')
+                THEN '(' + CASE WHEN max_length = -1 THEN 'max' ELSE CAST(CASE WHEN DataType LIKE 'n%' THEN max_length/2 ELSE max_length END AS varchar(10)) END + ')'
+                ELSE '' END +
+            CASE WHEN is_nullable = 1 THEN ' NULL' ELSE ' NOT NULL' END
+            AS nvarchar(max)
+        ),
         CHAR(10)
     ) WITHIN GROUP (ORDER BY column_id) AS Definition
 FROM ColumnInfo";
