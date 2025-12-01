@@ -74,11 +74,74 @@ namespace SqlSafe
             this.tabControlObjects = new System.Windows.Forms.TabControl();
             this.tabPageViewExplorer = new System.Windows.Forms.TabPage();
             this.tabPageTables = new System.Windows.Forms.TabPage();
-            this.labelTablesPlaceholder = new System.Windows.Forms.Label();
+            this.tableLayoutPanelTables = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanelTableSelectors = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelTablePrimaryServer = new System.Windows.Forms.Label();
+            this.comboBoxTablePrimaryServer = new System.Windows.Forms.ComboBox();
+            this.labelTablePrimaryDatabase = new System.Windows.Forms.Label();
+            this.comboBoxTablePrimaryDatabase = new System.Windows.Forms.ComboBox();
+            this.labelTableCompareServer = new System.Windows.Forms.Label();
+            this.comboBoxTableCompareServer = new System.Windows.Forms.ComboBox();
+            this.labelTableCompareDatabase = new System.Windows.Forms.Label();
+            this.comboBoxTableCompareDatabase = new System.Windows.Forms.ComboBox();
+            this.buttonLoadTables = new System.Windows.Forms.Button();
+            this.flowLayoutPanelTableSearch = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelTableSearch = new System.Windows.Forms.Label();
+            this.textBoxTableSearch = new System.Windows.Forms.TextBox();
+            this.buttonCompareTable = new System.Windows.Forms.Button();
+            this.tableLayoutPanelTableContent = new System.Windows.Forms.TableLayoutPanel();
+            this.dataGridViewTableComparison = new System.Windows.Forms.DataGridView();
+            this.tableLayoutPanelTableDefinitions = new System.Windows.Forms.TableLayoutPanel();
+            this.labelPrimaryTableDefinition = new System.Windows.Forms.Label();
+            this.labelCompareTableDefinition = new System.Windows.Forms.Label();
+            this.textBoxPrimaryTableDefinition = new System.Windows.Forms.RichTextBox();
+            this.textBoxCompareTableDefinition = new System.Windows.Forms.RichTextBox();
             this.tabPageStoredProcedures = new System.Windows.Forms.TabPage();
-            this.labelStoredProceduresPlaceholder = new System.Windows.Forms.Label();
+            this.tableLayoutPanelProcedures = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanelProcedureSelectors = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelProcedurePrimaryServer = new System.Windows.Forms.Label();
+            this.comboBoxProcedurePrimaryServer = new System.Windows.Forms.ComboBox();
+            this.labelProcedurePrimaryDatabase = new System.Windows.Forms.Label();
+            this.comboBoxProcedurePrimaryDatabase = new System.Windows.Forms.ComboBox();
+            this.labelProcedureCompareServer = new System.Windows.Forms.Label();
+            this.comboBoxProcedureCompareServer = new System.Windows.Forms.ComboBox();
+            this.labelProcedureCompareDatabase = new System.Windows.Forms.Label();
+            this.comboBoxProcedureCompareDatabase = new System.Windows.Forms.ComboBox();
+            this.buttonLoadProcedures = new System.Windows.Forms.Button();
+            this.flowLayoutPanelProcedureSearch = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelProcedureSearch = new System.Windows.Forms.Label();
+            this.textBoxProcedureSearch = new System.Windows.Forms.TextBox();
+            this.buttonCompareProcedure = new System.Windows.Forms.Button();
+            this.tableLayoutPanelProcedureContent = new System.Windows.Forms.TableLayoutPanel();
+            this.dataGridViewProcedureComparison = new System.Windows.Forms.DataGridView();
+            this.tableLayoutPanelProcedureDefinitions = new System.Windows.Forms.TableLayoutPanel();
+            this.labelPrimaryProcedureDefinition = new System.Windows.Forms.Label();
+            this.labelCompareProcedureDefinition = new System.Windows.Forms.Label();
+            this.textBoxPrimaryProcedureDefinition = new System.Windows.Forms.RichTextBox();
+            this.textBoxCompareProcedureDefinition = new System.Windows.Forms.RichTextBox();
             this.tabPageFunctions = new System.Windows.Forms.TabPage();
-            this.labelFunctionsPlaceholder = new System.Windows.Forms.Label();
+            this.tableLayoutPanelFunctions = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanelFunctionSelectors = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelFunctionPrimaryServer = new System.Windows.Forms.Label();
+            this.comboBoxFunctionPrimaryServer = new System.Windows.Forms.ComboBox();
+            this.labelFunctionPrimaryDatabase = new System.Windows.Forms.Label();
+            this.comboBoxFunctionPrimaryDatabase = new System.Windows.Forms.ComboBox();
+            this.labelFunctionCompareServer = new System.Windows.Forms.Label();
+            this.comboBoxFunctionCompareServer = new System.Windows.Forms.ComboBox();
+            this.labelFunctionCompareDatabase = new System.Windows.Forms.Label();
+            this.comboBoxFunctionCompareDatabase = new System.Windows.Forms.ComboBox();
+            this.buttonLoadFunctions = new System.Windows.Forms.Button();
+            this.flowLayoutPanelFunctionSearch = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelFunctionSearch = new System.Windows.Forms.Label();
+            this.textBoxFunctionSearch = new System.Windows.Forms.TextBox();
+            this.buttonCompareFunction = new System.Windows.Forms.Button();
+            this.tableLayoutPanelFunctionContent = new System.Windows.Forms.TableLayoutPanel();
+            this.dataGridViewFunctionComparison = new System.Windows.Forms.DataGridView();
+            this.tableLayoutPanelFunctionDefinitions = new System.Windows.Forms.TableLayoutPanel();
+            this.labelPrimaryFunctionDefinition = new System.Windows.Forms.Label();
+            this.labelCompareFunctionDefinition = new System.Windows.Forms.Label();
+            this.textBoxPrimaryFunctionDefinition = new System.Windows.Forms.RichTextBox();
+            this.textBoxCompareFunctionDefinition = new System.Windows.Forms.RichTextBox();
             this.tableLayoutPanelViews = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanelViewSelectors = new System.Windows.Forms.FlowLayoutPanel();
             this.labelPrimaryServer = new System.Windows.Forms.Label();
@@ -647,7 +710,7 @@ namespace SqlSafe
             //
             // tabPageTables
             //
-            this.tabPageTables.Controls.Add(this.labelTablesPlaceholder);
+            this.tabPageTables.Controls.Add(this.tableLayoutPanelTables);
             this.tabPageTables.Location = new System.Drawing.Point(4, 24);
             this.tabPageTables.Name = "tabPageTables";
             this.tabPageTables.Padding = new System.Windows.Forms.Padding(3);
@@ -656,19 +719,9 @@ namespace SqlSafe
             this.tabPageTables.Text = "Tables";
             this.tabPageTables.UseVisualStyleBackColor = true;
             //
-            // labelTablesPlaceholder
-            //
-            this.labelTablesPlaceholder.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelTablesPlaceholder.Location = new System.Drawing.Point(3, 3);
-            this.labelTablesPlaceholder.Name = "labelTablesPlaceholder";
-            this.labelTablesPlaceholder.Size = new System.Drawing.Size(544, 336);
-            this.labelTablesPlaceholder.TabIndex = 0;
-            this.labelTablesPlaceholder.Text = "Table comparison coming soon.";
-            this.labelTablesPlaceholder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            //
             // tabPageStoredProcedures
             //
-            this.tabPageStoredProcedures.Controls.Add(this.labelStoredProceduresPlaceholder);
+            this.tabPageStoredProcedures.Controls.Add(this.tableLayoutPanelProcedures);
             this.tabPageStoredProcedures.Location = new System.Drawing.Point(4, 24);
             this.tabPageStoredProcedures.Name = "tabPageStoredProcedures";
             this.tabPageStoredProcedures.Padding = new System.Windows.Forms.Padding(3);
@@ -677,19 +730,9 @@ namespace SqlSafe
             this.tabPageStoredProcedures.Text = "Stored Procedures";
             this.tabPageStoredProcedures.UseVisualStyleBackColor = true;
             //
-            // labelStoredProceduresPlaceholder
-            //
-            this.labelStoredProceduresPlaceholder.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelStoredProceduresPlaceholder.Location = new System.Drawing.Point(3, 3);
-            this.labelStoredProceduresPlaceholder.Name = "labelStoredProceduresPlaceholder";
-            this.labelStoredProceduresPlaceholder.Size = new System.Drawing.Size(544, 336);
-            this.labelStoredProceduresPlaceholder.TabIndex = 0;
-            this.labelStoredProceduresPlaceholder.Text = "Stored procedure comparison coming soon.";
-            this.labelStoredProceduresPlaceholder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            //
             // tabPageFunctions
             //
-            this.tabPageFunctions.Controls.Add(this.labelFunctionsPlaceholder);
+            this.tabPageFunctions.Controls.Add(this.tableLayoutPanelFunctions);
             this.tabPageFunctions.Location = new System.Drawing.Point(4, 24);
             this.tabPageFunctions.Name = "tabPageFunctions";
             this.tabPageFunctions.Padding = new System.Windows.Forms.Padding(3);
@@ -970,6 +1013,792 @@ namespace SqlSafe
             this.textBoxCompareViewDefinition.Text = "";
             this.textBoxCompareViewDefinition.WordWrap = false;
             //
+            // tableLayoutPanelTables
+            //
+            this.tableLayoutPanelTables.ColumnCount = 1;
+            this.tableLayoutPanelTables.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelTables.Controls.Add(this.flowLayoutPanelTableSelectors, 0, 0);
+            this.tableLayoutPanelTables.Controls.Add(this.flowLayoutPanelTableSearch, 0, 1);
+            this.tableLayoutPanelTables.Controls.Add(this.tableLayoutPanelTableContent, 0, 2);
+            this.tableLayoutPanelTables.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelTables.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelTables.Name = "tableLayoutPanelTables";
+            this.tableLayoutPanelTables.RowCount = 3;
+            this.tableLayoutPanelTables.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelTables.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelTables.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelTables.Size = new System.Drawing.Size(544, 336);
+            this.tableLayoutPanelTables.TabIndex = 0;
+            //
+            // flowLayoutPanelTableSelectors
+            //
+            this.flowLayoutPanelTableSelectors.AutoSize = true;
+            this.flowLayoutPanelTableSelectors.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelTableSelectors.AutoScroll = true;
+            this.flowLayoutPanelTableSelectors.Controls.Add(this.labelTablePrimaryServer);
+            this.flowLayoutPanelTableSelectors.Controls.Add(this.comboBoxTablePrimaryServer);
+            this.flowLayoutPanelTableSelectors.Controls.Add(this.labelTablePrimaryDatabase);
+            this.flowLayoutPanelTableSelectors.Controls.Add(this.comboBoxTablePrimaryDatabase);
+            this.flowLayoutPanelTableSelectors.Controls.Add(this.labelTableCompareServer);
+            this.flowLayoutPanelTableSelectors.Controls.Add(this.comboBoxTableCompareServer);
+            this.flowLayoutPanelTableSelectors.Controls.Add(this.labelTableCompareDatabase);
+            this.flowLayoutPanelTableSelectors.Controls.Add(this.comboBoxTableCompareDatabase);
+            this.flowLayoutPanelTableSelectors.Controls.Add(this.buttonLoadTables);
+            this.flowLayoutPanelTableSelectors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelTableSelectors.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanelTableSelectors.Name = "flowLayoutPanelTableSelectors";
+            this.flowLayoutPanelTableSelectors.Padding = new System.Windows.Forms.Padding(3);
+            this.flowLayoutPanelTableSelectors.Size = new System.Drawing.Size(538, 34);
+            this.flowLayoutPanelTableSelectors.TabIndex = 0;
+            this.flowLayoutPanelTableSelectors.WrapContents = true;
+            //
+            // labelTablePrimaryServer
+            //
+            this.labelTablePrimaryServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelTablePrimaryServer.AutoSize = true;
+            this.labelTablePrimaryServer.Location = new System.Drawing.Point(6, 10);
+            this.labelTablePrimaryServer.Name = "labelTablePrimaryServer";
+            this.labelTablePrimaryServer.Size = new System.Drawing.Size(88, 15);
+            this.labelTablePrimaryServer.TabIndex = 0;
+            this.labelTablePrimaryServer.Text = "Primary server:";
+            //
+            // comboBoxTablePrimaryServer
+            //
+            this.comboBoxTablePrimaryServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxTablePrimaryServer.FormattingEnabled = true;
+            this.comboBoxTablePrimaryServer.Location = new System.Drawing.Point(100, 6);
+            this.comboBoxTablePrimaryServer.Name = "comboBoxTablePrimaryServer";
+            this.comboBoxTablePrimaryServer.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxTablePrimaryServer.TabIndex = 1;
+            //
+            // labelTablePrimaryDatabase
+            //
+            this.labelTablePrimaryDatabase.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelTablePrimaryDatabase.AutoSize = true;
+            this.labelTablePrimaryDatabase.Location = new System.Drawing.Point(256, 10);
+            this.labelTablePrimaryDatabase.Name = "labelTablePrimaryDatabase";
+            this.labelTablePrimaryDatabase.Size = new System.Drawing.Size(105, 15);
+            this.labelTablePrimaryDatabase.TabIndex = 2;
+            this.labelTablePrimaryDatabase.Text = "Primary database:";
+            //
+            // comboBoxTablePrimaryDatabase
+            //
+            this.comboBoxTablePrimaryDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxTablePrimaryDatabase.FormattingEnabled = true;
+            this.comboBoxTablePrimaryDatabase.Location = new System.Drawing.Point(367, 6);
+            this.comboBoxTablePrimaryDatabase.Name = "comboBoxTablePrimaryDatabase";
+            this.comboBoxTablePrimaryDatabase.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxTablePrimaryDatabase.TabIndex = 3;
+            //
+            // labelTableCompareServer
+            //
+            this.labelTableCompareServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelTableCompareServer.AutoSize = true;
+            this.labelTableCompareServer.Location = new System.Drawing.Point(523, 10);
+            this.labelTableCompareServer.Name = "labelTableCompareServer";
+            this.labelTableCompareServer.Size = new System.Drawing.Size(97, 15);
+            this.labelTableCompareServer.TabIndex = 4;
+            this.labelTableCompareServer.Text = "Compare server:";
+            //
+            // comboBoxTableCompareServer
+            //
+            this.comboBoxTableCompareServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxTableCompareServer.FormattingEnabled = true;
+            this.comboBoxTableCompareServer.Location = new System.Drawing.Point(626, 6);
+            this.comboBoxTableCompareServer.Name = "comboBoxTableCompareServer";
+            this.comboBoxTableCompareServer.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxTableCompareServer.TabIndex = 5;
+            //
+            // labelTableCompareDatabase
+            //
+            this.labelTableCompareDatabase.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelTableCompareDatabase.AutoSize = true;
+            this.labelTableCompareDatabase.Location = new System.Drawing.Point(782, 10);
+            this.labelTableCompareDatabase.Name = "labelTableCompareDatabase";
+            this.labelTableCompareDatabase.Size = new System.Drawing.Size(114, 15);
+            this.labelTableCompareDatabase.TabIndex = 6;
+            this.labelTableCompareDatabase.Text = "Compare database:";
+            //
+            // comboBoxTableCompareDatabase
+            //
+            this.comboBoxTableCompareDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxTableCompareDatabase.FormattingEnabled = true;
+            this.comboBoxTableCompareDatabase.Location = new System.Drawing.Point(902, 6);
+            this.comboBoxTableCompareDatabase.Name = "comboBoxTableCompareDatabase";
+            this.comboBoxTableCompareDatabase.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxTableCompareDatabase.TabIndex = 7;
+            //
+            // buttonLoadTables
+            //
+            this.buttonLoadTables.AutoSize = true;
+            this.buttonLoadTables.Location = new System.Drawing.Point(1058, 6);
+            this.buttonLoadTables.Name = "buttonLoadTables";
+            this.buttonLoadTables.Size = new System.Drawing.Size(83, 25);
+            this.buttonLoadTables.TabIndex = 8;
+            this.buttonLoadTables.Text = "Load Tables";
+            this.buttonLoadTables.UseVisualStyleBackColor = true;
+            //
+            // flowLayoutPanelTableSearch
+            //
+            this.flowLayoutPanelTableSearch.AutoSize = true;
+            this.flowLayoutPanelTableSearch.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelTableSearch.Controls.Add(this.labelTableSearch);
+            this.flowLayoutPanelTableSearch.Controls.Add(this.textBoxTableSearch);
+            this.flowLayoutPanelTableSearch.Controls.Add(this.buttonCompareTable);
+            this.flowLayoutPanelTableSearch.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelTableSearch.Location = new System.Drawing.Point(3, 43);
+            this.flowLayoutPanelTableSearch.Name = "flowLayoutPanelTableSearch";
+            this.flowLayoutPanelTableSearch.Padding = new System.Windows.Forms.Padding(3, 0, 3, 3);
+            this.flowLayoutPanelTableSearch.Size = new System.Drawing.Size(538, 29);
+            this.flowLayoutPanelTableSearch.TabIndex = 1;
+            //
+            // labelTableSearch
+            //
+            this.labelTableSearch.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelTableSearch.AutoSize = true;
+            this.labelTableSearch.Location = new System.Drawing.Point(6, 5);
+            this.labelTableSearch.Name = "labelTableSearch";
+            this.labelTableSearch.Size = new System.Drawing.Size(82, 15);
+            this.labelTableSearch.TabIndex = 0;
+            this.labelTableSearch.Text = "Table search:";
+            //
+            // textBoxTableSearch
+            //
+            this.textBoxTableSearch.Location = new System.Drawing.Point(94, 3);
+            this.textBoxTableSearch.Name = "textBoxTableSearch";
+            this.textBoxTableSearch.Size = new System.Drawing.Size(200, 23);
+            this.textBoxTableSearch.TabIndex = 1;
+            //
+            // buttonCompareTable
+            //
+            this.buttonCompareTable.AutoSize = true;
+            this.buttonCompareTable.Location = new System.Drawing.Point(300, 3);
+            this.buttonCompareTable.Name = "buttonCompareTable";
+            this.buttonCompareTable.Size = new System.Drawing.Size(114, 25);
+            this.buttonCompareTable.TabIndex = 2;
+            this.buttonCompareTable.Text = "Compare Table";
+            this.buttonCompareTable.UseVisualStyleBackColor = true;
+            //
+            // tableLayoutPanelTableContent
+            //
+            this.tableLayoutPanelTableContent.ColumnCount = 1;
+            this.tableLayoutPanelTableContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelTableContent.Controls.Add(this.dataGridViewTableComparison, 0, 0);
+            this.tableLayoutPanelTableContent.Controls.Add(this.tableLayoutPanelTableDefinitions, 0, 1);
+            this.tableLayoutPanelTableContent.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelTableContent.Location = new System.Drawing.Point(3, 78);
+            this.tableLayoutPanelTableContent.Name = "tableLayoutPanelTableContent";
+            this.tableLayoutPanelTableContent.RowCount = 2;
+            this.tableLayoutPanelTableContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 55F));
+            this.tableLayoutPanelTableContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 45F));
+            this.tableLayoutPanelTableContent.Size = new System.Drawing.Size(538, 255);
+            this.tableLayoutPanelTableContent.TabIndex = 2;
+            //
+            // dataGridViewTableComparison
+            //
+            this.dataGridViewTableComparison.AllowUserToAddRows = false;
+            this.dataGridViewTableComparison.AllowUserToDeleteRows = false;
+            this.dataGridViewTableComparison.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridViewTableComparison.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewTableComparison.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewTableComparison.Location = new System.Drawing.Point(3, 3);
+            this.dataGridViewTableComparison.Name = "dataGridViewTableComparison";
+            this.dataGridViewTableComparison.ReadOnly = true;
+            this.dataGridViewTableComparison.RowHeadersVisible = false;
+            this.dataGridViewTableComparison.RowTemplate.Height = 25;
+            this.dataGridViewTableComparison.Size = new System.Drawing.Size(532, 134);
+            this.dataGridViewTableComparison.TabIndex = 0;
+            //
+            // tableLayoutPanelTableDefinitions
+            //
+            this.tableLayoutPanelTableDefinitions.ColumnCount = 2;
+            this.tableLayoutPanelTableDefinitions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelTableDefinitions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelTableDefinitions.Controls.Add(this.labelPrimaryTableDefinition, 0, 0);
+            this.tableLayoutPanelTableDefinitions.Controls.Add(this.labelCompareTableDefinition, 1, 0);
+            this.tableLayoutPanelTableDefinitions.Controls.Add(this.textBoxPrimaryTableDefinition, 0, 1);
+            this.tableLayoutPanelTableDefinitions.Controls.Add(this.textBoxCompareTableDefinition, 1, 1);
+            this.tableLayoutPanelTableDefinitions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelTableDefinitions.Location = new System.Drawing.Point(3, 143);
+            this.tableLayoutPanelTableDefinitions.Name = "tableLayoutPanelTableDefinitions";
+            this.tableLayoutPanelTableDefinitions.RowCount = 2;
+            this.tableLayoutPanelTableDefinitions.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelTableDefinitions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelTableDefinitions.Size = new System.Drawing.Size(532, 109);
+            this.tableLayoutPanelTableDefinitions.TabIndex = 1;
+            //
+            // labelPrimaryTableDefinition
+            //
+            this.labelPrimaryTableDefinition.AutoSize = true;
+            this.labelPrimaryTableDefinition.Location = new System.Drawing.Point(3, 0);
+            this.labelPrimaryTableDefinition.Name = "labelPrimaryTableDefinition";
+            this.labelPrimaryTableDefinition.Size = new System.Drawing.Size(137, 15);
+            this.labelPrimaryTableDefinition.TabIndex = 0;
+            this.labelPrimaryTableDefinition.Text = "Primary table definition";
+            //
+            // labelCompareTableDefinition
+            //
+            this.labelCompareTableDefinition.AutoSize = true;
+            this.labelCompareTableDefinition.Location = new System.Drawing.Point(269, 0);
+            this.labelCompareTableDefinition.Name = "labelCompareTableDefinition";
+            this.labelCompareTableDefinition.Size = new System.Drawing.Size(146, 15);
+            this.labelCompareTableDefinition.TabIndex = 1;
+            this.labelCompareTableDefinition.Text = "Comparison table definition";
+            //
+            // textBoxPrimaryTableDefinition
+            //
+            this.textBoxPrimaryTableDefinition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBoxPrimaryTableDefinition.DetectUrls = false;
+            this.textBoxPrimaryTableDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxPrimaryTableDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxPrimaryTableDefinition.Location = new System.Drawing.Point(3, 18);
+            this.textBoxPrimaryTableDefinition.Name = "textBoxPrimaryTableDefinition";
+            this.textBoxPrimaryTableDefinition.ReadOnly = true;
+            this.textBoxPrimaryTableDefinition.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
+            this.textBoxPrimaryTableDefinition.Size = new System.Drawing.Size(260, 88);
+            this.textBoxPrimaryTableDefinition.TabIndex = 2;
+            this.textBoxPrimaryTableDefinition.Text = "";
+            this.textBoxPrimaryTableDefinition.WordWrap = false;
+            //
+            // textBoxCompareTableDefinition
+            //
+            this.textBoxCompareTableDefinition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBoxCompareTableDefinition.DetectUrls = false;
+            this.textBoxCompareTableDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxCompareTableDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxCompareTableDefinition.Location = new System.Drawing.Point(269, 18);
+            this.textBoxCompareTableDefinition.Name = "textBoxCompareTableDefinition";
+            this.textBoxCompareTableDefinition.ReadOnly = true;
+            this.textBoxCompareTableDefinition.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
+            this.textBoxCompareTableDefinition.Size = new System.Drawing.Size(260, 88);
+            this.textBoxCompareTableDefinition.TabIndex = 3;
+            this.textBoxCompareTableDefinition.Text = "";
+            this.textBoxCompareTableDefinition.WordWrap = false;
+            //
+            // tableLayoutPanelProcedures
+            //
+            this.tableLayoutPanelProcedures.ColumnCount = 1;
+            this.tableLayoutPanelProcedures.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelProcedures.Controls.Add(this.flowLayoutPanelProcedureSelectors, 0, 0);
+            this.tableLayoutPanelProcedures.Controls.Add(this.flowLayoutPanelProcedureSearch, 0, 1);
+            this.tableLayoutPanelProcedures.Controls.Add(this.tableLayoutPanelProcedureContent, 0, 2);
+            this.tableLayoutPanelProcedures.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelProcedures.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelProcedures.Name = "tableLayoutPanelProcedures";
+            this.tableLayoutPanelProcedures.RowCount = 3;
+            this.tableLayoutPanelProcedures.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelProcedures.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelProcedures.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelProcedures.Size = new System.Drawing.Size(544, 336);
+            this.tableLayoutPanelProcedures.TabIndex = 0;
+            //
+            // flowLayoutPanelProcedureSelectors
+            //
+            this.flowLayoutPanelProcedureSelectors.AutoSize = true;
+            this.flowLayoutPanelProcedureSelectors.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelProcedureSelectors.AutoScroll = true;
+            this.flowLayoutPanelProcedureSelectors.Controls.Add(this.labelProcedurePrimaryServer);
+            this.flowLayoutPanelProcedureSelectors.Controls.Add(this.comboBoxProcedurePrimaryServer);
+            this.flowLayoutPanelProcedureSelectors.Controls.Add(this.labelProcedurePrimaryDatabase);
+            this.flowLayoutPanelProcedureSelectors.Controls.Add(this.comboBoxProcedurePrimaryDatabase);
+            this.flowLayoutPanelProcedureSelectors.Controls.Add(this.labelProcedureCompareServer);
+            this.flowLayoutPanelProcedureSelectors.Controls.Add(this.comboBoxProcedureCompareServer);
+            this.flowLayoutPanelProcedureSelectors.Controls.Add(this.labelProcedureCompareDatabase);
+            this.flowLayoutPanelProcedureSelectors.Controls.Add(this.comboBoxProcedureCompareDatabase);
+            this.flowLayoutPanelProcedureSelectors.Controls.Add(this.buttonLoadProcedures);
+            this.flowLayoutPanelProcedureSelectors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelProcedureSelectors.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanelProcedureSelectors.Name = "flowLayoutPanelProcedureSelectors";
+            this.flowLayoutPanelProcedureSelectors.Padding = new System.Windows.Forms.Padding(3);
+            this.flowLayoutPanelProcedureSelectors.Size = new System.Drawing.Size(538, 34);
+            this.flowLayoutPanelProcedureSelectors.TabIndex = 0;
+            this.flowLayoutPanelProcedureSelectors.WrapContents = true;
+            //
+            // labelProcedurePrimaryServer
+            //
+            this.labelProcedurePrimaryServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelProcedurePrimaryServer.AutoSize = true;
+            this.labelProcedurePrimaryServer.Location = new System.Drawing.Point(6, 10);
+            this.labelProcedurePrimaryServer.Name = "labelProcedurePrimaryServer";
+            this.labelProcedurePrimaryServer.Size = new System.Drawing.Size(88, 15);
+            this.labelProcedurePrimaryServer.TabIndex = 0;
+            this.labelProcedurePrimaryServer.Text = "Primary server:";
+            //
+            // comboBoxProcedurePrimaryServer
+            //
+            this.comboBoxProcedurePrimaryServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxProcedurePrimaryServer.FormattingEnabled = true;
+            this.comboBoxProcedurePrimaryServer.Location = new System.Drawing.Point(100, 6);
+            this.comboBoxProcedurePrimaryServer.Name = "comboBoxProcedurePrimaryServer";
+            this.comboBoxProcedurePrimaryServer.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxProcedurePrimaryServer.TabIndex = 1;
+            //
+            // labelProcedurePrimaryDatabase
+            //
+            this.labelProcedurePrimaryDatabase.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelProcedurePrimaryDatabase.AutoSize = true;
+            this.labelProcedurePrimaryDatabase.Location = new System.Drawing.Point(256, 10);
+            this.labelProcedurePrimaryDatabase.Name = "labelProcedurePrimaryDatabase";
+            this.labelProcedurePrimaryDatabase.Size = new System.Drawing.Size(105, 15);
+            this.labelProcedurePrimaryDatabase.TabIndex = 2;
+            this.labelProcedurePrimaryDatabase.Text = "Primary database:";
+            //
+            // comboBoxProcedurePrimaryDatabase
+            //
+            this.comboBoxProcedurePrimaryDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxProcedurePrimaryDatabase.FormattingEnabled = true;
+            this.comboBoxProcedurePrimaryDatabase.Location = new System.Drawing.Point(367, 6);
+            this.comboBoxProcedurePrimaryDatabase.Name = "comboBoxProcedurePrimaryDatabase";
+            this.comboBoxProcedurePrimaryDatabase.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxProcedurePrimaryDatabase.TabIndex = 3;
+            //
+            // labelProcedureCompareServer
+            //
+            this.labelProcedureCompareServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelProcedureCompareServer.AutoSize = true;
+            this.labelProcedureCompareServer.Location = new System.Drawing.Point(523, 10);
+            this.labelProcedureCompareServer.Name = "labelProcedureCompareServer";
+            this.labelProcedureCompareServer.Size = new System.Drawing.Size(97, 15);
+            this.labelProcedureCompareServer.TabIndex = 4;
+            this.labelProcedureCompareServer.Text = "Compare server:";
+            //
+            // comboBoxProcedureCompareServer
+            //
+            this.comboBoxProcedureCompareServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxProcedureCompareServer.FormattingEnabled = true;
+            this.comboBoxProcedureCompareServer.Location = new System.Drawing.Point(626, 6);
+            this.comboBoxProcedureCompareServer.Name = "comboBoxProcedureCompareServer";
+            this.comboBoxProcedureCompareServer.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxProcedureCompareServer.TabIndex = 5;
+            //
+            // labelProcedureCompareDatabase
+            //
+            this.labelProcedureCompareDatabase.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelProcedureCompareDatabase.AutoSize = true;
+            this.labelProcedureCompareDatabase.Location = new System.Drawing.Point(782, 10);
+            this.labelProcedureCompareDatabase.Name = "labelProcedureCompareDatabase";
+            this.labelProcedureCompareDatabase.Size = new System.Drawing.Size(114, 15);
+            this.labelProcedureCompareDatabase.TabIndex = 6;
+            this.labelProcedureCompareDatabase.Text = "Compare database:";
+            //
+            // comboBoxProcedureCompareDatabase
+            //
+            this.comboBoxProcedureCompareDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxProcedureCompareDatabase.FormattingEnabled = true;
+            this.comboBoxProcedureCompareDatabase.Location = new System.Drawing.Point(902, 6);
+            this.comboBoxProcedureCompareDatabase.Name = "comboBoxProcedureCompareDatabase";
+            this.comboBoxProcedureCompareDatabase.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxProcedureCompareDatabase.TabIndex = 7;
+            //
+            // buttonLoadProcedures
+            //
+            this.buttonLoadProcedures.AutoSize = true;
+            this.buttonLoadProcedures.Location = new System.Drawing.Point(1058, 6);
+            this.buttonLoadProcedures.Name = "buttonLoadProcedures";
+            this.buttonLoadProcedures.Size = new System.Drawing.Size(118, 25);
+            this.buttonLoadProcedures.TabIndex = 8;
+            this.buttonLoadProcedures.Text = "Load Procedures";
+            this.buttonLoadProcedures.UseVisualStyleBackColor = true;
+            //
+            // flowLayoutPanelProcedureSearch
+            //
+            this.flowLayoutPanelProcedureSearch.AutoSize = true;
+            this.flowLayoutPanelProcedureSearch.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelProcedureSearch.Controls.Add(this.labelProcedureSearch);
+            this.flowLayoutPanelProcedureSearch.Controls.Add(this.textBoxProcedureSearch);
+            this.flowLayoutPanelProcedureSearch.Controls.Add(this.buttonCompareProcedure);
+            this.flowLayoutPanelProcedureSearch.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelProcedureSearch.Location = new System.Drawing.Point(3, 43);
+            this.flowLayoutPanelProcedureSearch.Name = "flowLayoutPanelProcedureSearch";
+            this.flowLayoutPanelProcedureSearch.Padding = new System.Windows.Forms.Padding(3, 0, 3, 3);
+            this.flowLayoutPanelProcedureSearch.Size = new System.Drawing.Size(538, 29);
+            this.flowLayoutPanelProcedureSearch.TabIndex = 1;
+            //
+            // labelProcedureSearch
+            //
+            this.labelProcedureSearch.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelProcedureSearch.AutoSize = true;
+            this.labelProcedureSearch.Location = new System.Drawing.Point(6, 5);
+            this.labelProcedureSearch.Name = "labelProcedureSearch";
+            this.labelProcedureSearch.Size = new System.Drawing.Size(104, 15);
+            this.labelProcedureSearch.TabIndex = 0;
+            this.labelProcedureSearch.Text = "Procedure search:";
+            //
+            // textBoxProcedureSearch
+            //
+            this.textBoxProcedureSearch.Location = new System.Drawing.Point(116, 3);
+            this.textBoxProcedureSearch.Name = "textBoxProcedureSearch";
+            this.textBoxProcedureSearch.Size = new System.Drawing.Size(200, 23);
+            this.textBoxProcedureSearch.TabIndex = 1;
+            //
+            // buttonCompareProcedure
+            //
+            this.buttonCompareProcedure.AutoSize = true;
+            this.buttonCompareProcedure.Location = new System.Drawing.Point(322, 3);
+            this.buttonCompareProcedure.Name = "buttonCompareProcedure";
+            this.buttonCompareProcedure.Size = new System.Drawing.Size(139, 25);
+            this.buttonCompareProcedure.TabIndex = 2;
+            this.buttonCompareProcedure.Text = "Compare Procedure";
+            this.buttonCompareProcedure.UseVisualStyleBackColor = true;
+            //
+            // tableLayoutPanelProcedureContent
+            //
+            this.tableLayoutPanelProcedureContent.ColumnCount = 1;
+            this.tableLayoutPanelProcedureContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelProcedureContent.Controls.Add(this.dataGridViewProcedureComparison, 0, 0);
+            this.tableLayoutPanelProcedureContent.Controls.Add(this.tableLayoutPanelProcedureDefinitions, 0, 1);
+            this.tableLayoutPanelProcedureContent.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelProcedureContent.Location = new System.Drawing.Point(3, 78);
+            this.tableLayoutPanelProcedureContent.Name = "tableLayoutPanelProcedureContent";
+            this.tableLayoutPanelProcedureContent.RowCount = 2;
+            this.tableLayoutPanelProcedureContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 55F));
+            this.tableLayoutPanelProcedureContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 45F));
+            this.tableLayoutPanelProcedureContent.Size = new System.Drawing.Size(538, 255);
+            this.tableLayoutPanelProcedureContent.TabIndex = 2;
+            //
+            // dataGridViewProcedureComparison
+            //
+            this.dataGridViewProcedureComparison.AllowUserToAddRows = false;
+            this.dataGridViewProcedureComparison.AllowUserToDeleteRows = false;
+            this.dataGridViewProcedureComparison.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridViewProcedureComparison.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewProcedureComparison.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewProcedureComparison.Location = new System.Drawing.Point(3, 3);
+            this.dataGridViewProcedureComparison.Name = "dataGridViewProcedureComparison";
+            this.dataGridViewProcedureComparison.ReadOnly = true;
+            this.dataGridViewProcedureComparison.RowHeadersVisible = false;
+            this.dataGridViewProcedureComparison.RowTemplate.Height = 25;
+            this.dataGridViewProcedureComparison.Size = new System.Drawing.Size(532, 134);
+            this.dataGridViewProcedureComparison.TabIndex = 0;
+            //
+            // tableLayoutPanelProcedureDefinitions
+            //
+            this.tableLayoutPanelProcedureDefinitions.ColumnCount = 2;
+            this.tableLayoutPanelProcedureDefinitions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelProcedureDefinitions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelProcedureDefinitions.Controls.Add(this.labelPrimaryProcedureDefinition, 0, 0);
+            this.tableLayoutPanelProcedureDefinitions.Controls.Add(this.labelCompareProcedureDefinition, 1, 0);
+            this.tableLayoutPanelProcedureDefinitions.Controls.Add(this.textBoxPrimaryProcedureDefinition, 0, 1);
+            this.tableLayoutPanelProcedureDefinitions.Controls.Add(this.textBoxCompareProcedureDefinition, 1, 1);
+            this.tableLayoutPanelProcedureDefinitions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelProcedureDefinitions.Location = new System.Drawing.Point(3, 143);
+            this.tableLayoutPanelProcedureDefinitions.Name = "tableLayoutPanelProcedureDefinitions";
+            this.tableLayoutPanelProcedureDefinitions.RowCount = 2;
+            this.tableLayoutPanelProcedureDefinitions.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelProcedureDefinitions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelProcedureDefinitions.Size = new System.Drawing.Size(532, 109);
+            this.tableLayoutPanelProcedureDefinitions.TabIndex = 1;
+            //
+            // labelPrimaryProcedureDefinition
+            //
+            this.labelPrimaryProcedureDefinition.AutoSize = true;
+            this.labelPrimaryProcedureDefinition.Location = new System.Drawing.Point(3, 0);
+            this.labelPrimaryProcedureDefinition.Name = "labelPrimaryProcedureDefinition";
+            this.labelPrimaryProcedureDefinition.Size = new System.Drawing.Size(166, 15);
+            this.labelPrimaryProcedureDefinition.TabIndex = 0;
+            this.labelPrimaryProcedureDefinition.Text = "Primary procedure definition";
+            //
+            // labelCompareProcedureDefinition
+            //
+            this.labelCompareProcedureDefinition.AutoSize = true;
+            this.labelCompareProcedureDefinition.Location = new System.Drawing.Point(269, 0);
+            this.labelCompareProcedureDefinition.Name = "labelCompareProcedureDefinition";
+            this.labelCompareProcedureDefinition.Size = new System.Drawing.Size(175, 15);
+            this.labelCompareProcedureDefinition.TabIndex = 1;
+            this.labelCompareProcedureDefinition.Text = "Comparison procedure definition";
+            //
+            // textBoxPrimaryProcedureDefinition
+            //
+            this.textBoxPrimaryProcedureDefinition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBoxPrimaryProcedureDefinition.DetectUrls = false;
+            this.textBoxPrimaryProcedureDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxPrimaryProcedureDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxPrimaryProcedureDefinition.Location = new System.Drawing.Point(3, 18);
+            this.textBoxPrimaryProcedureDefinition.Name = "textBoxPrimaryProcedureDefinition";
+            this.textBoxPrimaryProcedureDefinition.ReadOnly = true;
+            this.textBoxPrimaryProcedureDefinition.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
+            this.textBoxPrimaryProcedureDefinition.Size = new System.Drawing.Size(260, 88);
+            this.textBoxPrimaryProcedureDefinition.TabIndex = 2;
+            this.textBoxPrimaryProcedureDefinition.Text = "";
+            this.textBoxPrimaryProcedureDefinition.WordWrap = false;
+            //
+            // textBoxCompareProcedureDefinition
+            //
+            this.textBoxCompareProcedureDefinition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBoxCompareProcedureDefinition.DetectUrls = false;
+            this.textBoxCompareProcedureDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxCompareProcedureDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxCompareProcedureDefinition.Location = new System.Drawing.Point(269, 18);
+            this.textBoxCompareProcedureDefinition.Name = "textBoxCompareProcedureDefinition";
+            this.textBoxCompareProcedureDefinition.ReadOnly = true;
+            this.textBoxCompareProcedureDefinition.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
+            this.textBoxCompareProcedureDefinition.Size = new System.Drawing.Size(260, 88);
+            this.textBoxCompareProcedureDefinition.TabIndex = 3;
+            this.textBoxCompareProcedureDefinition.Text = "";
+            this.textBoxCompareProcedureDefinition.WordWrap = false;
+            //
+            // tableLayoutPanelFunctions
+            //
+            this.tableLayoutPanelFunctions.ColumnCount = 1;
+            this.tableLayoutPanelFunctions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelFunctions.Controls.Add(this.flowLayoutPanelFunctionSelectors, 0, 0);
+            this.tableLayoutPanelFunctions.Controls.Add(this.flowLayoutPanelFunctionSearch, 0, 1);
+            this.tableLayoutPanelFunctions.Controls.Add(this.tableLayoutPanelFunctionContent, 0, 2);
+            this.tableLayoutPanelFunctions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelFunctions.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelFunctions.Name = "tableLayoutPanelFunctions";
+            this.tableLayoutPanelFunctions.RowCount = 3;
+            this.tableLayoutPanelFunctions.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelFunctions.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelFunctions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelFunctions.Size = new System.Drawing.Size(544, 336);
+            this.tableLayoutPanelFunctions.TabIndex = 0;
+            //
+            // flowLayoutPanelFunctionSelectors
+            //
+            this.flowLayoutPanelFunctionSelectors.AutoSize = true;
+            this.flowLayoutPanelFunctionSelectors.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelFunctionSelectors.AutoScroll = true;
+            this.flowLayoutPanelFunctionSelectors.Controls.Add(this.labelFunctionPrimaryServer);
+            this.flowLayoutPanelFunctionSelectors.Controls.Add(this.comboBoxFunctionPrimaryServer);
+            this.flowLayoutPanelFunctionSelectors.Controls.Add(this.labelFunctionPrimaryDatabase);
+            this.flowLayoutPanelFunctionSelectors.Controls.Add(this.comboBoxFunctionPrimaryDatabase);
+            this.flowLayoutPanelFunctionSelectors.Controls.Add(this.labelFunctionCompareServer);
+            this.flowLayoutPanelFunctionSelectors.Controls.Add(this.comboBoxFunctionCompareServer);
+            this.flowLayoutPanelFunctionSelectors.Controls.Add(this.labelFunctionCompareDatabase);
+            this.flowLayoutPanelFunctionSelectors.Controls.Add(this.comboBoxFunctionCompareDatabase);
+            this.flowLayoutPanelFunctionSelectors.Controls.Add(this.buttonLoadFunctions);
+            this.flowLayoutPanelFunctionSelectors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelFunctionSelectors.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanelFunctionSelectors.Name = "flowLayoutPanelFunctionSelectors";
+            this.flowLayoutPanelFunctionSelectors.Padding = new System.Windows.Forms.Padding(3);
+            this.flowLayoutPanelFunctionSelectors.Size = new System.Drawing.Size(538, 34);
+            this.flowLayoutPanelFunctionSelectors.TabIndex = 0;
+            this.flowLayoutPanelFunctionSelectors.WrapContents = true;
+            //
+            // labelFunctionPrimaryServer
+            //
+            this.labelFunctionPrimaryServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelFunctionPrimaryServer.AutoSize = true;
+            this.labelFunctionPrimaryServer.Location = new System.Drawing.Point(6, 10);
+            this.labelFunctionPrimaryServer.Name = "labelFunctionPrimaryServer";
+            this.labelFunctionPrimaryServer.Size = new System.Drawing.Size(88, 15);
+            this.labelFunctionPrimaryServer.TabIndex = 0;
+            this.labelFunctionPrimaryServer.Text = "Primary server:";
+            //
+            // comboBoxFunctionPrimaryServer
+            //
+            this.comboBoxFunctionPrimaryServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxFunctionPrimaryServer.FormattingEnabled = true;
+            this.comboBoxFunctionPrimaryServer.Location = new System.Drawing.Point(100, 6);
+            this.comboBoxFunctionPrimaryServer.Name = "comboBoxFunctionPrimaryServer";
+            this.comboBoxFunctionPrimaryServer.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxFunctionPrimaryServer.TabIndex = 1;
+            //
+            // labelFunctionPrimaryDatabase
+            //
+            this.labelFunctionPrimaryDatabase.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelFunctionPrimaryDatabase.AutoSize = true;
+            this.labelFunctionPrimaryDatabase.Location = new System.Drawing.Point(256, 10);
+            this.labelFunctionPrimaryDatabase.Name = "labelFunctionPrimaryDatabase";
+            this.labelFunctionPrimaryDatabase.Size = new System.Drawing.Size(105, 15);
+            this.labelFunctionPrimaryDatabase.TabIndex = 2;
+            this.labelFunctionPrimaryDatabase.Text = "Primary database:";
+            //
+            // comboBoxFunctionPrimaryDatabase
+            //
+            this.comboBoxFunctionPrimaryDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxFunctionPrimaryDatabase.FormattingEnabled = true;
+            this.comboBoxFunctionPrimaryDatabase.Location = new System.Drawing.Point(367, 6);
+            this.comboBoxFunctionPrimaryDatabase.Name = "comboBoxFunctionPrimaryDatabase";
+            this.comboBoxFunctionPrimaryDatabase.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxFunctionPrimaryDatabase.TabIndex = 3;
+            //
+            // labelFunctionCompareServer
+            //
+            this.labelFunctionCompareServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelFunctionCompareServer.AutoSize = true;
+            this.labelFunctionCompareServer.Location = new System.Drawing.Point(523, 10);
+            this.labelFunctionCompareServer.Name = "labelFunctionCompareServer";
+            this.labelFunctionCompareServer.Size = new System.Drawing.Size(97, 15);
+            this.labelFunctionCompareServer.TabIndex = 4;
+            this.labelFunctionCompareServer.Text = "Compare server:";
+            //
+            // comboBoxFunctionCompareServer
+            //
+            this.comboBoxFunctionCompareServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxFunctionCompareServer.FormattingEnabled = true;
+            this.comboBoxFunctionCompareServer.Location = new System.Drawing.Point(626, 6);
+            this.comboBoxFunctionCompareServer.Name = "comboBoxFunctionCompareServer";
+            this.comboBoxFunctionCompareServer.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxFunctionCompareServer.TabIndex = 5;
+            //
+            // labelFunctionCompareDatabase
+            //
+            this.labelFunctionCompareDatabase.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelFunctionCompareDatabase.AutoSize = true;
+            this.labelFunctionCompareDatabase.Location = new System.Drawing.Point(782, 10);
+            this.labelFunctionCompareDatabase.Name = "labelFunctionCompareDatabase";
+            this.labelFunctionCompareDatabase.Size = new System.Drawing.Size(114, 15);
+            this.labelFunctionCompareDatabase.TabIndex = 6;
+            this.labelFunctionCompareDatabase.Text = "Compare database:";
+            //
+            // comboBoxFunctionCompareDatabase
+            //
+            this.comboBoxFunctionCompareDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxFunctionCompareDatabase.FormattingEnabled = true;
+            this.comboBoxFunctionCompareDatabase.Location = new System.Drawing.Point(902, 6);
+            this.comboBoxFunctionCompareDatabase.Name = "comboBoxFunctionCompareDatabase";
+            this.comboBoxFunctionCompareDatabase.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxFunctionCompareDatabase.TabIndex = 7;
+            //
+            // buttonLoadFunctions
+            //
+            this.buttonLoadFunctions.AutoSize = true;
+            this.buttonLoadFunctions.Location = new System.Drawing.Point(1058, 6);
+            this.buttonLoadFunctions.Name = "buttonLoadFunctions";
+            this.buttonLoadFunctions.Size = new System.Drawing.Size(104, 25);
+            this.buttonLoadFunctions.TabIndex = 8;
+            this.buttonLoadFunctions.Text = "Load Functions";
+            this.buttonLoadFunctions.UseVisualStyleBackColor = true;
+            //
+            // flowLayoutPanelFunctionSearch
+            //
+            this.flowLayoutPanelFunctionSearch.AutoSize = true;
+            this.flowLayoutPanelFunctionSearch.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelFunctionSearch.Controls.Add(this.labelFunctionSearch);
+            this.flowLayoutPanelFunctionSearch.Controls.Add(this.textBoxFunctionSearch);
+            this.flowLayoutPanelFunctionSearch.Controls.Add(this.buttonCompareFunction);
+            this.flowLayoutPanelFunctionSearch.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelFunctionSearch.Location = new System.Drawing.Point(3, 43);
+            this.flowLayoutPanelFunctionSearch.Name = "flowLayoutPanelFunctionSearch";
+            this.flowLayoutPanelFunctionSearch.Padding = new System.Windows.Forms.Padding(3, 0, 3, 3);
+            this.flowLayoutPanelFunctionSearch.Size = new System.Drawing.Size(538, 29);
+            this.flowLayoutPanelFunctionSearch.TabIndex = 1;
+            //
+            // labelFunctionSearch
+            //
+            this.labelFunctionSearch.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelFunctionSearch.AutoSize = true;
+            this.labelFunctionSearch.Location = new System.Drawing.Point(6, 5);
+            this.labelFunctionSearch.Name = "labelFunctionSearch";
+            this.labelFunctionSearch.Size = new System.Drawing.Size(97, 15);
+            this.labelFunctionSearch.TabIndex = 0;
+            this.labelFunctionSearch.Text = "Function search:";
+            //
+            // textBoxFunctionSearch
+            //
+            this.textBoxFunctionSearch.Location = new System.Drawing.Point(109, 3);
+            this.textBoxFunctionSearch.Name = "textBoxFunctionSearch";
+            this.textBoxFunctionSearch.Size = new System.Drawing.Size(200, 23);
+            this.textBoxFunctionSearch.TabIndex = 1;
+            //
+            // buttonCompareFunction
+            //
+            this.buttonCompareFunction.AutoSize = true;
+            this.buttonCompareFunction.Location = new System.Drawing.Point(315, 3);
+            this.buttonCompareFunction.Name = "buttonCompareFunction";
+            this.buttonCompareFunction.Size = new System.Drawing.Size(131, 25);
+            this.buttonCompareFunction.TabIndex = 2;
+            this.buttonCompareFunction.Text = "Compare Function";
+            this.buttonCompareFunction.UseVisualStyleBackColor = true;
+            //
+            // tableLayoutPanelFunctionContent
+            //
+            this.tableLayoutPanelFunctionContent.ColumnCount = 1;
+            this.tableLayoutPanelFunctionContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelFunctionContent.Controls.Add(this.dataGridViewFunctionComparison, 0, 0);
+            this.tableLayoutPanelFunctionContent.Controls.Add(this.tableLayoutPanelFunctionDefinitions, 0, 1);
+            this.tableLayoutPanelFunctionContent.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelFunctionContent.Location = new System.Drawing.Point(3, 78);
+            this.tableLayoutPanelFunctionContent.Name = "tableLayoutPanelFunctionContent";
+            this.tableLayoutPanelFunctionContent.RowCount = 2;
+            this.tableLayoutPanelFunctionContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 55F));
+            this.tableLayoutPanelFunctionContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 45F));
+            this.tableLayoutPanelFunctionContent.Size = new System.Drawing.Size(538, 255);
+            this.tableLayoutPanelFunctionContent.TabIndex = 2;
+            //
+            // dataGridViewFunctionComparison
+            //
+            this.dataGridViewFunctionComparison.AllowUserToAddRows = false;
+            this.dataGridViewFunctionComparison.AllowUserToDeleteRows = false;
+            this.dataGridViewFunctionComparison.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridViewFunctionComparison.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewFunctionComparison.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewFunctionComparison.Location = new System.Drawing.Point(3, 3);
+            this.dataGridViewFunctionComparison.Name = "dataGridViewFunctionComparison";
+            this.dataGridViewFunctionComparison.ReadOnly = true;
+            this.dataGridViewFunctionComparison.RowHeadersVisible = false;
+            this.dataGridViewFunctionComparison.RowTemplate.Height = 25;
+            this.dataGridViewFunctionComparison.Size = new System.Drawing.Size(532, 134);
+            this.dataGridViewFunctionComparison.TabIndex = 0;
+            //
+            // tableLayoutPanelFunctionDefinitions
+            //
+            this.tableLayoutPanelFunctionDefinitions.ColumnCount = 2;
+            this.tableLayoutPanelFunctionDefinitions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelFunctionDefinitions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelFunctionDefinitions.Controls.Add(this.labelPrimaryFunctionDefinition, 0, 0);
+            this.tableLayoutPanelFunctionDefinitions.Controls.Add(this.labelCompareFunctionDefinition, 1, 0);
+            this.tableLayoutPanelFunctionDefinitions.Controls.Add(this.textBoxPrimaryFunctionDefinition, 0, 1);
+            this.tableLayoutPanelFunctionDefinitions.Controls.Add(this.textBoxCompareFunctionDefinition, 1, 1);
+            this.tableLayoutPanelFunctionDefinitions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelFunctionDefinitions.Location = new System.Drawing.Point(3, 143);
+            this.tableLayoutPanelFunctionDefinitions.Name = "tableLayoutPanelFunctionDefinitions";
+            this.tableLayoutPanelFunctionDefinitions.RowCount = 2;
+            this.tableLayoutPanelFunctionDefinitions.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelFunctionDefinitions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelFunctionDefinitions.Size = new System.Drawing.Size(532, 109);
+            this.tableLayoutPanelFunctionDefinitions.TabIndex = 1;
+            //
+            // labelPrimaryFunctionDefinition
+            //
+            this.labelPrimaryFunctionDefinition.AutoSize = true;
+            this.labelPrimaryFunctionDefinition.Location = new System.Drawing.Point(3, 0);
+            this.labelPrimaryFunctionDefinition.Name = "labelPrimaryFunctionDefinition";
+            this.labelPrimaryFunctionDefinition.Size = new System.Drawing.Size(145, 15);
+            this.labelPrimaryFunctionDefinition.TabIndex = 0;
+            this.labelPrimaryFunctionDefinition.Text = "Primary function definition";
+            //
+            // labelCompareFunctionDefinition
+            //
+            this.labelCompareFunctionDefinition.AutoSize = true;
+            this.labelCompareFunctionDefinition.Location = new System.Drawing.Point(269, 0);
+            this.labelCompareFunctionDefinition.Name = "labelCompareFunctionDefinition";
+            this.labelCompareFunctionDefinition.Size = new System.Drawing.Size(154, 15);
+            this.labelCompareFunctionDefinition.TabIndex = 1;
+            this.labelCompareFunctionDefinition.Text = "Comparison function definition";
+            //
+            // textBoxPrimaryFunctionDefinition
+            //
+            this.textBoxPrimaryFunctionDefinition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBoxPrimaryFunctionDefinition.DetectUrls = false;
+            this.textBoxPrimaryFunctionDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxPrimaryFunctionDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxPrimaryFunctionDefinition.Location = new System.Drawing.Point(3, 18);
+            this.textBoxPrimaryFunctionDefinition.Name = "textBoxPrimaryFunctionDefinition";
+            this.textBoxPrimaryFunctionDefinition.ReadOnly = true;
+            this.textBoxPrimaryFunctionDefinition.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
+            this.textBoxPrimaryFunctionDefinition.Size = new System.Drawing.Size(260, 88);
+            this.textBoxPrimaryFunctionDefinition.TabIndex = 2;
+            this.textBoxPrimaryFunctionDefinition.Text = "";
+            this.textBoxPrimaryFunctionDefinition.WordWrap = false;
+            //
+            // textBoxCompareFunctionDefinition
+            //
+            this.textBoxCompareFunctionDefinition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBoxCompareFunctionDefinition.DetectUrls = false;
+            this.textBoxCompareFunctionDefinition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxCompareFunctionDefinition.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxCompareFunctionDefinition.Location = new System.Drawing.Point(269, 18);
+            this.textBoxCompareFunctionDefinition.Name = "textBoxCompareFunctionDefinition";
+            this.textBoxCompareFunctionDefinition.ReadOnly = true;
+            this.textBoxCompareFunctionDefinition.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Both;
+            this.textBoxCompareFunctionDefinition.Size = new System.Drawing.Size(260, 88);
+            this.textBoxCompareFunctionDefinition.TabIndex = 3;
+            this.textBoxCompareFunctionDefinition.Text = "";
+            this.textBoxCompareFunctionDefinition.WordWrap = false;
+            //
             // contextMenuTree
             //
             this.contextMenuTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1019,8 +1848,38 @@ namespace SqlSafe
             this.tabControlObjects.ResumeLayout(false);
             this.tabPageViewExplorer.ResumeLayout(false);
             this.tabPageTables.ResumeLayout(false);
+            this.tableLayoutPanelTables.ResumeLayout(false);
+            this.tableLayoutPanelTables.PerformLayout();
+            this.flowLayoutPanelTableSelectors.ResumeLayout(false);
+            this.flowLayoutPanelTableSelectors.PerformLayout();
+            this.flowLayoutPanelTableSearch.ResumeLayout(false);
+            this.flowLayoutPanelTableSearch.PerformLayout();
+            this.tableLayoutPanelTableContent.ResumeLayout(false);
+            this.tableLayoutPanelTableDefinitions.ResumeLayout(false);
+            this.tableLayoutPanelTableDefinitions.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewTableComparison)).EndInit();
             this.tabPageStoredProcedures.ResumeLayout(false);
+            this.tableLayoutPanelProcedures.ResumeLayout(false);
+            this.tableLayoutPanelProcedures.PerformLayout();
+            this.flowLayoutPanelProcedureSelectors.ResumeLayout(false);
+            this.flowLayoutPanelProcedureSelectors.PerformLayout();
+            this.flowLayoutPanelProcedureSearch.ResumeLayout(false);
+            this.flowLayoutPanelProcedureSearch.PerformLayout();
+            this.tableLayoutPanelProcedureContent.ResumeLayout(false);
+            this.tableLayoutPanelProcedureDefinitions.ResumeLayout(false);
+            this.tableLayoutPanelProcedureDefinitions.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewProcedureComparison)).EndInit();
             this.tabPageFunctions.ResumeLayout(false);
+            this.tableLayoutPanelFunctions.ResumeLayout(false);
+            this.tableLayoutPanelFunctions.PerformLayout();
+            this.flowLayoutPanelFunctionSelectors.ResumeLayout(false);
+            this.flowLayoutPanelFunctionSelectors.PerformLayout();
+            this.flowLayoutPanelFunctionSearch.ResumeLayout(false);
+            this.flowLayoutPanelFunctionSearch.PerformLayout();
+            this.tableLayoutPanelFunctionContent.ResumeLayout(false);
+            this.tableLayoutPanelFunctionDefinitions.ResumeLayout(false);
+            this.tableLayoutPanelFunctionDefinitions.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewFunctionComparison)).EndInit();
             this.tabPageViews.ResumeLayout(false);
             this.tableLayoutPanelViews.ResumeLayout(false);
             this.tableLayoutPanelViews.PerformLayout();
@@ -1093,9 +1952,6 @@ namespace SqlSafe
         private System.Windows.Forms.TabPage tabPageTables;
         private System.Windows.Forms.TabPage tabPageStoredProcedures;
         private System.Windows.Forms.TabPage tabPageFunctions;
-        private System.Windows.Forms.Label labelTablesPlaceholder;
-        private System.Windows.Forms.Label labelStoredProceduresPlaceholder;
-        private System.Windows.Forms.Label labelFunctionsPlaceholder;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelViews;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelViewSelectors;
         private System.Windows.Forms.Label labelPrimaryServer;
@@ -1118,5 +1974,71 @@ namespace SqlSafe
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelViewSearch;
         private System.Windows.Forms.Label labelViewSearch;
         private System.Windows.Forms.TextBox textBoxViewSearch;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelTables;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelTableSelectors;
+        private System.Windows.Forms.Label labelTablePrimaryServer;
+        private System.Windows.Forms.ComboBox comboBoxTablePrimaryServer;
+        private System.Windows.Forms.Label labelTablePrimaryDatabase;
+        private System.Windows.Forms.ComboBox comboBoxTablePrimaryDatabase;
+        private System.Windows.Forms.Label labelTableCompareServer;
+        private System.Windows.Forms.ComboBox comboBoxTableCompareServer;
+        private System.Windows.Forms.Label labelTableCompareDatabase;
+        private System.Windows.Forms.ComboBox comboBoxTableCompareDatabase;
+        private System.Windows.Forms.Button buttonLoadTables;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelTableSearch;
+        private System.Windows.Forms.Label labelTableSearch;
+        private System.Windows.Forms.TextBox textBoxTableSearch;
+        private System.Windows.Forms.Button buttonCompareTable;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelTableContent;
+        private System.Windows.Forms.DataGridView dataGridViewTableComparison;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelTableDefinitions;
+        private System.Windows.Forms.Label labelPrimaryTableDefinition;
+        private System.Windows.Forms.Label labelCompareTableDefinition;
+        private System.Windows.Forms.RichTextBox textBoxPrimaryTableDefinition;
+        private System.Windows.Forms.RichTextBox textBoxCompareTableDefinition;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelProcedures;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelProcedureSelectors;
+        private System.Windows.Forms.Label labelProcedurePrimaryServer;
+        private System.Windows.Forms.ComboBox comboBoxProcedurePrimaryServer;
+        private System.Windows.Forms.Label labelProcedurePrimaryDatabase;
+        private System.Windows.Forms.ComboBox comboBoxProcedurePrimaryDatabase;
+        private System.Windows.Forms.Label labelProcedureCompareServer;
+        private System.Windows.Forms.ComboBox comboBoxProcedureCompareServer;
+        private System.Windows.Forms.Label labelProcedureCompareDatabase;
+        private System.Windows.Forms.ComboBox comboBoxProcedureCompareDatabase;
+        private System.Windows.Forms.Button buttonLoadProcedures;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelProcedureSearch;
+        private System.Windows.Forms.Label labelProcedureSearch;
+        private System.Windows.Forms.TextBox textBoxProcedureSearch;
+        private System.Windows.Forms.Button buttonCompareProcedure;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelProcedureContent;
+        private System.Windows.Forms.DataGridView dataGridViewProcedureComparison;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelProcedureDefinitions;
+        private System.Windows.Forms.Label labelPrimaryProcedureDefinition;
+        private System.Windows.Forms.Label labelCompareProcedureDefinition;
+        private System.Windows.Forms.RichTextBox textBoxPrimaryProcedureDefinition;
+        private System.Windows.Forms.RichTextBox textBoxCompareProcedureDefinition;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelFunctions;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelFunctionSelectors;
+        private System.Windows.Forms.Label labelFunctionPrimaryServer;
+        private System.Windows.Forms.ComboBox comboBoxFunctionPrimaryServer;
+        private System.Windows.Forms.Label labelFunctionPrimaryDatabase;
+        private System.Windows.Forms.ComboBox comboBoxFunctionPrimaryDatabase;
+        private System.Windows.Forms.Label labelFunctionCompareServer;
+        private System.Windows.Forms.ComboBox comboBoxFunctionCompareServer;
+        private System.Windows.Forms.Label labelFunctionCompareDatabase;
+        private System.Windows.Forms.ComboBox comboBoxFunctionCompareDatabase;
+        private System.Windows.Forms.Button buttonLoadFunctions;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelFunctionSearch;
+        private System.Windows.Forms.Label labelFunctionSearch;
+        private System.Windows.Forms.TextBox textBoxFunctionSearch;
+        private System.Windows.Forms.Button buttonCompareFunction;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelFunctionContent;
+        private System.Windows.Forms.DataGridView dataGridViewFunctionComparison;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelFunctionDefinitions;
+        private System.Windows.Forms.Label labelPrimaryFunctionDefinition;
+        private System.Windows.Forms.Label labelCompareFunctionDefinition;
+        private System.Windows.Forms.RichTextBox textBoxPrimaryFunctionDefinition;
+        private System.Windows.Forms.RichTextBox textBoxCompareFunctionDefinition;
     }
 }

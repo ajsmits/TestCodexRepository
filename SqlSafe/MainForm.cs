@@ -24,6 +24,15 @@ namespace SqlSafe
         private List<ViewComparisonRow> _viewComparisons = new();
         private Dictionary<string, string> _primaryViewDefinitions = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, string> _compareViewDefinitions = new(StringComparer.OrdinalIgnoreCase);
+        private List<TableComparisonRow> _tableComparisons = new();
+        private Dictionary<string, string> _primaryTableDefinitions = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, string> _compareTableDefinitions = new(StringComparer.OrdinalIgnoreCase);
+        private List<ProcedureComparisonRow> _procedureComparisons = new();
+        private Dictionary<string, string> _primaryProcedureDefinitions = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, string> _compareProcedureDefinitions = new(StringComparer.OrdinalIgnoreCase);
+        private List<FunctionComparisonRow> _functionComparisons = new();
+        private Dictionary<string, string> _primaryFunctionDefinitions = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, string> _compareFunctionDefinitions = new(StringComparer.OrdinalIgnoreCase);
 
         public MainForm(string companyConnectionString)
         {
@@ -57,6 +66,27 @@ namespace SqlSafe
             textBoxViewSearch.TextChanged += (_, _) => ApplyViewFilter();
             dataGridViewViewComparison.CellDoubleClick += async (_, _) => await CompareSelectedViewAsync();
             dataGridViewViewComparison.CellFormatting += DataGridViewViewComparison_CellFormatting;
+            comboBoxTablePrimaryServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxTablePrimaryServer, comboBoxTablePrimaryDatabase);
+            comboBoxTableCompareServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxTableCompareServer, comboBoxTableCompareDatabase);
+            buttonLoadTables.Click += async (_, _) => await LoadTablesAsync();
+            buttonCompareTable.Click += async (_, _) => await CompareSelectedTableAsync();
+            textBoxTableSearch.TextChanged += (_, _) => ApplyTableFilter();
+            dataGridViewTableComparison.CellDoubleClick += async (_, _) => await CompareSelectedTableAsync();
+            dataGridViewTableComparison.CellFormatting += DataGridViewTableComparison_CellFormatting;
+            comboBoxProcedurePrimaryServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxProcedurePrimaryServer, comboBoxProcedurePrimaryDatabase);
+            comboBoxProcedureCompareServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxProcedureCompareServer, comboBoxProcedureCompareDatabase);
+            buttonLoadProcedures.Click += async (_, _) => await LoadProceduresAsync();
+            buttonCompareProcedure.Click += async (_, _) => await CompareSelectedProcedureAsync();
+            textBoxProcedureSearch.TextChanged += (_, _) => ApplyProcedureFilter();
+            dataGridViewProcedureComparison.CellDoubleClick += async (_, _) => await CompareSelectedProcedureAsync();
+            dataGridViewProcedureComparison.CellFormatting += DataGridViewProcedureComparison_CellFormatting;
+            comboBoxFunctionPrimaryServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxFunctionPrimaryServer, comboBoxFunctionPrimaryDatabase);
+            comboBoxFunctionCompareServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxFunctionCompareServer, comboBoxFunctionCompareDatabase);
+            buttonLoadFunctions.Click += async (_, _) => await LoadFunctionsAsync();
+            buttonCompareFunction.Click += async (_, _) => await CompareSelectedFunctionAsync();
+            textBoxFunctionSearch.TextChanged += (_, _) => ApplyFunctionFilter();
+            dataGridViewFunctionComparison.CellDoubleClick += async (_, _) => await CompareSelectedFunctionAsync();
+            dataGridViewFunctionComparison.CellFormatting += DataGridViewFunctionComparison_CellFormatting;
             Load += async (_, _) => await InitializeDataAsync();
             comboBoxEnvironment.SelectedIndex = 0;
             UpdateRunButtonState();
@@ -547,6 +577,30 @@ namespace SqlSafe
             _viewComparisons.Clear();
             dataGridViewViewComparison.DataSource = null;
             ClearViewDefinitionText();
+
+            PopulateServerCombo(comboBoxTablePrimaryServer, servers.Select(s => s.ServerName));
+            PopulateServerCombo(comboBoxTableCompareServer, servers.Select(s => s.ServerName));
+            UpdateDatabaseCombo(comboBoxTablePrimaryServer, comboBoxTablePrimaryDatabase);
+            UpdateDatabaseCombo(comboBoxTableCompareServer, comboBoxTableCompareDatabase);
+            _tableComparisons.Clear();
+            dataGridViewTableComparison.DataSource = null;
+            ClearTableDefinitionText();
+
+            PopulateServerCombo(comboBoxProcedurePrimaryServer, servers.Select(s => s.ServerName));
+            PopulateServerCombo(comboBoxProcedureCompareServer, servers.Select(s => s.ServerName));
+            UpdateDatabaseCombo(comboBoxProcedurePrimaryServer, comboBoxProcedurePrimaryDatabase);
+            UpdateDatabaseCombo(comboBoxProcedureCompareServer, comboBoxProcedureCompareDatabase);
+            _procedureComparisons.Clear();
+            dataGridViewProcedureComparison.DataSource = null;
+            ClearProcedureDefinitionText();
+
+            PopulateServerCombo(comboBoxFunctionPrimaryServer, servers.Select(s => s.ServerName));
+            PopulateServerCombo(comboBoxFunctionCompareServer, servers.Select(s => s.ServerName));
+            UpdateDatabaseCombo(comboBoxFunctionPrimaryServer, comboBoxFunctionPrimaryDatabase);
+            UpdateDatabaseCombo(comboBoxFunctionCompareServer, comboBoxFunctionCompareDatabase);
+            _functionComparisons.Clear();
+            dataGridViewFunctionComparison.DataSource = null;
+            ClearFunctionDefinitionText();
         }
 
         private static Dictionary<string, Dictionary<string, string>> BuildConnectionLookup(IEnumerable<SqlServerNode> servers)
@@ -714,11 +768,11 @@ namespace SqlSafe
             try
             {
                 var primaryDefinitionTask = selected.InPrimary
-                    ? GetDefinitionWithFallbackAsync(primaryConnection, selected.ViewName, _primaryViewDefinitions)
+                    ? GetDefinitionWithFallbackAsync(primaryConnection, selected.ViewName, _primaryViewDefinitions, GetViewDefinitionAsync)
                     : Task.FromResult<string?>(null);
 
                 var compareDefinitionTask = selected.InComparison
-                    ? GetDefinitionWithFallbackAsync(compareConnection, selected.ViewName, _compareViewDefinitions)
+                    ? GetDefinitionWithFallbackAsync(compareConnection, selected.ViewName, _compareViewDefinitions, GetViewDefinitionAsync)
                     : Task.FromResult<string?>(null);
 
                 var primaryDefinition = await primaryDefinitionTask.ConfigureAwait(true);
@@ -737,6 +791,141 @@ namespace SqlSafe
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to load view definitions: {ex.Message}", "View Explorer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task CompareSelectedTableAsync()
+        {
+            if (dataGridViewTableComparison.CurrentRow?.DataBoundItem is not TableComparisonRow selected)
+            {
+                MessageBox.Show("Select a table to compare.", "Table Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var primaryConnection = GetSelectedConnectionString(comboBoxTablePrimaryServer, comboBoxTablePrimaryDatabase);
+            var compareConnection = GetSelectedConnectionString(comboBoxTableCompareServer, comboBoxTableCompareDatabase);
+
+            if (primaryConnection is null && compareConnection is null)
+            {
+                MessageBox.Show("Select valid server and database targets for comparison.", "Table Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var primaryLabel = comboBoxTablePrimaryDatabase.SelectedItem as string ?? "Primary";
+            var compareLabel = comboBoxTableCompareDatabase.SelectedItem as string ?? "Comparison";
+            labelPrimaryTableDefinition.Text = $"Primary table definition ({primaryLabel})";
+            labelCompareTableDefinition.Text = $"Comparison table definition ({compareLabel})";
+            textBoxPrimaryTableDefinition.Text = selected.InPrimary ? "Loading..." : "Table not available in primary selection.";
+            textBoxCompareTableDefinition.Text = selected.InComparison ? "Loading..." : "Table not available in comparison selection.";
+
+            try
+            {
+                var primaryDefinition = await GetDefinitionWithFallbackAsync(primaryConnection, selected.TableName, _primaryTableDefinitions, GetTableDefinitionAsync).ConfigureAwait(false);
+                var compareDefinition = await GetDefinitionWithFallbackAsync(compareConnection, selected.TableName, _compareTableDefinitions, GetTableDefinitionAsync).ConfigureAwait(false);
+
+                var primaryText = selected.InPrimary
+                    ? primaryDefinition ?? "Definition not found."
+                    : "Table not available in primary selection.";
+
+                var compareText = selected.InComparison
+                    ? compareDefinition ?? "Definition not found."
+                    : "Table not available in comparison selection.";
+
+                RenderDefinitionDiff(primaryText, compareText);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load table definitions: {ex.Message}", "Table Explorer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task CompareSelectedProcedureAsync()
+        {
+            if (dataGridViewProcedureComparison.CurrentRow?.DataBoundItem is not ProcedureComparisonRow selected)
+            {
+                MessageBox.Show("Select a stored procedure to compare.", "Stored Procedure Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var primaryConnection = GetSelectedConnectionString(comboBoxProcedurePrimaryServer, comboBoxProcedurePrimaryDatabase);
+            var compareConnection = GetSelectedConnectionString(comboBoxProcedureCompareServer, comboBoxProcedureCompareDatabase);
+
+            if (primaryConnection is null && compareConnection is null)
+            {
+                MessageBox.Show("Select valid server and database targets for comparison.", "Stored Procedure Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var primaryLabel = comboBoxProcedurePrimaryDatabase.SelectedItem as string ?? "Primary";
+            var compareLabel = comboBoxProcedureCompareDatabase.SelectedItem as string ?? "Comparison";
+            labelPrimaryProcedureDefinition.Text = $"Primary stored procedure definition ({primaryLabel})";
+            labelCompareProcedureDefinition.Text = $"Comparison stored procedure definition ({compareLabel})";
+            textBoxPrimaryProcedureDefinition.Text = selected.InPrimary ? "Loading..." : "Stored procedure not available in primary selection.";
+            textBoxCompareProcedureDefinition.Text = selected.InComparison ? "Loading..." : "Stored procedure not available in comparison selection.";
+
+            try
+            {
+                var primaryDefinition = await GetDefinitionWithFallbackAsync(primaryConnection, selected.ProcedureName, _primaryProcedureDefinitions, GetStoredProcedureDefinitionAsync).ConfigureAwait(false);
+                var compareDefinition = await GetDefinitionWithFallbackAsync(compareConnection, selected.ProcedureName, _compareProcedureDefinitions, GetStoredProcedureDefinitionAsync).ConfigureAwait(false);
+
+                var primaryText = selected.InPrimary
+                    ? primaryDefinition ?? "Definition not found."
+                    : "Stored procedure not available in primary selection.";
+
+                var compareText = selected.InComparison
+                    ? compareDefinition ?? "Definition not found."
+                    : "Stored procedure not available in comparison selection.";
+
+                RenderDefinitionDiff(primaryText, compareText);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load stored procedure definitions: {ex.Message}", "Stored Procedure Explorer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task CompareSelectedFunctionAsync()
+        {
+            if (dataGridViewFunctionComparison.CurrentRow?.DataBoundItem is not FunctionComparisonRow selected)
+            {
+                MessageBox.Show("Select a function to compare.", "Function Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var primaryConnection = GetSelectedConnectionString(comboBoxFunctionPrimaryServer, comboBoxFunctionPrimaryDatabase);
+            var compareConnection = GetSelectedConnectionString(comboBoxFunctionCompareServer, comboBoxFunctionCompareDatabase);
+
+            if (primaryConnection is null && compareConnection is null)
+            {
+                MessageBox.Show("Select valid server and database targets for comparison.", "Function Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var primaryLabel = comboBoxFunctionPrimaryDatabase.SelectedItem as string ?? "Primary";
+            var compareLabel = comboBoxFunctionCompareDatabase.SelectedItem as string ?? "Comparison";
+            labelPrimaryFunctionDefinition.Text = $"Primary function definition ({primaryLabel})";
+            labelCompareFunctionDefinition.Text = $"Comparison function definition ({compareLabel})";
+            textBoxPrimaryFunctionDefinition.Text = selected.InPrimary ? "Loading..." : "Function not available in primary selection.";
+            textBoxCompareFunctionDefinition.Text = selected.InComparison ? "Loading..." : "Function not available in comparison selection.";
+
+            try
+            {
+                var primaryDefinition = await GetDefinitionWithFallbackAsync(primaryConnection, selected.FunctionName, _primaryFunctionDefinitions, GetFunctionDefinitionAsync).ConfigureAwait(false);
+                var compareDefinition = await GetDefinitionWithFallbackAsync(compareConnection, selected.FunctionName, _compareFunctionDefinitions, GetFunctionDefinitionAsync).ConfigureAwait(false);
+
+                var primaryText = selected.InPrimary
+                    ? primaryDefinition ?? "Definition not found."
+                    : "Function not available in primary selection.";
+
+                var compareText = selected.InComparison
+                    ? compareDefinition ?? "Definition not found."
+                    : "Function not available in comparison selection.";
+
+                RenderDefinitionDiff(primaryText, compareText);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load function definitions: {ex.Message}", "Function Explorer", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -766,7 +955,7 @@ namespace SqlSafe
         }
 
         private static string GetComparisonSummary(
-            string viewName,
+            string objectName,
             bool inPrimary,
             bool inComparison,
             IReadOnlyDictionary<string, string> primaryDefinitions,
@@ -774,8 +963,8 @@ namespace SqlSafe
         {
             if (inPrimary && inComparison)
             {
-                var hasPrimary = primaryDefinitions.TryGetValue(viewName, out var primaryDefinition);
-                var hasComparison = compareDefinitions.TryGetValue(viewName, out var comparisonDefinition);
+                var hasPrimary = primaryDefinitions.TryGetValue(objectName, out var primaryDefinition);
+                var hasComparison = compareDefinitions.TryGetValue(objectName, out var comparisonDefinition);
 
                 if (hasPrimary && hasComparison)
                 {
@@ -862,6 +1051,272 @@ INNER JOIN sys.sql_modules sm ON sm.object_id = v.object_id";
             return results;
         }
 
+        private static async Task<HashSet<string>> GetTablesAsync(string connectionString)
+        {
+            const string sql = @"SELECT QUOTENAME(s.name) + '.' + QUOTENAME(t.name) AS TableName
+FROM sys.tables t WITH (NOLOCK)
+INNER JOIN sys.schemas s ON t.schema_id = s.schema_id";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            await connection.OpenAsync().ConfigureAwait(false);
+
+            var results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                results.Add(reader.GetString(reader.GetOrdinal("TableName")));
+            }
+
+            return results;
+        }
+
+        private static async Task<Dictionary<string, string>> GetTableDefinitionsAsync(string connectionString)
+        {
+            const string sql = @"WITH ColumnInfo AS (
+    SELECT
+        QUOTENAME(s.name) + '.' + QUOTENAME(t.name) AS TableName,
+        c.column_id,
+        QUOTENAME(c.name) AS ColumnName,
+        TYPE_NAME(c.user_type_id) AS DataType,
+        c.max_length,
+        c.is_nullable
+    FROM sys.tables t WITH (NOLOCK)
+    INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
+    INNER JOIN sys.columns c ON c.object_id = t.object_id
+)
+SELECT
+    TableName,
+    STRING_AGG(
+        ColumnName + ' ' + DataType +
+        CASE WHEN DataType IN ('varchar','nvarchar','char','nchar','varbinary')
+            THEN '(' + CASE WHEN max_length = -1 THEN 'max' ELSE CAST(CASE WHEN DataType LIKE 'n%' THEN max_length/2 ELSE max_length END AS varchar(10)) END + ')'
+            ELSE '' END +
+        CASE WHEN is_nullable = 1 THEN ' NULL' ELSE ' NOT NULL' END,
+        CHAR(10)
+    ) WITHIN GROUP (ORDER BY column_id) AS Definition
+FROM ColumnInfo
+GROUP BY TableName";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            await connection.OpenAsync().ConfigureAwait(false);
+
+            var results = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                var name = reader.GetString(reader.GetOrdinal("TableName"));
+                var definition = reader.IsDBNull(reader.GetOrdinal("Definition")) ? string.Empty : reader.GetString(reader.GetOrdinal("Definition"));
+                results[name] = definition;
+            }
+
+            return results;
+        }
+
+        private static async Task<string?> GetTableDefinitionAsync(string connectionString, string tableName)
+        {
+            const string sql = @"WITH ColumnInfo AS (
+    SELECT
+        QUOTENAME(s.name) + '.' + QUOTENAME(t.name) AS TableName,
+        c.column_id,
+        QUOTENAME(c.name) AS ColumnName,
+        TYPE_NAME(c.user_type_id) AS DataType,
+        c.max_length,
+        c.is_nullable
+    FROM sys.tables t WITH (NOLOCK)
+    INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
+    INNER JOIN sys.columns c ON c.object_id = t.object_id
+    WHERE QUOTENAME(s.name) + '.' + QUOTENAME(t.name) = @TableName
+)
+SELECT
+    STRING_AGG(
+        ColumnName + ' ' + DataType +
+        CASE WHEN DataType IN ('varchar','nvarchar','char','nchar','varbinary')
+            THEN '(' + CASE WHEN max_length = -1 THEN 'max' ELSE CAST(CASE WHEN DataType LIKE 'n%' THEN max_length/2 ELSE max_length END AS varchar(10)) END + ')'
+            ELSE '' END +
+        CASE WHEN is_nullable = 1 THEN ' NULL' ELSE ' NOT NULL' END,
+        CHAR(10)
+    ) WITHIN GROUP (ORDER BY column_id) AS Definition
+FROM ColumnInfo";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            command.Parameters.Add(new SqlParameter("@TableName", SqlDbType.NVarChar, 258)
+            {
+                Value = tableName
+            });
+
+            await connection.OpenAsync().ConfigureAwait(false);
+            var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+            return result as string;
+        }
+
+        private static async Task<HashSet<string>> GetStoredProceduresAsync(string connectionString)
+        {
+            const string sql = @"SELECT QUOTENAME(s.name) + '.' + QUOTENAME(p.name) AS ProcedureName
+FROM sys.procedures p WITH (NOLOCK)
+INNER JOIN sys.schemas s ON p.schema_id = s.schema_id";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            await connection.OpenAsync().ConfigureAwait(false);
+
+            var results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                results.Add(reader.GetString(reader.GetOrdinal("ProcedureName")));
+            }
+
+            return results;
+        }
+
+        private static async Task<Dictionary<string, string>> GetStoredProcedureDefinitionsAsync(string connectionString)
+        {
+            const string sql = @"SELECT QUOTENAME(s.name) + '.' + QUOTENAME(p.name) AS ProcedureName, sm.[definition]
+FROM sys.procedures p WITH (NOLOCK)
+INNER JOIN sys.schemas s ON p.schema_id = s.schema_id
+INNER JOIN sys.sql_modules sm ON sm.object_id = p.object_id";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            await connection.OpenAsync().ConfigureAwait(false);
+
+            var results = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                var name = reader.GetString(reader.GetOrdinal("ProcedureName"));
+                var definition = reader.IsDBNull(reader.GetOrdinal("definition")) ? string.Empty : reader.GetString(reader.GetOrdinal("definition"));
+                results[name] = definition;
+            }
+
+            return results;
+        }
+
+        private static async Task<string?> GetStoredProcedureDefinitionAsync(string connectionString, string procedureName)
+        {
+            const string sql = @"SELECT sm.[definition]
+FROM sys.sql_modules sm WITH (NOLOCK)
+INNER JOIN sys.procedures p ON sm.object_id = p.object_id
+INNER JOIN sys.schemas s ON p.schema_id = s.schema_id
+WHERE QUOTENAME(s.name) + '.' + QUOTENAME(p.name) = @ProcedureName";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            command.Parameters.Add(new SqlParameter("@ProcedureName", SqlDbType.NVarChar, 258)
+            {
+                Value = procedureName
+            });
+
+            await connection.OpenAsync().ConfigureAwait(false);
+            var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+            return result as string;
+        }
+
+        private static async Task<HashSet<string>> GetFunctionsAsync(string connectionString)
+        {
+            const string sql = @"SELECT QUOTENAME(s.name) + '.' + QUOTENAME(o.name) AS FunctionName
+FROM sys.objects o WITH (NOLOCK)
+INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
+WHERE o.[type] IN ('FN', 'IF', 'TF')";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            await connection.OpenAsync().ConfigureAwait(false);
+
+            var results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                results.Add(reader.GetString(reader.GetOrdinal("FunctionName")));
+            }
+
+            return results;
+        }
+
+        private static async Task<Dictionary<string, string>> GetFunctionDefinitionsAsync(string connectionString)
+        {
+            const string sql = @"SELECT QUOTENAME(s.name) + '.' + QUOTENAME(o.name) AS FunctionName, sm.[definition]
+FROM sys.objects o WITH (NOLOCK)
+INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
+INNER JOIN sys.sql_modules sm ON sm.object_id = o.object_id
+WHERE o.[type] IN ('FN', 'IF', 'TF')";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            await connection.OpenAsync().ConfigureAwait(false);
+
+            var results = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                var name = reader.GetString(reader.GetOrdinal("FunctionName"));
+                var definition = reader.IsDBNull(reader.GetOrdinal("definition")) ? string.Empty : reader.GetString(reader.GetOrdinal("definition"));
+                results[name] = definition;
+            }
+
+            return results;
+        }
+
+        private static async Task<string?> GetFunctionDefinitionAsync(string connectionString, string functionName)
+        {
+            const string sql = @"SELECT sm.[definition]
+FROM sys.sql_modules sm WITH (NOLOCK)
+INNER JOIN sys.objects o ON sm.object_id = o.object_id
+INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
+WHERE o.[type] IN ('FN', 'IF', 'TF')
+  AND QUOTENAME(s.name) + '.' + QUOTENAME(o.name) = @FunctionName";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            command.Parameters.Add(new SqlParameter("@FunctionName", SqlDbType.NVarChar, 258)
+            {
+                Value = functionName
+            });
+
+            await connection.OpenAsync().ConfigureAwait(false);
+            var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+            return result as string;
+        }
+
         private static async Task<string?> GetViewDefinitionAsync(string connectionString, string viewName)
         {
             const string sql = @"SELECT sm.[definition]
@@ -888,10 +1343,11 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
 
         private static async Task<string?> GetDefinitionWithFallbackAsync(
             string? connectionString,
-            string viewName,
-            IReadOnlyDictionary<string, string> cache)
+            string objectName,
+            IReadOnlyDictionary<string, string> cache,
+            Func<string, string, Task<string?>> fetchDefinition)
         {
-            if (cache.TryGetValue(viewName, out var cached))
+            if (cache.TryGetValue(objectName, out var cached))
             {
                 return cached;
             }
@@ -901,13 +1357,31 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
                 return null;
             }
 
-            return await GetViewDefinitionAsync(connectionString, viewName).ConfigureAwait(false);
+            return await fetchDefinition(connectionString, objectName).ConfigureAwait(false);
         }
 
         private void BindViewComparison(IEnumerable<ViewComparisonRow> rows)
         {
             _viewComparisons = rows.ToList();
             ApplyViewFilter();
+        }
+
+        private void BindTableComparison(IEnumerable<TableComparisonRow> rows)
+        {
+            _tableComparisons = rows.ToList();
+            ApplyTableFilter();
+        }
+
+        private void BindProcedureComparison(IEnumerable<ProcedureComparisonRow> rows)
+        {
+            _procedureComparisons = rows.ToList();
+            ApplyProcedureFilter();
+        }
+
+        private void BindFunctionComparison(IEnumerable<FunctionComparisonRow> rows)
+        {
+            _functionComparisons = rows.ToList();
+            ApplyFunctionFilter();
         }
 
         private void ConfigureViewComparisonGrid()
@@ -993,6 +1467,44 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
             e.FormattingApplied = true;
         }
 
+        private void DataGridViewTableComparison_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            FormatComparisonIconCell(dataGridViewTableComparison, e);
+        }
+
+        private void DataGridViewProcedureComparison_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            FormatComparisonIconCell(dataGridViewProcedureComparison, e);
+        }
+
+        private void DataGridViewFunctionComparison_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            FormatComparisonIconCell(dataGridViewFunctionComparison, e);
+        }
+
+        private static void FormatComparisonIconCell(DataGridView grid, DataGridViewCellFormattingEventArgs e)
+        {
+            if (grid.Columns[e.ColumnIndex].Name is not ("PrimaryStatus" or "ComparisonStatus"))
+            {
+                return;
+            }
+
+            var text = e.Value as string;
+            if (string.Equals(text, "✔", StringComparison.Ordinal))
+            {
+                e.CellStyle.ForeColor = Color.ForestGreen;
+                e.Value = "✔";
+            }
+            else
+            {
+                e.CellStyle.ForeColor = Color.Firebrick;
+                e.Value = "✖";
+            }
+
+            e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            e.FormattingApplied = true;
+        }
+
         private void ApplyViewFilter()
         {
             IEnumerable<ViewComparisonRow> filtered = _viewComparisons;
@@ -1007,12 +1519,468 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
             ClearViewDefinitionText();
         }
 
+        private void ApplyTableFilter()
+        {
+            IEnumerable<TableComparisonRow> filtered = _tableComparisons;
+            var filter = textBoxTableSearch.Text?.Trim();
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                filtered = filtered.Where(row => row.TableName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            dataGridViewTableComparison.DataSource = new BindingList<TableComparisonRow>(filtered.ToList());
+            ConfigureTableComparisonGrid();
+            ClearTableDefinitionText();
+        }
+
+        private void ApplyProcedureFilter()
+        {
+            IEnumerable<ProcedureComparisonRow> filtered = _procedureComparisons;
+            var filter = textBoxProcedureSearch.Text?.Trim();
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                filtered = filtered.Where(row => row.ProcedureName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            dataGridViewProcedureComparison.DataSource = new BindingList<ProcedureComparisonRow>(filtered.ToList());
+            ConfigureProcedureComparisonGrid();
+            ClearProcedureDefinitionText();
+        }
+
+        private void ApplyFunctionFilter()
+        {
+            IEnumerable<FunctionComparisonRow> filtered = _functionComparisons;
+            var filter = textBoxFunctionSearch.Text?.Trim();
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                filtered = filtered.Where(row => row.FunctionName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            dataGridViewFunctionComparison.DataSource = new BindingList<FunctionComparisonRow>(filtered.ToList());
+            ConfigureFunctionComparisonGrid();
+            ClearFunctionDefinitionText();
+        }
+
+        private void ConfigureTableComparisonGrid()
+        {
+            if (dataGridViewTableComparison.Columns.Count == 0)
+            {
+                return;
+            }
+
+            dataGridViewTableComparison.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewTableComparison.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dataGridViewTableComparison.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+            if (dataGridViewTableComparison.Columns[nameof(TableComparisonRow.TableName)] is DataGridViewColumn nameColumn)
+            {
+                nameColumn.HeaderText = "Table";
+                nameColumn.FillWeight = 40;
+                nameColumn.MinimumWidth = 150;
+            }
+
+            if (dataGridViewTableComparison.Columns[nameof(TableComparisonRow.PrimaryStatus)] is DataGridViewColumn primaryColumn)
+            {
+                primaryColumn.HeaderText = "Primary";
+                primaryColumn.FillWeight = 10;
+                primaryColumn.MinimumWidth = 60;
+                primaryColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            if (dataGridViewTableComparison.Columns[nameof(TableComparisonRow.ComparisonStatus)] is DataGridViewColumn compareColumn)
+            {
+                compareColumn.HeaderText = "Comparison";
+                compareColumn.FillWeight = 10;
+                compareColumn.MinimumWidth = 80;
+                compareColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            if (dataGridViewTableComparison.Columns[nameof(TableComparisonRow.Summary)] is DataGridViewColumn summaryColumn)
+            {
+                summaryColumn.HeaderText = "Difference Summary";
+                summaryColumn.FillWeight = 40;
+                summaryColumn.MinimumWidth = 150;
+            }
+
+            foreach (var name in new[]
+                     {
+                         nameof(TableComparisonRow.TableName),
+                         nameof(TableComparisonRow.PrimaryStatus),
+                         nameof(TableComparisonRow.ComparisonStatus),
+                         nameof(TableComparisonRow.Summary)
+                     })
+            {
+                if (dataGridViewTableComparison.Columns[name] is { } column)
+                {
+                    column.SortMode = DataGridViewColumnSortMode.Automatic;
+                }
+            }
+        }
+
+        private void ConfigureProcedureComparisonGrid()
+        {
+            if (dataGridViewProcedureComparison.Columns.Count == 0)
+            {
+                return;
+            }
+
+            dataGridViewProcedureComparison.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewProcedureComparison.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dataGridViewProcedureComparison.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+            if (dataGridViewProcedureComparison.Columns[nameof(ProcedureComparisonRow.ProcedureName)] is DataGridViewColumn nameColumn)
+            {
+                nameColumn.HeaderText = "Stored Procedure";
+                nameColumn.FillWeight = 40;
+                nameColumn.MinimumWidth = 200;
+            }
+
+            if (dataGridViewProcedureComparison.Columns[nameof(ProcedureComparisonRow.PrimaryStatus)] is DataGridViewColumn primaryColumn)
+            {
+                primaryColumn.HeaderText = "Primary";
+                primaryColumn.FillWeight = 10;
+                primaryColumn.MinimumWidth = 80;
+                primaryColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            if (dataGridViewProcedureComparison.Columns[nameof(ProcedureComparisonRow.ComparisonStatus)] is DataGridViewColumn compareColumn)
+            {
+                compareColumn.HeaderText = "Comparison";
+                compareColumn.FillWeight = 10;
+                compareColumn.MinimumWidth = 100;
+                compareColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            if (dataGridViewProcedureComparison.Columns[nameof(ProcedureComparisonRow.Summary)] is DataGridViewColumn summaryColumn)
+            {
+                summaryColumn.HeaderText = "Difference Summary";
+                summaryColumn.FillWeight = 40;
+                summaryColumn.MinimumWidth = 200;
+            }
+
+            foreach (var name in new[]
+                     {
+                         nameof(ProcedureComparisonRow.ProcedureName),
+                         nameof(ProcedureComparisonRow.PrimaryStatus),
+                         nameof(ProcedureComparisonRow.ComparisonStatus),
+                         nameof(ProcedureComparisonRow.Summary)
+                     })
+            {
+                if (dataGridViewProcedureComparison.Columns[name] is { } column)
+                {
+                    column.SortMode = DataGridViewColumnSortMode.Automatic;
+                }
+            }
+        }
+
+        private void ConfigureFunctionComparisonGrid()
+        {
+            if (dataGridViewFunctionComparison.Columns.Count == 0)
+            {
+                return;
+            }
+
+            dataGridViewFunctionComparison.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewFunctionComparison.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dataGridViewFunctionComparison.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+            if (dataGridViewFunctionComparison.Columns[nameof(FunctionComparisonRow.FunctionName)] is DataGridViewColumn nameColumn)
+            {
+                nameColumn.HeaderText = "Function";
+                nameColumn.FillWeight = 40;
+                nameColumn.MinimumWidth = 200;
+            }
+
+            if (dataGridViewFunctionComparison.Columns[nameof(FunctionComparisonRow.PrimaryStatus)] is DataGridViewColumn primaryColumn)
+            {
+                primaryColumn.HeaderText = "Primary";
+                primaryColumn.FillWeight = 10;
+                primaryColumn.MinimumWidth = 80;
+                primaryColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            if (dataGridViewFunctionComparison.Columns[nameof(FunctionComparisonRow.ComparisonStatus)] is DataGridViewColumn compareColumn)
+            {
+                compareColumn.HeaderText = "Comparison";
+                compareColumn.FillWeight = 10;
+                compareColumn.MinimumWidth = 100;
+                compareColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+
+            if (dataGridViewFunctionComparison.Columns[nameof(FunctionComparisonRow.Summary)] is DataGridViewColumn summaryColumn)
+            {
+                summaryColumn.HeaderText = "Difference Summary";
+                summaryColumn.FillWeight = 40;
+                summaryColumn.MinimumWidth = 200;
+            }
+
+            foreach (var name in new[]
+                     {
+                         nameof(FunctionComparisonRow.FunctionName),
+                         nameof(FunctionComparisonRow.PrimaryStatus),
+                         nameof(FunctionComparisonRow.ComparisonStatus),
+                         nameof(FunctionComparisonRow.Summary)
+                     })
+            {
+                if (dataGridViewFunctionComparison.Columns[name] is { } column)
+                {
+                    column.SortMode = DataGridViewColumnSortMode.Automatic;
+                }
+            }
+        }
+
+        private IEnumerable<TableComparisonRow> BuildTableComparisons(
+            IReadOnlyCollection<string> primaryTables,
+            IReadOnlyCollection<string> compareTables,
+            IReadOnlyDictionary<string, string> primaryDefinitions,
+            IReadOnlyDictionary<string, string> compareDefinitions)
+        {
+            var allTableNames = primaryTables
+                .Union(compareTables, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var tableName in allTableNames)
+            {
+                var inPrimary = primaryTables.Contains(tableName);
+                var inComparison = compareTables.Contains(tableName);
+
+                yield return new TableComparisonRow
+                {
+                    TableName = tableName,
+                    InPrimary = inPrimary,
+                    InComparison = inComparison,
+                    Summary = GetComparisonSummary(tableName, inPrimary, inComparison, primaryDefinitions, compareDefinitions)
+                };
+            }
+        }
+
+        private IEnumerable<ProcedureComparisonRow> BuildProcedureComparisons(
+            IReadOnlyCollection<string> primaryProcedures,
+            IReadOnlyCollection<string> compareProcedures,
+            IReadOnlyDictionary<string, string> primaryDefinitions,
+            IReadOnlyDictionary<string, string> compareDefinitions)
+        {
+            var allNames = primaryProcedures
+                .Union(compareProcedures, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var name in allNames)
+            {
+                var inPrimary = primaryProcedures.Contains(name);
+                var inComparison = compareProcedures.Contains(name);
+
+                yield return new ProcedureComparisonRow
+                {
+                    ProcedureName = name,
+                    InPrimary = inPrimary,
+                    InComparison = inComparison,
+                    Summary = GetComparisonSummary(name, inPrimary, inComparison, primaryDefinitions, compareDefinitions)
+                };
+            }
+        }
+
+        private IEnumerable<FunctionComparisonRow> BuildFunctionComparisons(
+            IReadOnlyCollection<string> primaryFunctions,
+            IReadOnlyCollection<string> compareFunctions,
+            IReadOnlyDictionary<string, string> primaryDefinitions,
+            IReadOnlyDictionary<string, string> compareDefinitions)
+        {
+            var allNames = primaryFunctions
+                .Union(compareFunctions, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var name in allNames)
+            {
+                var inPrimary = primaryFunctions.Contains(name);
+                var inComparison = compareFunctions.Contains(name);
+
+                yield return new FunctionComparisonRow
+                {
+                    FunctionName = name,
+                    InPrimary = inPrimary,
+                    InComparison = inComparison,
+                    Summary = GetComparisonSummary(name, inPrimary, inComparison, primaryDefinitions, compareDefinitions)
+                };
+            }
+        }
+
         private void ClearViewDefinitionText()
         {
             textBoxPrimaryViewDefinition.Clear();
             textBoxCompareViewDefinition.Clear();
             labelPrimaryDefinition.Text = "Primary view definition";
             labelCompareDefinition.Text = "Comparison view definition";
+        }
+
+        private void ClearTableDefinitionText()
+        {
+            textBoxPrimaryTableDefinition.Clear();
+            textBoxCompareTableDefinition.Clear();
+            labelPrimaryTableDefinition.Text = "Primary table definition";
+            labelCompareTableDefinition.Text = "Comparison table definition";
+        }
+
+        private void ClearProcedureDefinitionText()
+        {
+            textBoxPrimaryProcedureDefinition.Clear();
+            textBoxCompareProcedureDefinition.Clear();
+            labelPrimaryProcedureDefinition.Text = "Primary stored procedure definition";
+            labelCompareProcedureDefinition.Text = "Comparison stored procedure definition";
+        }
+
+        private void ClearFunctionDefinitionText()
+        {
+            textBoxPrimaryFunctionDefinition.Clear();
+            textBoxCompareFunctionDefinition.Clear();
+            labelPrimaryFunctionDefinition.Text = "Primary function definition";
+            labelCompareFunctionDefinition.Text = "Comparison function definition";
+        }
+
+        private async Task LoadTablesAsync()
+        {
+            var primaryConnection = GetSelectedConnectionString(comboBoxTablePrimaryServer, comboBoxTablePrimaryDatabase);
+            var compareConnection = GetSelectedConnectionString(comboBoxTableCompareServer, comboBoxTableCompareDatabase);
+
+            if (primaryConnection is null)
+            {
+                MessageBox.Show("Select a primary server and database.", "Table Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (compareConnection is null)
+            {
+                MessageBox.Show("Select a comparison server and database.", "Table Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            _primaryTableDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            _compareTableDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            try
+            {
+                HashSet<string> primaryTables;
+                HashSet<string> compareTables;
+
+                using (new CursorScope(Cursors.WaitCursor))
+                {
+                    var primaryTablesTask = GetTablesAsync(primaryConnection);
+                    var compareTablesTask = GetTablesAsync(compareConnection);
+                    var primaryDefinitionsTask = GetTableDefinitionsAsync(primaryConnection);
+                    var compareDefinitionsTask = GetTableDefinitionsAsync(compareConnection);
+
+                    await Task.WhenAll(primaryTablesTask, compareTablesTask, primaryDefinitionsTask, compareDefinitionsTask);
+
+                    primaryTables = await primaryTablesTask;
+                    compareTables = await compareTablesTask;
+                    _primaryTableDefinitions = await primaryDefinitionsTask;
+                    _compareTableDefinitions = await compareDefinitionsTask;
+                }
+
+                var comparisons = BuildTableComparisons(primaryTables, compareTables, _primaryTableDefinitions, _compareTableDefinitions).ToList();
+                BindTableComparison(comparisons);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load tables: {ex.Message}", "Table Explorer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task LoadProceduresAsync()
+        {
+            var primaryConnection = GetSelectedConnectionString(comboBoxProcedurePrimaryServer, comboBoxProcedurePrimaryDatabase);
+            var compareConnection = GetSelectedConnectionString(comboBoxProcedureCompareServer, comboBoxProcedureCompareDatabase);
+
+            if (primaryConnection is null)
+            {
+                MessageBox.Show("Select a primary server and database.", "Stored Procedure Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (compareConnection is null)
+            {
+                MessageBox.Show("Select a comparison server and database.", "Stored Procedure Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            _primaryProcedureDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            _compareProcedureDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            try
+            {
+                HashSet<string> primaryProcedures;
+                HashSet<string> compareProcedures;
+
+                using (new CursorScope(Cursors.WaitCursor))
+                {
+                    var primaryProceduresTask = GetStoredProceduresAsync(primaryConnection);
+                    var compareProceduresTask = GetStoredProceduresAsync(compareConnection);
+                    var primaryDefinitionsTask = GetStoredProcedureDefinitionsAsync(primaryConnection);
+                    var compareDefinitionsTask = GetStoredProcedureDefinitionsAsync(compareConnection);
+
+                    await Task.WhenAll(primaryProceduresTask, compareProceduresTask, primaryDefinitionsTask, compareDefinitionsTask);
+
+                    primaryProcedures = await primaryProceduresTask;
+                    compareProcedures = await compareProceduresTask;
+                    _primaryProcedureDefinitions = await primaryDefinitionsTask;
+                    _compareProcedureDefinitions = await compareDefinitionsTask;
+                }
+
+                var comparisons = BuildProcedureComparisons(primaryProcedures, compareProcedures, _primaryProcedureDefinitions, _compareProcedureDefinitions).ToList();
+                BindProcedureComparison(comparisons);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load stored procedures: {ex.Message}", "Stored Procedure Explorer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task LoadFunctionsAsync()
+        {
+            var primaryConnection = GetSelectedConnectionString(comboBoxFunctionPrimaryServer, comboBoxFunctionPrimaryDatabase);
+            var compareConnection = GetSelectedConnectionString(comboBoxFunctionCompareServer, comboBoxFunctionCompareDatabase);
+
+            if (primaryConnection is null)
+            {
+                MessageBox.Show("Select a primary server and database.", "Function Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (compareConnection is null)
+            {
+                MessageBox.Show("Select a comparison server and database.", "Function Explorer", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            _primaryFunctionDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            _compareFunctionDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            try
+            {
+                HashSet<string> primaryFunctions;
+                HashSet<string> compareFunctions;
+
+                using (new CursorScope(Cursors.WaitCursor))
+                {
+                    var primaryFunctionsTask = GetFunctionsAsync(primaryConnection);
+                    var compareFunctionsTask = GetFunctionsAsync(compareConnection);
+                    var primaryDefinitionsTask = GetFunctionDefinitionsAsync(primaryConnection);
+                    var compareDefinitionsTask = GetFunctionDefinitionsAsync(compareConnection);
+
+                    await Task.WhenAll(primaryFunctionsTask, compareFunctionsTask, primaryDefinitionsTask, compareDefinitionsTask);
+
+                    primaryFunctions = await primaryFunctionsTask;
+                    compareFunctions = await compareFunctionsTask;
+                    _primaryFunctionDefinitions = await primaryDefinitionsTask;
+                    _compareFunctionDefinitions = await compareDefinitionsTask;
+                }
+
+                var comparisons = BuildFunctionComparisons(primaryFunctions, compareFunctions, _primaryFunctionDefinitions, _compareFunctionDefinitions).ToList();
+                BindFunctionComparison(comparisons);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load functions: {ex.Message}", "Function Explorer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private enum DiffKind
@@ -1643,6 +2611,54 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
         private sealed record ViewComparisonRow
         {
             public string ViewName { get; init; } = string.Empty;
+            [Browsable(false)]
+            public bool InPrimary { get; init; }
+
+            [Browsable(false)]
+            public bool InComparison { get; init; }
+
+            public string PrimaryStatus => InPrimary ? "✔" : "✖";
+
+            public string ComparisonStatus => InComparison ? "✔" : "✖";
+
+            public string Summary { get; init; } = string.Empty;
+        }
+
+        private sealed record TableComparisonRow
+        {
+            public string TableName { get; init; } = string.Empty;
+            [Browsable(false)]
+            public bool InPrimary { get; init; }
+
+            [Browsable(false)]
+            public bool InComparison { get; init; }
+
+            public string PrimaryStatus => InPrimary ? "✔" : "✖";
+
+            public string ComparisonStatus => InComparison ? "✔" : "✖";
+
+            public string Summary { get; init; } = string.Empty;
+        }
+
+        private sealed record ProcedureComparisonRow
+        {
+            public string ProcedureName { get; init; } = string.Empty;
+            [Browsable(false)]
+            public bool InPrimary { get; init; }
+
+            [Browsable(false)]
+            public bool InComparison { get; init; }
+
+            public string PrimaryStatus => InPrimary ? "✔" : "✖";
+
+            public string ComparisonStatus => InComparison ? "✔" : "✖";
+
+            public string Summary { get; init; } = string.Empty;
+        }
+
+        private sealed record FunctionComparisonRow
+        {
+            public string FunctionName { get; init; } = string.Empty;
             [Browsable(false)]
             public bool InPrimary { get; init; }
 
