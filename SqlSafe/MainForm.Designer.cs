@@ -741,15 +741,6 @@ namespace SqlSafe
             this.tabPageFunctions.Text = "Functions";
             this.tabPageFunctions.UseVisualStyleBackColor = true;
             //
-            // labelFunctionsPlaceholder
-            //
-            this.labelFunctionsPlaceholder.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelFunctionsPlaceholder.Location = new System.Drawing.Point(3, 3);
-            this.labelFunctionsPlaceholder.Name = "labelFunctionsPlaceholder";
-            this.labelFunctionsPlaceholder.Size = new System.Drawing.Size(544, 336);
-            this.labelFunctionsPlaceholder.TabIndex = 0;
-            this.labelFunctionsPlaceholder.Text = "Function comparison coming soon.";
-            this.labelFunctionsPlaceholder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             //
             // tableLayoutPanelViews
             //

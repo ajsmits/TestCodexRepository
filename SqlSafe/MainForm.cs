@@ -786,7 +786,7 @@ namespace SqlSafe
                     ? compareDefinition ?? "Definition not found."
                     : "View not available in comparison selection.";
 
-                RenderDefinitionDiff(primaryText, compareText);
+                RenderDefinitionDiff(primaryText, compareText, textBoxPrimaryViewDefinition, textBoxCompareViewDefinition);
             }
             catch (Exception ex)
             {
@@ -831,7 +831,7 @@ namespace SqlSafe
                     ? compareDefinition ?? "Definition not found."
                     : "Table not available in comparison selection.";
 
-                RenderDefinitionDiff(primaryText, compareText);
+                RenderDefinitionDiff(primaryText, compareText, textBoxPrimaryTableDefinition, textBoxCompareTableDefinition);
             }
             catch (Exception ex)
             {
@@ -876,7 +876,7 @@ namespace SqlSafe
                     ? compareDefinition ?? "Definition not found."
                     : "Stored procedure not available in comparison selection.";
 
-                RenderDefinitionDiff(primaryText, compareText);
+                RenderDefinitionDiff(primaryText, compareText, textBoxPrimaryProcedureDefinition, textBoxCompareProcedureDefinition);
             }
             catch (Exception ex)
             {
@@ -921,7 +921,7 @@ namespace SqlSafe
                     ? compareDefinition ?? "Definition not found."
                     : "Function not available in comparison selection.";
 
-                RenderDefinitionDiff(primaryText, compareText);
+                RenderDefinitionDiff(primaryText, compareText, textBoxPrimaryFunctionDefinition, textBoxCompareFunctionDefinition);
             }
             catch (Exception ex)
             {
@@ -1992,12 +1992,12 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
 
         private sealed record DiffLine(string? Primary, string? Comparison, DiffKind Kind);
 
-        private void RenderDefinitionDiff(string primaryDefinition, string comparisonDefinition)
+        private void RenderDefinitionDiff(string primaryDefinition, string comparisonDefinition, RichTextBox primaryBox, RichTextBox compareBox)
         {
             var diffLines = BuildLineDiff(primaryDefinition, comparisonDefinition);
 
-            RenderDiffToBox(textBoxPrimaryViewDefinition, diffLines, isPrimary: true);
-            RenderDiffToBox(textBoxCompareViewDefinition, diffLines, isPrimary: false);
+            RenderDiffToBox(primaryBox, diffLines, isPrimary: true);
+            RenderDiffToBox(compareBox, diffLines, isPrimary: false);
         }
 
         private static List<DiffLine> BuildLineDiff(string primaryDefinition, string comparisonDefinition)
