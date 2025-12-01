@@ -71,6 +71,14 @@ namespace SqlSafe
             this.toolStripMenuItemCopyError = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemRetry = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPageViews = new System.Windows.Forms.TabPage();
+            this.tabControlObjects = new System.Windows.Forms.TabControl();
+            this.tabPageViewExplorer = new System.Windows.Forms.TabPage();
+            this.tabPageTables = new System.Windows.Forms.TabPage();
+            this.labelTablesPlaceholder = new System.Windows.Forms.Label();
+            this.tabPageStoredProcedures = new System.Windows.Forms.TabPage();
+            this.labelStoredProceduresPlaceholder = new System.Windows.Forms.Label();
+            this.tabPageFunctions = new System.Windows.Forms.TabPage();
+            this.labelFunctionsPlaceholder = new System.Windows.Forms.Label();
             this.tableLayoutPanelViews = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanelViewSelectors = new System.Windows.Forms.FlowLayoutPanel();
             this.labelPrimaryServer = new System.Windows.Forms.Label();
@@ -111,6 +119,11 @@ namespace SqlSafe
             this.flowLayoutPanelLogBottom.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).BeginInit();
             this.contextMenuLogs.SuspendLayout();
+            this.tabControlObjects.SuspendLayout();
+            this.tabPageViewExplorer.SuspendLayout();
+            this.tabPageTables.SuspendLayout();
+            this.tabPageStoredProcedures.SuspendLayout();
+            this.tabPageFunctions.SuspendLayout();
             this.tabPageViews.SuspendLayout();
             this.tableLayoutPanelViews.SuspendLayout();
             this.tableLayoutPanelViewContent.SuspendLayout();
@@ -599,14 +612,101 @@ namespace SqlSafe
             //
             // tabPageViews
             //
-            this.tabPageViews.Controls.Add(this.tableLayoutPanelViews);
+            this.tabPageViews.Controls.Add(this.tabControlObjects);
             this.tabPageViews.Location = new System.Drawing.Point(4, 24);
             this.tabPageViews.Name = "tabPageViews";
             this.tabPageViews.Padding = new System.Windows.Forms.Padding(3);
             this.tabPageViews.Size = new System.Drawing.Size(564, 376);
             this.tabPageViews.TabIndex = 2;
-            this.tabPageViews.Text = "View Explorer";
+            this.tabPageViews.Text = "Object Explorer";
             this.tabPageViews.UseVisualStyleBackColor = true;
+            //
+            // tabControlObjects
+            //
+            this.tabControlObjects.Controls.Add(this.tabPageViewExplorer);
+            this.tabControlObjects.Controls.Add(this.tabPageTables);
+            this.tabControlObjects.Controls.Add(this.tabPageStoredProcedures);
+            this.tabControlObjects.Controls.Add(this.tabPageFunctions);
+            this.tabControlObjects.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControlObjects.Location = new System.Drawing.Point(3, 3);
+            this.tabControlObjects.Name = "tabControlObjects";
+            this.tabControlObjects.SelectedIndex = 0;
+            this.tabControlObjects.Size = new System.Drawing.Size(558, 370);
+            this.tabControlObjects.TabIndex = 0;
+            //
+            // tabPageViewExplorer
+            //
+            this.tabPageViewExplorer.Controls.Add(this.tableLayoutPanelViews);
+            this.tabPageViewExplorer.Location = new System.Drawing.Point(4, 24);
+            this.tabPageViewExplorer.Name = "tabPageViewExplorer";
+            this.tabPageViewExplorer.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageViewExplorer.Size = new System.Drawing.Size(550, 342);
+            this.tabPageViewExplorer.TabIndex = 0;
+            this.tabPageViewExplorer.Text = "Views";
+            this.tabPageViewExplorer.UseVisualStyleBackColor = true;
+            //
+            // tabPageTables
+            //
+            this.tabPageTables.Controls.Add(this.labelTablesPlaceholder);
+            this.tabPageTables.Location = new System.Drawing.Point(4, 24);
+            this.tabPageTables.Name = "tabPageTables";
+            this.tabPageTables.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageTables.Size = new System.Drawing.Size(550, 342);
+            this.tabPageTables.TabIndex = 1;
+            this.tabPageTables.Text = "Tables";
+            this.tabPageTables.UseVisualStyleBackColor = true;
+            //
+            // labelTablesPlaceholder
+            //
+            this.labelTablesPlaceholder.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelTablesPlaceholder.Location = new System.Drawing.Point(3, 3);
+            this.labelTablesPlaceholder.Name = "labelTablesPlaceholder";
+            this.labelTablesPlaceholder.Size = new System.Drawing.Size(544, 336);
+            this.labelTablesPlaceholder.TabIndex = 0;
+            this.labelTablesPlaceholder.Text = "Table comparison coming soon.";
+            this.labelTablesPlaceholder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            //
+            // tabPageStoredProcedures
+            //
+            this.tabPageStoredProcedures.Controls.Add(this.labelStoredProceduresPlaceholder);
+            this.tabPageStoredProcedures.Location = new System.Drawing.Point(4, 24);
+            this.tabPageStoredProcedures.Name = "tabPageStoredProcedures";
+            this.tabPageStoredProcedures.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageStoredProcedures.Size = new System.Drawing.Size(550, 342);
+            this.tabPageStoredProcedures.TabIndex = 2;
+            this.tabPageStoredProcedures.Text = "Stored Procedures";
+            this.tabPageStoredProcedures.UseVisualStyleBackColor = true;
+            //
+            // labelStoredProceduresPlaceholder
+            //
+            this.labelStoredProceduresPlaceholder.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelStoredProceduresPlaceholder.Location = new System.Drawing.Point(3, 3);
+            this.labelStoredProceduresPlaceholder.Name = "labelStoredProceduresPlaceholder";
+            this.labelStoredProceduresPlaceholder.Size = new System.Drawing.Size(544, 336);
+            this.labelStoredProceduresPlaceholder.TabIndex = 0;
+            this.labelStoredProceduresPlaceholder.Text = "Stored procedure comparison coming soon.";
+            this.labelStoredProceduresPlaceholder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            //
+            // tabPageFunctions
+            //
+            this.tabPageFunctions.Controls.Add(this.labelFunctionsPlaceholder);
+            this.tabPageFunctions.Location = new System.Drawing.Point(4, 24);
+            this.tabPageFunctions.Name = "tabPageFunctions";
+            this.tabPageFunctions.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageFunctions.Size = new System.Drawing.Size(550, 342);
+            this.tabPageFunctions.TabIndex = 3;
+            this.tabPageFunctions.Text = "Functions";
+            this.tabPageFunctions.UseVisualStyleBackColor = true;
+            //
+            // labelFunctionsPlaceholder
+            //
+            this.labelFunctionsPlaceholder.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelFunctionsPlaceholder.Location = new System.Drawing.Point(3, 3);
+            this.labelFunctionsPlaceholder.Name = "labelFunctionsPlaceholder";
+            this.labelFunctionsPlaceholder.Size = new System.Drawing.Size(544, 336);
+            this.labelFunctionsPlaceholder.TabIndex = 0;
+            this.labelFunctionsPlaceholder.Text = "Function comparison coming soon.";
+            this.labelFunctionsPlaceholder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             //
             // tableLayoutPanelViews
             //
@@ -622,7 +722,7 @@ namespace SqlSafe
             this.tableLayoutPanelViews.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelViews.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelViews.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelViews.Size = new System.Drawing.Size(558, 370);
+            this.tableLayoutPanelViews.Size = new System.Drawing.Size(544, 336);
             this.tableLayoutPanelViews.TabIndex = 0;
             //
             // flowLayoutPanelViewSelectors
@@ -916,6 +1016,11 @@ namespace SqlSafe
             this.flowLayoutPanelLogBottom.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).EndInit();
             this.contextMenuLogs.ResumeLayout(false);
+            this.tabControlObjects.ResumeLayout(false);
+            this.tabPageViewExplorer.ResumeLayout(false);
+            this.tabPageTables.ResumeLayout(false);
+            this.tabPageStoredProcedures.ResumeLayout(false);
+            this.tabPageFunctions.ResumeLayout(false);
             this.tabPageViews.ResumeLayout(false);
             this.tableLayoutPanelViews.ResumeLayout(false);
             this.tableLayoutPanelViews.PerformLayout();
@@ -983,6 +1088,14 @@ namespace SqlSafe
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSelectServer;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDeselectServer;
         private System.Windows.Forms.TabPage tabPageViews;
+        private System.Windows.Forms.TabControl tabControlObjects;
+        private System.Windows.Forms.TabPage tabPageViewExplorer;
+        private System.Windows.Forms.TabPage tabPageTables;
+        private System.Windows.Forms.TabPage tabPageStoredProcedures;
+        private System.Windows.Forms.TabPage tabPageFunctions;
+        private System.Windows.Forms.Label labelTablesPlaceholder;
+        private System.Windows.Forms.Label labelStoredProceduresPlaceholder;
+        private System.Windows.Forms.Label labelFunctionsPlaceholder;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanelViews;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelViewSelectors;
         private System.Windows.Forms.Label labelPrimaryServer;

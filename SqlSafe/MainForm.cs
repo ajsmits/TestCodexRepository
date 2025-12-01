@@ -22,6 +22,8 @@ namespace SqlSafe
         private IReadOnlyList<SqlServerNode> _environmentServers = Array.Empty<SqlServerNode>();
         private Dictionary<string, Dictionary<string, string>> _connectionLookup = new(StringComparer.OrdinalIgnoreCase);
         private List<ViewComparisonRow> _viewComparisons = new();
+        private Dictionary<string, string> _primaryViewDefinitions = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, string> _compareViewDefinitions = new(StringComparer.OrdinalIgnoreCase);
 
         public MainForm(string companyConnectionString)
         {
@@ -54,6 +56,7 @@ namespace SqlSafe
             buttonCompareView.Click += async (_, _) => await CompareSelectedViewAsync();
             textBoxViewSearch.TextChanged += (_, _) => ApplyViewFilter();
             dataGridViewViewComparison.CellDoubleClick += async (_, _) => await CompareSelectedViewAsync();
+            dataGridViewViewComparison.CellFormatting += DataGridViewViewComparison_CellFormatting;
             Load += async (_, _) => await InitializeDataAsync();
             comboBoxEnvironment.SelectedIndex = 0;
             UpdateRunButtonState();
@@ -652,6 +655,9 @@ namespace SqlSafe
                 return;
             }
 
+            _primaryViewDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            _compareViewDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
             try
             {
                 HashSet<string> primaryViews;
@@ -659,15 +665,20 @@ namespace SqlSafe
 
                 using (new CursorScope(Cursors.WaitCursor))
                 {
-                    var primaryTask = GetViewsAsync(primaryConnection);
-                    var compareTask = GetViewsAsync(compareConnection);
+                    var primaryViewsTask = GetViewsAsync(primaryConnection);
+                    var compareViewsTask = GetViewsAsync(compareConnection);
+                    var primaryDefinitionsTask = GetViewDefinitionsAsync(primaryConnection);
+                    var compareDefinitionsTask = GetViewDefinitionsAsync(compareConnection);
 
-                    await Task.WhenAll(primaryTask, compareTask);
-                    primaryViews = await primaryTask;
-                    compareViews = await compareTask;
+                    await Task.WhenAll(primaryViewsTask, compareViewsTask, primaryDefinitionsTask, compareDefinitionsTask);
+
+                    primaryViews = await primaryViewsTask;
+                    compareViews = await compareViewsTask;
+                    _primaryViewDefinitions = await primaryDefinitionsTask;
+                    _compareViewDefinitions = await compareDefinitionsTask;
                 }
 
-                var comparisons = BuildViewComparisons(primaryViews, compareViews).ToList();
+                var comparisons = BuildViewComparisons(primaryViews, compareViews, _primaryViewDefinitions, _compareViewDefinitions).ToList();
                 BindViewComparison(comparisons);
             }
             catch (Exception ex)
@@ -702,12 +713,12 @@ namespace SqlSafe
 
             try
             {
-                var primaryDefinitionTask = selected.InPrimary && primaryConnection is not null
-                    ? GetViewDefinitionAsync(primaryConnection, selected.ViewName)
+                var primaryDefinitionTask = selected.InPrimary
+                    ? GetDefinitionWithFallbackAsync(primaryConnection, selected.ViewName, _primaryViewDefinitions)
                     : Task.FromResult<string?>(null);
 
-                var compareDefinitionTask = selected.InComparison && compareConnection is not null
-                    ? GetViewDefinitionAsync(compareConnection, selected.ViewName)
+                var compareDefinitionTask = selected.InComparison
+                    ? GetDefinitionWithFallbackAsync(compareConnection, selected.ViewName, _compareViewDefinitions)
                     : Task.FromResult<string?>(null);
 
                 var primaryDefinition = await primaryDefinitionTask.ConfigureAwait(true);
@@ -729,7 +740,11 @@ namespace SqlSafe
             }
         }
 
-        private IEnumerable<ViewComparisonRow> BuildViewComparisons(IReadOnlyCollection<string> primaryViews, IReadOnlyCollection<string> compareViews)
+        private IEnumerable<ViewComparisonRow> BuildViewComparisons(
+            IReadOnlyCollection<string> primaryViews,
+            IReadOnlyCollection<string> compareViews,
+            IReadOnlyDictionary<string, string> primaryDefinitions,
+            IReadOnlyDictionary<string, string> compareDefinitions)
         {
             var allViewNames = primaryViews
                 .Union(compareViews, StringComparer.OrdinalIgnoreCase)
@@ -737,13 +752,63 @@ namespace SqlSafe
 
             foreach (var viewName in allViewNames)
             {
+                var inPrimary = primaryViews.Contains(viewName);
+                var inComparison = compareViews.Contains(viewName);
+
                 yield return new ViewComparisonRow
                 {
                     ViewName = viewName,
-                    InPrimary = primaryViews.Contains(viewName),
-                    InComparison = compareViews.Contains(viewName)
+                    InPrimary = inPrimary,
+                    InComparison = inComparison,
+                    Summary = GetComparisonSummary(viewName, inPrimary, inComparison, primaryDefinitions, compareDefinitions)
                 };
             }
+        }
+
+        private static string GetComparisonSummary(
+            string viewName,
+            bool inPrimary,
+            bool inComparison,
+            IReadOnlyDictionary<string, string> primaryDefinitions,
+            IReadOnlyDictionary<string, string> compareDefinitions)
+        {
+            if (inPrimary && inComparison)
+            {
+                var hasPrimary = primaryDefinitions.TryGetValue(viewName, out var primaryDefinition);
+                var hasComparison = compareDefinitions.TryGetValue(viewName, out var comparisonDefinition);
+
+                if (hasPrimary && hasComparison)
+                {
+                    return string.Equals(
+                        NormalizeDefinition(primaryDefinition),
+                        NormalizeDefinition(comparisonDefinition),
+                        StringComparison.Ordinal)
+                        ? "Definitions match"
+                        : "Definitions differ";
+                }
+
+                return "Definitions unavailable";
+            }
+
+            if (inPrimary)
+            {
+                return "Only in primary";
+            }
+
+            if (inComparison)
+            {
+                return "Only in comparison";
+            }
+
+            return "Unavailable";
+        }
+
+        private static string NormalizeDefinition(string? definition)
+        {
+            return (definition ?? string.Empty)
+                .Replace("\r\n", "\n", StringComparison.Ordinal)
+                .Replace('\r', '\n')
+                .Trim();
         }
 
         private static async Task<HashSet<string>> GetViewsAsync(string connectionString)
@@ -765,6 +830,33 @@ INNER JOIN sys.schemas s ON v.schema_id = s.schema_id";
             while (await reader.ReadAsync().ConfigureAwait(false))
             {
                 results.Add(reader.GetString(reader.GetOrdinal("ViewName")));
+            }
+
+            return results;
+        }
+
+        private static async Task<Dictionary<string, string>> GetViewDefinitionsAsync(string connectionString)
+        {
+            const string sql = @"SELECT QUOTENAME(s.name) + '.' + QUOTENAME(v.name) AS ViewName, sm.[definition]
+FROM sys.views v WITH (NOLOCK)
+INNER JOIN sys.schemas s ON v.schema_id = s.schema_id
+INNER JOIN sys.sql_modules sm ON sm.object_id = v.object_id";
+
+            using var connection = new SqlConnection(connectionString);
+            using var command = new SqlCommand(sql, connection)
+            {
+                CommandType = CommandType.Text
+            };
+
+            await connection.OpenAsync().ConfigureAwait(false);
+
+            var results = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            using var reader = await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                var name = reader.GetString(reader.GetOrdinal("ViewName"));
+                var definition = reader.IsDBNull(reader.GetOrdinal("definition")) ? string.Empty : reader.GetString(reader.GetOrdinal("definition"));
+                results[name] = definition;
             }
 
             return results;
@@ -794,6 +886,24 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
             return result as string;
         }
 
+        private static async Task<string?> GetDefinitionWithFallbackAsync(
+            string? connectionString,
+            string viewName,
+            IReadOnlyDictionary<string, string> cache)
+        {
+            if (cache.TryGetValue(viewName, out var cached))
+            {
+                return cached;
+            }
+
+            if (connectionString is null)
+            {
+                return null;
+            }
+
+            return await GetViewDefinitionAsync(connectionString, viewName).ConfigureAwait(false);
+        }
+
         private void BindViewComparison(IEnumerable<ViewComparisonRow> rows)
         {
             _viewComparisons = rows.ToList();
@@ -818,21 +928,69 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
                 viewColumn.MinimumWidth = 150;
             }
 
-            if (dataGridViewViewComparison.Columns[nameof(ViewComparisonRow.InPrimary)] is DataGridViewColumn primaryColumn)
+            if (dataGridViewViewComparison.Columns[nameof(ViewComparisonRow.PrimaryStatus)] is DataGridViewColumn primaryColumn)
             {
-                primaryColumn.HeaderText = "In Primary";
+                primaryColumn.HeaderText = "Primary";
                 primaryColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 primaryColumn.FillWeight = 80;
                 primaryColumn.MinimumWidth = 80;
             }
 
-            if (dataGridViewViewComparison.Columns[nameof(ViewComparisonRow.InComparison)] is DataGridViewColumn compareColumn)
+            if (dataGridViewViewComparison.Columns[nameof(ViewComparisonRow.ComparisonStatus)] is DataGridViewColumn compareColumn)
             {
-                compareColumn.HeaderText = "In Comparison";
+                compareColumn.HeaderText = "Comparison";
                 compareColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 compareColumn.FillWeight = 100;
                 compareColumn.MinimumWidth = 100;
             }
+
+            if (dataGridViewViewComparison.Columns[nameof(ViewComparisonRow.Summary)] is DataGridViewColumn summaryColumn)
+            {
+                summaryColumn.HeaderText = "Difference summary";
+                summaryColumn.FillWeight = 140;
+                summaryColumn.MinimumWidth = 140;
+            }
+
+            var columnOrder = new[]
+            {
+                nameof(ViewComparisonRow.ViewName),
+                nameof(ViewComparisonRow.PrimaryStatus),
+                nameof(ViewComparisonRow.ComparisonStatus),
+                nameof(ViewComparisonRow.Summary)
+            };
+
+            var index = 0;
+            foreach (var name in columnOrder)
+            {
+                if (dataGridViewViewComparison.Columns[name] is { } column)
+                {
+                    column.DisplayIndex = index++;
+                }
+            }
+        }
+
+        private void DataGridViewViewComparison_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            var columnName = dataGridViewViewComparison.Columns[e.ColumnIndex].Name;
+            if (columnName is not (nameof(ViewComparisonRow.PrimaryStatus) or nameof(ViewComparisonRow.ComparisonStatus)))
+            {
+                return;
+            }
+
+            var text = e.Value as string;
+            if (string.Equals(text, "✔", StringComparison.Ordinal))
+            {
+                e.CellStyle.ForeColor = Color.ForestGreen;
+                e.Value = "✔";
+            }
+            else
+            {
+                e.CellStyle.ForeColor = Color.Firebrick;
+                e.Value = "✖";
+            }
+
+            e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            e.FormattingApplied = true;
         }
 
         private void ApplyViewFilter()
@@ -1485,8 +1643,17 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
         private sealed record ViewComparisonRow
         {
             public string ViewName { get; init; } = string.Empty;
+            [Browsable(false)]
             public bool InPrimary { get; init; }
+
+            [Browsable(false)]
             public bool InComparison { get; init; }
+
+            public string PrimaryStatus => InPrimary ? "✔" : "✖";
+
+            public string ComparisonStatus => InComparison ? "✔" : "✖";
+
+            public string Summary { get; init; } = string.Empty;
         }
 
         private sealed record DatabaseTarget(string Server, string Database, string ConnectionString, string Environment);
