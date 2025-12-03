@@ -1088,10 +1088,11 @@ INNER JOIN sys.schemas s ON t.schema_id = s.schema_id";
     FROM sys.tables t WITH (NOLOCK)
     INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
     INNER JOIN sys.columns c ON c.object_id = t.object_id
-)
-SELECT
-    TableName,
-    STRING_AGG(
+),
+ColumnDefinitions AS (
+    SELECT
+        TableName,
+        column_id,
         CAST(
             ColumnName + ' ' + DataType +
             CASE WHEN DataType IN ('varchar','nvarchar','char','nchar','varbinary')
@@ -1099,10 +1100,19 @@ SELECT
                 ELSE '' END +
             CASE WHEN is_nullable = 1 THEN ' NULL' ELSE ' NOT NULL' END
             AS nvarchar(max)
-        ),
-        CHAR(10)
-    ) WITHIN GROUP (ORDER BY column_id) AS Definition
-FROM ColumnInfo
+        ) AS ColumnDefinition
+    FROM ColumnInfo
+)
+SELECT
+    TableName,
+    STUFF((
+        SELECT CHAR(10) + ColumnDefinition
+        FROM ColumnDefinitions cd2
+        WHERE cd2.TableName = cd.TableName
+        ORDER BY cd2.column_id
+        FOR XML PATH(''), TYPE
+    ).value('.', 'nvarchar(max)'), 1, 1, '') AS Definition
+FROM ColumnDefinitions cd
 GROUP BY TableName";
 
             using var connection = new SqlConnection(connectionString);
@@ -1139,9 +1149,11 @@ GROUP BY TableName";
     INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
     INNER JOIN sys.columns c ON c.object_id = t.object_id
     WHERE QUOTENAME(s.name) + '.' + QUOTENAME(t.name) = @TableName
-)
-SELECT
-    STRING_AGG(
+),
+ColumnDefinitions AS (
+    SELECT
+        TableName,
+        column_id,
         CAST(
             ColumnName + ' ' + DataType +
             CASE WHEN DataType IN ('varchar','nvarchar','char','nchar','varbinary')
@@ -1149,10 +1161,18 @@ SELECT
                 ELSE '' END +
             CASE WHEN is_nullable = 1 THEN ' NULL' ELSE ' NOT NULL' END
             AS nvarchar(max)
-        ),
-        CHAR(10)
-    ) WITHIN GROUP (ORDER BY column_id) AS Definition
-FROM ColumnInfo";
+        ) AS ColumnDefinition
+    FROM ColumnInfo
+)
+SELECT
+    STUFF((
+        SELECT CHAR(10) + ColumnDefinition
+        FROM ColumnDefinitions cd2
+        WHERE cd2.TableName = cd.TableName
+        ORDER BY cd2.column_id
+        FOR XML PATH(''), TYPE
+    ).value('.', 'nvarchar(max)'), 1, 1, '') AS Definition
+FROM ColumnDefinitions cd";
 
             using var connection = new SqlConnection(connectionString);
             using var command = new SqlCommand(sql, connection)
