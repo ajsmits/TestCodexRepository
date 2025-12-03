@@ -33,6 +33,7 @@ namespace SqlSafe
         private List<FunctionComparisonRow> _functionComparisons = new();
         private Dictionary<string, string> _primaryFunctionDefinitions = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, string> _compareFunctionDefinitions = new(StringComparer.OrdinalIgnoreCase);
+        private List<ColumnUsageRow> _columnUsageRows = new();
 
         public MainForm(string companyConnectionString)
         {
@@ -87,6 +88,18 @@ namespace SqlSafe
             textBoxFunctionSearch.TextChanged += (_, _) => ApplyFunctionFilter();
             dataGridViewFunctionComparison.CellDoubleClick += async (_, _) => await CompareSelectedFunctionAsync();
             dataGridViewFunctionComparison.CellFormatting += DataGridViewFunctionComparison_CellFormatting;
+            comboBoxColumnUsageServer.SelectedIndexChanged += (_, _) => UpdateDatabaseCombo(comboBoxColumnUsageServer, comboBoxColumnUsageDatabase);
+            buttonLoadColumnUsage.Click += async (_, _) => await LoadColumnUsageAsync();
+            textBoxColumnUsageSearch.KeyDown += async (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    await LoadColumnUsageAsync();
+                }
+            };
+            dataGridViewColumnUsage.DataBindingComplete += DataGridViewColumnUsage_DataBindingComplete;
             Load += async (_, _) => await InitializeDataAsync();
             comboBoxEnvironment.SelectedIndex = 0;
             UpdateRunButtonState();
@@ -601,6 +614,11 @@ namespace SqlSafe
             _functionComparisons.Clear();
             dataGridViewFunctionComparison.DataSource = null;
             ClearFunctionDefinitionText();
+
+            PopulateServerCombo(comboBoxColumnUsageServer, servers.Select(s => s.ServerName));
+            UpdateDatabaseCombo(comboBoxColumnUsageServer, comboBoxColumnUsageDatabase);
+            _columnUsageRows.Clear();
+            dataGridViewColumnUsage.DataSource = null;
         }
 
         private static Dictionary<string, Dictionary<string, string>> BuildConnectionLookup(IEnumerable<SqlServerNode> servers)
@@ -2009,6 +2027,214 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
             }
         }
 
+        private async Task LoadColumnUsageAsync()
+        {
+            var connectionString = GetSelectedConnectionString(comboBoxColumnUsageServer, comboBoxColumnUsageDatabase);
+            var columnName = textBoxColumnUsageSearch.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(columnName))
+            {
+                MessageBox.Show("Enter a column name to search for.", "Column Usage", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (connectionString is null)
+            {
+                MessageBox.Show("Select a server and database.", "Column Usage", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var results = new List<ColumnUsageRow>();
+
+            const string columnUsageQuery = @"
+DECLARE @ColumnName sysname = @columnName;
+DECLARE @pattern nvarchar(max) = N'%' + @ColumnName + N'%';
+
+WITH ModuleDefs AS (
+    SELECT 
+        CASE o.type
+            WHEN 'P' THEN 'Stored Procedure'
+            WHEN 'V' THEN 'View'
+            WHEN 'FN' THEN 'Scalar Function'
+            WHEN 'IF' THEN 'Inline Table Function'
+            WHEN 'TF' THEN 'Table Function'
+            WHEN 'TR' THEN 'Trigger'
+            ELSE o.type_desc
+        END AS UsageType,
+        SCHEMA_NAME(o.schema_id) AS SchemaName,
+        o.name AS ObjectName,
+        sm.definition
+    FROM sys.sql_modules sm
+    INNER JOIN sys.objects o ON sm.object_id = o.object_id
+    WHERE sm.definition LIKE @pattern
+),
+ComputedColumns AS (
+    SELECT 'Computed Column' AS UsageType,
+           SCHEMA_NAME(t.schema_id) AS SchemaName,
+           t.name AS ObjectName,
+           cc.definition
+    FROM sys.computed_columns cc
+    INNER JOIN sys.columns c ON cc.object_id = c.object_id AND cc.column_id = c.column_id
+    INNER JOIN sys.tables t ON c.object_id = t.object_id
+    WHERE cc.definition LIKE @pattern OR c.name = @ColumnName
+),
+CheckConstraints AS (
+    SELECT 'Check Constraint' AS UsageType,
+           SCHEMA_NAME(o.schema_id) AS SchemaName,
+           o.name AS ObjectName,
+           cc.definition
+    FROM sys.check_constraints cc
+    INNER JOIN sys.objects o ON cc.parent_object_id = o.object_id
+    WHERE cc.definition LIKE @pattern
+),
+DefaultConstraints AS (
+    SELECT 'Default Constraint' AS UsageType,
+           SCHEMA_NAME(o.schema_id) AS SchemaName,
+           o.name AS ObjectName,
+           dc.definition
+    FROM sys.default_constraints dc
+    INNER JOIN sys.objects o ON dc.parent_object_id = o.object_id
+    WHERE dc.definition LIKE @pattern
+)
+SELECT 'Table Column' AS UsageType,
+       SCHEMA_NAME(t.schema_id) AS SchemaName,
+       t.name AS ObjectName,
+       c.name AS Detail,
+       CAST(NULL AS nvarchar(max)) AS Definition
+FROM sys.columns c
+INNER JOIN sys.tables t ON c.object_id = t.object_id
+WHERE c.name = @ColumnName
+UNION ALL
+SELECT 'View Column', SCHEMA_NAME(v.schema_id), v.name, c.name, CAST(NULL AS nvarchar(max))
+FROM sys.columns c
+INNER JOIN sys.views v ON c.object_id = v.object_id
+WHERE c.name = @ColumnName
+UNION ALL
+SELECT UsageType, SchemaName, ObjectName, NULL, definition FROM ModuleDefs
+UNION ALL
+SELECT UsageType, SchemaName, ObjectName, NULL, definition FROM ComputedColumns
+UNION ALL
+SELECT UsageType, SchemaName, ObjectName, NULL, definition FROM CheckConstraints
+UNION ALL
+SELECT UsageType, SchemaName, ObjectName, NULL, definition FROM DefaultConstraints
+ORDER BY UsageType, SchemaName, ObjectName;";
+
+            try
+            {
+                using (new CursorScope(Cursors.WaitCursor))
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand(columnUsageQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@columnName", columnName);
+
+                    await connection.OpenAsync();
+                    using var reader = await command.ExecuteReaderAsync();
+
+                    while (await reader.ReadAsync())
+                    {
+                        var usageType = reader.GetString(0);
+                        var schema = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                        var objectName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2);
+                        var detail = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
+                        var definition = reader.IsDBNull(4) ? null : reader.GetString(4);
+
+                        results.Add(new ColumnUsageRow
+                        {
+                            UsageType = usageType,
+                            SchemaName = schema,
+                            ObjectName = objectName,
+                            Detail = detail,
+                            DefinitionSnippet = BuildDefinitionSnippet(definition, columnName)
+                        });
+                    }
+                }
+
+                _columnUsageRows = results;
+                dataGridViewColumnUsage.DataSource = results;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to search for column usage: {ex.Message}", "Column Usage", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private static string BuildDefinitionSnippet(string? definition, string columnName)
+        {
+            if (string.IsNullOrWhiteSpace(definition))
+            {
+                return string.Empty;
+            }
+
+            var normalized = definition.Replace("\r", " ").Replace("\n", " ");
+            var index = normalized.IndexOf(columnName, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+            {
+                return normalized.Length > 200 ? normalized.Substring(0, 200) + "…" : normalized;
+            }
+
+            var start = Math.Max(0, index - 60);
+            var length = Math.Min(normalized.Length - start, 120 + columnName.Length);
+            var snippet = normalized.Substring(start, length);
+
+            if (start > 0)
+            {
+                snippet = "…" + snippet;
+            }
+
+            if (start + length < normalized.Length)
+            {
+                snippet += "…";
+            }
+
+            return snippet;
+        }
+
+        private void DataGridViewColumnUsage_DataBindingComplete(object? sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            ConfigureColumnUsageGrid();
+        }
+
+        private void ConfigureColumnUsageGrid()
+        {
+            if (dataGridViewColumnUsage.Columns.Count == 0)
+            {
+                return;
+            }
+
+            dataGridViewColumnUsage.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridViewColumnUsage.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            dataGridViewColumnUsage.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+
+            var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [nameof(ColumnUsageRow.UsageType)] = "Usage Type",
+                [nameof(ColumnUsageRow.SchemaName)] = "Schema",
+                [nameof(ColumnUsageRow.ObjectName)] = "Object",
+                [nameof(ColumnUsageRow.Detail)] = "Detail",
+                [nameof(ColumnUsageRow.DefinitionSnippet)] = "Definition Snippet"
+            };
+
+            void Configure(string name, float weight, int minWidth = 80)
+            {
+                if (dataGridViewColumnUsage.Columns[name] is not DataGridViewColumn column)
+                {
+                    return;
+                }
+
+                column.FillWeight = weight;
+                column.MinimumWidth = minWidth;
+                column.HeaderText = headers.TryGetValue(name, out var header) ? header : name;
+                column.SortMode = DataGridViewColumnSortMode.Automatic;
+            }
+
+            Configure(nameof(ColumnUsageRow.UsageType), 90, 90);
+            Configure(nameof(ColumnUsageRow.SchemaName), 80, 80);
+            Configure(nameof(ColumnUsageRow.ObjectName), 120, 120);
+            Configure(nameof(ColumnUsageRow.Detail), 80, 80);
+            Configure(nameof(ColumnUsageRow.DefinitionSnippet), 200, 180);
+        }
+
         private enum DiffKind
         {
             Unchanged,
@@ -2696,6 +2922,15 @@ WHERE QUOTENAME(s.name) + '.' + QUOTENAME(v.name) = @ViewName";
             public string ComparisonStatus => InComparison ? "✔" : "✖";
 
             public string Summary { get; init; } = string.Empty;
+        }
+
+        private sealed record ColumnUsageRow
+        {
+            public string UsageType { get; init; } = string.Empty;
+            public string SchemaName { get; init; } = string.Empty;
+            public string ObjectName { get; init; } = string.Empty;
+            public string Detail { get; init; } = string.Empty;
+            public string DefinitionSnippet { get; init; } = string.Empty;
         }
 
         private sealed record DatabaseTarget(string Server, string Database, string ConnectionString, string Environment);

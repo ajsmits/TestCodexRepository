@@ -142,6 +142,17 @@ namespace SqlSafe
             this.labelCompareFunctionDefinition = new System.Windows.Forms.Label();
             this.textBoxPrimaryFunctionDefinition = new System.Windows.Forms.RichTextBox();
             this.textBoxCompareFunctionDefinition = new System.Windows.Forms.RichTextBox();
+            this.tabPageColumnUsage = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanelColumnUsage = new System.Windows.Forms.TableLayoutPanel();
+            this.flowLayoutPanelColumnUsage = new System.Windows.Forms.FlowLayoutPanel();
+            this.labelColumnUsageServer = new System.Windows.Forms.Label();
+            this.comboBoxColumnUsageServer = new System.Windows.Forms.ComboBox();
+            this.labelColumnUsageDatabase = new System.Windows.Forms.Label();
+            this.comboBoxColumnUsageDatabase = new System.Windows.Forms.ComboBox();
+            this.labelColumnUsageName = new System.Windows.Forms.Label();
+            this.textBoxColumnUsageSearch = new System.Windows.Forms.TextBox();
+            this.buttonLoadColumnUsage = new System.Windows.Forms.Button();
+            this.dataGridViewColumnUsage = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanelViews = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanelViewSelectors = new System.Windows.Forms.FlowLayoutPanel();
             this.labelPrimaryServer = new System.Windows.Forms.Label();
@@ -182,6 +193,10 @@ namespace SqlSafe
             this.flowLayoutPanelLogBottom.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewLogs)).BeginInit();
             this.contextMenuLogs.SuspendLayout();
+            this.tabPageColumnUsage.SuspendLayout();
+            this.tableLayoutPanelColumnUsage.SuspendLayout();
+            this.flowLayoutPanelColumnUsage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewColumnUsage)).BeginInit();
             this.tabControlObjects.SuspendLayout();
             this.tabPageViewExplorer.SuspendLayout();
             this.tabPageTables.SuspendLayout();
@@ -315,6 +330,7 @@ namespace SqlSafe
             this.tabControlRight.Controls.Add(this.tabPageSql);
             this.tabControlRight.Controls.Add(this.tabPageLogs);
             this.tabControlRight.Controls.Add(this.tabPageViews);
+            this.tabControlRight.Controls.Add(this.tabPageColumnUsage);
             this.tabControlRight.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControlRight.Location = new System.Drawing.Point(0, 0);
             this.tabControlRight.Name = "tabControlRight";
@@ -672,6 +688,133 @@ namespace SqlSafe
             this.toolStripMenuItemRetry.Name = "toolStripMenuItemRetry";
             this.toolStripMenuItemRetry.Size = new System.Drawing.Size(139, 22);
             this.toolStripMenuItemRetry.Text = "Retry";
+            //
+            // tabPageColumnUsage
+            //
+            this.tabPageColumnUsage.Controls.Add(this.tableLayoutPanelColumnUsage);
+            this.tabPageColumnUsage.Location = new System.Drawing.Point(4, 24);
+            this.tabPageColumnUsage.Name = "tabPageColumnUsage";
+            this.tabPageColumnUsage.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageColumnUsage.Size = new System.Drawing.Size(564, 376);
+            this.tabPageColumnUsage.TabIndex = 3;
+            this.tabPageColumnUsage.Text = "Column Usage";
+            this.tabPageColumnUsage.UseVisualStyleBackColor = true;
+            //
+            // tableLayoutPanelColumnUsage
+            //
+            this.tableLayoutPanelColumnUsage.ColumnCount = 1;
+            this.tableLayoutPanelColumnUsage.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelColumnUsage.Controls.Add(this.flowLayoutPanelColumnUsage, 0, 0);
+            this.tableLayoutPanelColumnUsage.Controls.Add(this.dataGridViewColumnUsage, 0, 1);
+            this.tableLayoutPanelColumnUsage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelColumnUsage.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanelColumnUsage.Name = "tableLayoutPanelColumnUsage";
+            this.tableLayoutPanelColumnUsage.RowCount = 2;
+            this.tableLayoutPanelColumnUsage.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelColumnUsage.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanelColumnUsage.Size = new System.Drawing.Size(558, 370);
+            this.tableLayoutPanelColumnUsage.TabIndex = 0;
+            //
+            // flowLayoutPanelColumnUsage
+            //
+            this.flowLayoutPanelColumnUsage.AutoSize = true;
+            this.flowLayoutPanelColumnUsage.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanelColumnUsage.Controls.Add(this.labelColumnUsageServer);
+            this.flowLayoutPanelColumnUsage.Controls.Add(this.comboBoxColumnUsageServer);
+            this.flowLayoutPanelColumnUsage.Controls.Add(this.labelColumnUsageDatabase);
+            this.flowLayoutPanelColumnUsage.Controls.Add(this.comboBoxColumnUsageDatabase);
+            this.flowLayoutPanelColumnUsage.Controls.Add(this.labelColumnUsageName);
+            this.flowLayoutPanelColumnUsage.Controls.Add(this.textBoxColumnUsageSearch);
+            this.flowLayoutPanelColumnUsage.Controls.Add(this.buttonLoadColumnUsage);
+            this.flowLayoutPanelColumnUsage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelColumnUsage.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanelColumnUsage.Name = "flowLayoutPanelColumnUsage";
+            this.flowLayoutPanelColumnUsage.Padding = new System.Windows.Forms.Padding(3);
+            this.flowLayoutPanelColumnUsage.Size = new System.Drawing.Size(552, 34);
+            this.flowLayoutPanelColumnUsage.TabIndex = 0;
+            this.flowLayoutPanelColumnUsage.WrapContents = false;
+            //
+            // labelColumnUsageServer
+            //
+            this.labelColumnUsageServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelColumnUsageServer.AutoSize = true;
+            this.labelColumnUsageServer.Location = new System.Drawing.Point(6, 10);
+            this.labelColumnUsageServer.Name = "labelColumnUsageServer";
+            this.labelColumnUsageServer.Size = new System.Drawing.Size(43, 15);
+            this.labelColumnUsageServer.TabIndex = 0;
+            this.labelColumnUsageServer.Text = "Server:";
+            //
+            // comboBoxColumnUsageServer
+            //
+            this.comboBoxColumnUsageServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxColumnUsageServer.FormattingEnabled = true;
+            this.comboBoxColumnUsageServer.Location = new System.Drawing.Point(55, 6);
+            this.comboBoxColumnUsageServer.Name = "comboBoxColumnUsageServer";
+            this.comboBoxColumnUsageServer.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxColumnUsageServer.TabIndex = 1;
+            //
+            // labelColumnUsageDatabase
+            //
+            this.labelColumnUsageDatabase.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelColumnUsageDatabase.AutoSize = true;
+            this.labelColumnUsageDatabase.Location = new System.Drawing.Point(211, 10);
+            this.labelColumnUsageDatabase.Name = "labelColumnUsageDatabase";
+            this.labelColumnUsageDatabase.Size = new System.Drawing.Size(61, 15);
+            this.labelColumnUsageDatabase.TabIndex = 2;
+            this.labelColumnUsageDatabase.Text = "Database:";
+            //
+            // comboBoxColumnUsageDatabase
+            //
+            this.comboBoxColumnUsageDatabase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxColumnUsageDatabase.FormattingEnabled = true;
+            this.comboBoxColumnUsageDatabase.Location = new System.Drawing.Point(278, 6);
+            this.comboBoxColumnUsageDatabase.Name = "comboBoxColumnUsageDatabase";
+            this.comboBoxColumnUsageDatabase.Size = new System.Drawing.Size(150, 23);
+            this.comboBoxColumnUsageDatabase.TabIndex = 3;
+            //
+            // labelColumnUsageName
+            //
+            this.labelColumnUsageName.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelColumnUsageName.AutoSize = true;
+            this.labelColumnUsageName.Location = new System.Drawing.Point(434, 10);
+            this.labelColumnUsageName.Name = "labelColumnUsageName";
+            this.labelColumnUsageName.Size = new System.Drawing.Size(52, 15);
+            this.labelColumnUsageName.TabIndex = 4;
+            this.labelColumnUsageName.Text = "Column:";
+            //
+            // textBoxColumnUsageSearch
+            //
+            this.textBoxColumnUsageSearch.Location = new System.Drawing.Point(492, 6);
+            this.textBoxColumnUsageSearch.Name = "textBoxColumnUsageSearch";
+            this.textBoxColumnUsageSearch.Size = new System.Drawing.Size(180, 23);
+            this.textBoxColumnUsageSearch.TabIndex = 5;
+            //
+            // buttonLoadColumnUsage
+            //
+            this.buttonLoadColumnUsage.AutoSize = true;
+            this.buttonLoadColumnUsage.Location = new System.Drawing.Point(678, 6);
+            this.buttonLoadColumnUsage.Name = "buttonLoadColumnUsage";
+            this.buttonLoadColumnUsage.Size = new System.Drawing.Size(90, 25);
+            this.buttonLoadColumnUsage.TabIndex = 6;
+            this.buttonLoadColumnUsage.Text = "Find Usage";
+            this.buttonLoadColumnUsage.UseVisualStyleBackColor = true;
+            //
+            // dataGridViewColumnUsage
+            //
+            this.dataGridViewColumnUsage.AllowUserToAddRows = false;
+            this.dataGridViewColumnUsage.AllowUserToDeleteRows = false;
+            this.dataGridViewColumnUsage.AllowUserToResizeRows = false;
+            this.dataGridViewColumnUsage.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewColumnUsage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewColumnUsage.Location = new System.Drawing.Point(3, 43);
+            this.dataGridViewColumnUsage.MultiSelect = false;
+            this.dataGridViewColumnUsage.Name = "dataGridViewColumnUsage";
+            this.dataGridViewColumnUsage.ReadOnly = true;
+            this.dataGridViewColumnUsage.RowHeadersVisible = false;
+            this.dataGridViewColumnUsage.RowTemplate.Height = 25;
+            this.dataGridViewColumnUsage.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridViewColumnUsage.Size = new System.Drawing.Size(552, 324);
+            this.dataGridViewColumnUsage.TabIndex = 1;
             //
             // tabPageViews
             //
@@ -1871,6 +2014,12 @@ namespace SqlSafe
             this.tableLayoutPanelFunctionDefinitions.ResumeLayout(false);
             this.tableLayoutPanelFunctionDefinitions.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewFunctionComparison)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewColumnUsage)).EndInit();
+            this.tabPageColumnUsage.ResumeLayout(false);
+            this.tableLayoutPanelColumnUsage.ResumeLayout(false);
+            this.tableLayoutPanelColumnUsage.PerformLayout();
+            this.flowLayoutPanelColumnUsage.ResumeLayout(false);
+            this.flowLayoutPanelColumnUsage.PerformLayout();
             this.tabPageViews.ResumeLayout(false);
             this.tableLayoutPanelViews.ResumeLayout(false);
             this.tableLayoutPanelViews.PerformLayout();
@@ -1937,6 +2086,17 @@ namespace SqlSafe
         private System.Windows.Forms.ContextMenuStrip contextMenuTree;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSelectServer;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemDeselectServer;
+        private System.Windows.Forms.TabPage tabPageColumnUsage;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanelColumnUsage;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelColumnUsage;
+        private System.Windows.Forms.Label labelColumnUsageServer;
+        private System.Windows.Forms.ComboBox comboBoxColumnUsageServer;
+        private System.Windows.Forms.Label labelColumnUsageDatabase;
+        private System.Windows.Forms.ComboBox comboBoxColumnUsageDatabase;
+        private System.Windows.Forms.Label labelColumnUsageName;
+        private System.Windows.Forms.TextBox textBoxColumnUsageSearch;
+        private System.Windows.Forms.Button buttonLoadColumnUsage;
+        private System.Windows.Forms.DataGridView dataGridViewColumnUsage;
         private System.Windows.Forms.TabPage tabPageViews;
         private System.Windows.Forms.TabControl tabControlObjects;
         private System.Windows.Forms.TabPage tabPageViewExplorer;
