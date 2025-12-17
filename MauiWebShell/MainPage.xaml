@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiWebShell.MainPage"
+             Title="Web Shell">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Navigation Bar -->
+        <Grid Grid.Row="0" 
+              ColumnDefinitions="Auto,*,Auto,Auto,Auto" 
+              Padding="10" 
+              BackgroundColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray900}}">
+            
+            <!-- Back Button -->
+            <Button Grid.Column="0" 
+                    Text="◀" 
+                    Clicked="OnBackClicked"
+                    WidthRequest="50"
+                    Margin="0,0,5,0"/>
+            
+            <!-- URL Entry -->
+            <Entry Grid.Column="1" 
+                   x:Name="UrlEntry"
+                   Placeholder="Enter website URL..."
+                   Text="https://www.example.com"
+                   Completed="OnUrlCompleted"
+                   Margin="0,0,5,0"/>
+            
+            <!-- Go Button -->
+            <Button Grid.Column="2" 
+                    Text="Go" 
+                    Clicked="OnGoClicked"
+                    WidthRequest="60"
+                    Margin="0,0,5,0"/>
+            
+            <!-- Forward Button -->
+            <Button Grid.Column="3" 
+                    Text="▶" 
+                    Clicked="OnForwardClicked"
+                    WidthRequest="50"
+                    Margin="0,0,5,0"/>
+            
+            <!-- Refresh Button -->
+            <Button Grid.Column="4" 
+                    Text="⟳" 
+                    Clicked="OnRefreshClicked"
+                    WidthRequest="50"/>
+        </Grid>
+
+        <!-- WebView -->
+        <WebView Grid.Row="1"
+                 x:Name="WebViewControl"
+                 Source="https://www.example.com"
+                 Navigating="OnNavigating"
+                 Navigated="OnNavigated"/>
+    </Grid>
+
+</ContentPage>
